@@ -1,5 +1,6 @@
 import { useParams, Navigate, Link } from 'react-router-dom';
-import { Stethoscope, MapPin, Phone, Mail, Clock, Star, CalendarPlus } from 'lucide-react';
+import { MapPin, Phone, Mail, Clock, Star, CalendarPlus } from 'lucide-react';
+import { Logo } from '@/components/Logo';
 import { usePublicSite } from '@/hooks/useWebsite';
 
 /**
@@ -24,7 +25,7 @@ export default function PublicSitePage() {
       {/* Header */}
       <header className="sticky top-0 z-10 flex items-center justify-between gap-3 border-b bg-card/90 px-4 py-3 backdrop-blur sm:px-8">
         <div className="flex items-center gap-2 font-semibold">
-          {clinic.logoUrl ? <img src={clinic.logoUrl} alt="" className="h-7 w-7 rounded" /> : <Stethoscope className="h-6 w-6 text-primary" />}
+          {clinic.logoUrl ? <img src={clinic.logoUrl} alt="" className="h-8 w-auto rounded object-contain" /> : <Logo className="h-8" />}
           {clinic.name}
         </div>
         <Link to={bookHref} className="inline-flex items-center gap-1.5 rounded-md bg-primary px-3 py-1.5 text-sm font-medium text-primary-foreground hover:opacity-90">

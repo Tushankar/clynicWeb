@@ -1,6 +1,6 @@
 {
-  "name": "Clinic OS",
-  "short_name": "Clinic OS",
+  "name": "Clynic",
+  "short_name": "Clynic",
   "description": "Book appointments, view prescriptions and invoices, and pay — from your clinic.",
   "start_url": "/",
   "scope": "/",
@@ -9,6 +9,6 @@
   "background_color": "#f8fafc",
   "theme_color": "#15847a",
   "icons": [
-    { "src": "/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }
+    { "src": "/clynic.png", "sizes": "734x262", "type": "image/png", "purpose": "any" }
   ]
 }

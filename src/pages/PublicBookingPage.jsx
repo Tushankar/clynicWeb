@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { QRCodeSVG } from 'qrcode.react';
-import { Stethoscope, CheckCircle2, ArrowLeft, Calendar, ShieldCheck, Sparkles } from 'lucide-react';
+import { CheckCircle2, ArrowLeft, Calendar, ShieldCheck, Sparkles } from 'lucide-react';
+import { Logo } from '@/components/Logo';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -319,7 +320,7 @@ function Shell({ clinic, children }) {
     <div className="min-h-screen bg-muted/40 px-4 py-8">
       <div className="mx-auto w-full max-w-md space-y-5">
         <header className="flex items-center gap-2 text-lg font-semibold">
-          <Stethoscope className="h-6 w-6 text-primary" />
+          <Logo className="h-7" />
           {clinic?.name || 'Book an appointment'}
         </header>
         {clinic?.address && <p className="-mt-3 flex items-center gap-1 text-caption text-muted-foreground"><Calendar className="h-3 w-3" />{clinic.address}</p>}

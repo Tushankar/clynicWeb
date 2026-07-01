@@ -1,5 +1,6 @@
 import { NavLink } from 'react-router-dom';
-import { LayoutDashboard, CalendarDays, ListChecks, Users, Stethoscope, HeartPulse, MessageSquare, Receipt, CreditCard, ShieldAlert, Lock, Building2, HeartHandshake, BarChart3, Sparkles, Globe } from 'lucide-react';
+import { LayoutDashboard, CalendarDays, ListChecks, Users, HeartPulse, MessageSquare, Receipt, CreditCard, ShieldAlert, Lock, Building2, HeartHandshake, BarChart3, Sparkles, Globe } from 'lucide-react';
+import { Logo } from '@/components/Logo';
 import { cn } from '@/lib/utils';
 import { useRole } from '@/hooks/useRole';
 import { usePlan } from '@/hooks/usePlan';
@@ -32,9 +33,8 @@ export function SidebarContent({ onNavigate }) {
 
   return (
     <div className="flex h-full flex-col">
-      <div className="flex h-16 items-center gap-2 border-b px-5">
-        <Stethoscope className="h-5 w-5 text-primary" />
-        <span className="font-semibold tracking-tight">Clinic OS</span>
+      <div className="flex h-16 items-center border-b px-4">
+        <Logo className="h-8" />
       </div>
       <nav className="flex-1 space-y-1 overflow-y-auto p-3">
         {items.map((item) => {

@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { Stethoscope } from 'lucide-react';
+import { Logo } from '@/components/Logo';
 import { API_URL } from '@/lib/api/client';
 import { getSocket } from '@/hooks/useQueue';
 
@@ -70,7 +70,7 @@ export default function TvDisplayPage() {
     <div className="flex min-h-screen flex-col bg-foreground p-6 text-background sm:p-10">
       <header className="flex items-center justify-between">
         <div className="flex items-center gap-3 text-xl font-semibold sm:text-2xl">
-          <Stethoscope className="h-7 w-7 text-primary" />
+          <Logo className="h-9" />
           {clinicName || 'Clinic'}
         </div>
         <div className="tabular text-2xl font-semibold sm:text-3xl">

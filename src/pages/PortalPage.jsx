@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { Stethoscope, LogOut, CalendarDays, Pill, Receipt, FileText, ListChecks, Upload, Eye, CreditCard } from 'lucide-react';
+import { LogOut, CalendarDays, Pill, Receipt, FileText, ListChecks, Upload, Eye, CreditCard } from 'lucide-react';
+import { Logo } from '@/components/Logo';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -48,7 +49,7 @@ function PortalLogin({ slug, onLoggedIn }) {
 
   return (
     <div className="space-y-5">
-      <header className="flex items-center gap-2 text-lg font-semibold"><Stethoscope className="h-6 w-6 text-primary" /> Patient portal</header>
+      <header className="flex items-center gap-2 text-lg font-semibold"><Logo className="h-7" /> Patient portal</header>
       <Card>
         <CardContent className="space-y-4 py-6">
           {err && <p className="rounded-md bg-destructive/10 px-3 py-2 text-sm text-destructive">{err}</p>}
@@ -87,7 +88,7 @@ function PortalHome({ slug, onLogout }) {
   return (
     <div className="space-y-4">
       <header className="flex items-center justify-between">
-        <div className="flex items-center gap-2 font-semibold"><Stethoscope className="h-5 w-5 text-primary" /> {me.data?.name || 'My health'}</div>
+        <div className="flex items-center gap-2 font-semibold"><Logo className="h-6" /> {me.data?.name || 'My health'}</div>
         <Button variant="ghost" size="sm" onClick={onLogout}><LogOut className="h-4 w-4" /> Sign out</Button>
       </header>
 
