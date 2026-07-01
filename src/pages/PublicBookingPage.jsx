@@ -1,9 +1,10 @@
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { QRCodeSVG } from 'qrcode.react';
-import { Stethoscope, CheckCircle2, ArrowLeft, Calendar, ShieldCheck } from 'lucide-react';
+import { Stethoscope, CheckCircle2, ArrowLeft, Calendar, ShieldCheck, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent } from '@/components/ui/card';
 import { FormField } from '@/components/primitives';
 import { SlotPickerPublic } from '@/components/public/SlotPickerPublic';
@@ -146,6 +147,7 @@ export default function PublicBookingPage() {
             )}
           </CardContent>
         </Card>
+        {clinic?.ai && result.appointmentId && <PublicSymptomIntake slug={slug} appointmentId={result.appointmentId} />}
       </Shell>
     );
   }
@@ -236,7 +238,76 @@ export default function PublicBookingPage() {
           )}
         </CardContent>
       </Card>
+      {clinic?.ai && <PublicFaq slug={slug} />}
     </Shell>
+  );
+}
+
+// ---- Patient-facing AI (rule 2: logistics FAQ + symptom collection only) ----
+function PublicFaq({ slug }) {
+  const [q, setQ] = useState('');
+  const [answer, setAnswer] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const ask = async () => {
+    if (!q.trim()) return;
+    setLoading(true);
+    try {
+      const resp = await apiFetch(`/api/public/c/${slug}/ai/faq`, { auth: false, method: 'POST', body: { question: q.trim() } });
+      setAnswer(resp);
+    } catch (e) {
+      setAnswer({ answer: e.message });
+    } finally {
+      setLoading(false);
+    }
+  };
+  return (
+    <Card>
+      <CardContent className="space-y-3 py-4">
+        <div className="flex items-center gap-2 text-sm font-medium"><Sparkles className="h-4 w-4 text-primary" /> Ask about the clinic</div>
+        <div className="flex gap-2">
+          <Input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Fees, timings, location, services…" onKeyDown={(e) => e.key === 'Enter' && ask()} />
+          <Button onClick={ask} disabled={loading}>{loading ? '…' : 'Ask'}</Button>
+        </div>
+        {answer && (
+          <div className="space-y-2">
+            <p className="whitespace-pre-wrap rounded-md bg-muted/50 p-3 text-sm">{answer.answer}</p>
+          </div>
+        )}
+      </CardContent>
+    </Card>
+  );
+}
+
+function PublicSymptomIntake({ slug, appointmentId }) {
+  const [text, setText] = useState('');
+  const [sent, setSent] = useState(null);
+  const [busy, setBusy] = useState(false);
+  const submit = async () => {
+    if (!text.trim()) return;
+    setBusy(true);
+    try {
+      const resp = await apiFetch(`/api/public/c/${slug}/ai/symptom-intake`, { auth: false, method: 'POST', body: { appointmentId, symptomsText: text.trim() } });
+      setSent(resp.patientMessage || 'Shared with your doctor.');
+    } catch (e) {
+      setSent(e.message);
+    } finally {
+      setBusy(false);
+    }
+  };
+  return (
+    <Card>
+      <CardContent className="space-y-3 py-4">
+        <div className="flex items-center gap-2 text-sm font-medium"><Sparkles className="h-4 w-4 text-primary" /> Tell the doctor your symptoms (optional)</div>
+        {sent ? (
+          <p className="whitespace-pre-wrap rounded-md bg-success/10 p-3 text-sm text-foreground">{sent}</p>
+        ) : (
+          <>
+            <Textarea value={text} onChange={(e) => setText(e.target.value)} placeholder="Describe what you're experiencing and for how long. This is shared with your doctor — it is not medical advice." rows={3} />
+            <div className="flex justify-end"><Button size="sm" onClick={submit} disabled={busy || !text.trim()}>{busy ? 'Sharing…' : 'Share with doctor'}</Button></div>
+          </>
+        )}
+      </CardContent>
+    </Card>
   );
 }
 

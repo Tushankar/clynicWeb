@@ -2,8 +2,8 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { api } from '@/lib/api/client';
 import { collectPayment } from '@/lib/payments/razorpayCheckout';
 
-export function useInvoices(params) {
-  return useQuery({ queryKey: ['invoices', params], queryFn: () => api.get('/api/invoices', { params }) });
+export function useInvoices(params, opts = {}) {
+  return useQuery({ queryKey: ['invoices', params], queryFn: () => api.get('/api/invoices', { params }), ...opts });
 }
 export function useInvoice(id) {
   return useQuery({ queryKey: ['invoice', id], queryFn: () => api.get(`/api/invoices/${id}`), enabled: !!id });

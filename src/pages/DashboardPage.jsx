@@ -7,6 +7,8 @@ import { useMe } from '@/hooks/useMe';
 import { useBranch } from '@/context/BranchContext';
 import { useAppointments } from '@/hooks/useAppointments';
 import { useQueue } from '@/hooks/useQueue';
+import { useInvoices } from '@/hooks/useBilling';
+import { useFeature } from '@/hooks/usePlan';
 import { fmtTime, todayISODate } from '@/lib/format';
 import { BookAppointmentDialog } from '@/components/appointments/BookAppointmentDialog';
 import { WalkInDialog } from '@/components/appointments/WalkInDialog';
@@ -24,6 +26,11 @@ export default function DashboardPage() {
 
   const [bookOpen, setBookOpen] = useState(false);
   const [walkOpen, setWalkOpen] = useState(false);
+
+  // Today's collected revenue — only queried when the plan unlocks BILLING (avoids a 403 on Basic).
+  const hasBilling = useFeature('BILLING');
+  const invoices = useInvoices({ date: todayISODate() }, { enabled: hasBilling });
+  const todayRevenue = (invoices.data?.items || []).reduce((s, inv) => s + (inv.amountPaid || 0), 0);
 
   const distinctPatients = new Set(appts.map((a) => String(a.patientId))).size;
   const missed = appts.filter((a) => a.status === 'no_show').length;
@@ -61,7 +68,7 @@ export default function DashboardPage() {
         <StatCard label="Appointments" value={appts.length} icon={CalendarCheck} loading={isLoading} />
         <StatCard label="Currently waiting" value={waiting} icon={Clock3} loading={queue.isLoading} />
         <StatCard label="Missed / no-show" value={missed} icon={UserX} loading={isLoading} />
-        <StatCard label="Revenue" value="—" icon={IndianRupee} hint="Billing in Phase 3" />
+        <StatCard label="Today's revenue" value={hasBilling ? `₹${todayRevenue.toLocaleString('en-IN')}` : '—'} icon={IndianRupee} loading={hasBilling && invoices.isLoading} hint={hasBilling ? 'collected today' : 'Upgrade for billing'} />
       </div>
 
       <div>

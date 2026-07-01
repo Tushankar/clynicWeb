@@ -15,6 +15,9 @@ import { TimelineTab } from '@/components/chart/TimelineTab';
 import { PatientFormDialog } from '@/components/patients/PatientFormDialog';
 import { usePatientDetail } from '@/hooks/usePatients';
 import { usePrescriptions, useDeletePrescription, useNotes, useCreateNote, useLabs, useCreateLab, useSetLabStatus } from '@/hooks/useClinical';
+import { useGenerateVisitSummary } from '@/hooks/useAi';
+import { useFeature } from '@/hooks/usePlan';
+import { Sparkles } from 'lucide-react';
 import { useHasRole } from '@/hooks/useRole';
 import { fmtDate, fmtDateTime, ageFromDob } from '@/lib/format';
 import { toast, toastApiError } from '@/lib/toast';
@@ -168,8 +171,10 @@ function PrescriptionsTab({ patientId }) {
 
 function NotesTab({ patientId }) {
   const canManage = useHasRole('owner', 'doctor');
+  const hasAi = useFeature('AI_FEATURES');
   const { data, isLoading, isError, error, refetch } = useNotes(patientId);
   const create = useCreateNote();
+  const genSummary = useGenerateVisitSummary();
   const [content, setContent] = useState('');
   const items = data?.items || [];
 
@@ -178,12 +183,28 @@ function NotesTab({ patientId }) {
     try { await create.mutateAsync({ patientId, content }); setContent(''); toast.success('Note added'); } catch (e) { toastApiError(e); }
   };
 
+  const draftSummary = async () => {
+    try {
+      await genSummary.mutateAsync({ patientId });
+      toast.success('AI draft created — review & approve it in AI assistant');
+    } catch (e) {
+      toastApiError(e);
+    }
+  };
+
   return (
     <div className="space-y-3">
       {canManage && (
         <Card className="p-4">
           <Textarea value={content} onChange={(e) => setContent(e.target.value)} placeholder="Write a clinical note…" />
-          <div className="mt-2 flex justify-end"><Button size="sm" onClick={add} disabled={!content.trim() || create.isPending}>Add note</Button></div>
+          <div className="mt-2 flex justify-end gap-2">
+            {hasAi && (
+              <Button variant="outline" size="sm" onClick={draftSummary} disabled={genSummary.isPending} title="Generate an AI visit-summary draft for your review">
+                <Sparkles className="h-4 w-4" /> {genSummary.isPending ? 'Drafting…' : 'AI draft summary'}
+              </Button>
+            )}
+            <Button size="sm" onClick={add} disabled={!content.trim() || create.isPending}>Add note</Button>
+          </div>
         </Card>
       )}
       {isLoading ? <LoadingSkeleton lines={3} /> : isError ? <ErrorBox error={error} onRetry={refetch} /> : items.length === 0 ? (

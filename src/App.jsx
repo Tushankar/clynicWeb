@@ -16,6 +16,9 @@ import AdminPage from './pages/AdminPage';
 import BranchesPage from './pages/BranchesPage';
 import CrmPage from './pages/CrmPage';
 import AnalyticsPage from './pages/AnalyticsPage';
+import AiPage from './pages/AiPage';
+import WebsitePage from './pages/WebsitePage';
+import PublicSitePage from './pages/PublicSitePage';
 import PublicBookingPage from './pages/PublicBookingPage';
 import TvDisplayPage from './pages/TvDisplayPage';
 import PrescriptionPrintPage from './pages/PrescriptionPrintPage';
@@ -27,6 +30,7 @@ export default function App() {
       {/* Public (no app shell, no Clerk) */}
       <Route path="/sign-in/*" element={<SignInPage />} />
       <Route path="/c/:slug" element={<PublicBookingPage />} />
+      <Route path="/site/:slug" element={<PublicSitePage />} />
       <Route path="/tv/:slug" element={<TvDisplayPage />} />
       <Route path="/portal/:slug" element={<PortalPage />} />
       {/* Standalone printable (auth-gated, no shell) */}
@@ -46,6 +50,8 @@ export default function App() {
         <Route path="/branches" element={<BranchesPage />} />
         <Route path="/crm" element={<CrmPage />} />
         <Route path="/analytics" element={<AnalyticsPage />} />
+        <Route path="/ai" element={<AiPage />} />
+        <Route path="/website" element={<WebsitePage />} />
         <Route path="/admin" element={<AdminPage />} />
         <Route path="/messages" element={<MessagesPage />} />
       </Route>

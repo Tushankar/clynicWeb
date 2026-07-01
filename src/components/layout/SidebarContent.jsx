@@ -1,5 +1,5 @@
 import { NavLink } from 'react-router-dom';
-import { LayoutDashboard, CalendarDays, ListChecks, Users, Stethoscope, HeartPulse, MessageSquare, Receipt, CreditCard, ShieldAlert, Lock, Building2, HeartHandshake, BarChart3 } from 'lucide-react';
+import { LayoutDashboard, CalendarDays, ListChecks, Users, Stethoscope, HeartPulse, MessageSquare, Receipt, CreditCard, ShieldAlert, Lock, Building2, HeartHandshake, BarChart3, Sparkles, Globe } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useRole } from '@/hooks/useRole';
 import { usePlan } from '@/hooks/usePlan';
@@ -16,6 +16,8 @@ export const NAV_ITEMS = [
   { to: '/billing', label: 'Billing', icon: Receipt, roles: ['owner', 'receptionist'], feature: 'BILLING' },
   { to: '/crm', label: 'CRM', icon: HeartHandshake, roles: ['owner', 'receptionist'], feature: 'CRM' },
   { to: '/analytics', label: 'Analytics', icon: BarChart3, roles: ['owner'], feature: 'ANALYTICS' },
+  { to: '/ai', label: 'AI assistant', icon: Sparkles, roles: ['owner', 'doctor', 'receptionist'], feature: 'AI_FEATURES' },
+  { to: '/website', label: 'Website', icon: Globe, roles: ['owner'], feature: 'WEBSITE_BUILDER' },
   { to: '/messages', label: 'Messages', icon: MessageSquare, roles: ['owner', 'doctor', 'receptionist'], feature: 'INTERNAL_CHAT' },
   { to: '/branches', label: 'Branches', icon: Building2, roles: ['owner'], feature: 'MULTI_BRANCH' },
   { to: '/plan', label: 'Plan', icon: CreditCard, roles: ['owner'] },
@@ -84,7 +86,7 @@ export function SidebarContent({ onNavigate }) {
         )}
       </nav>
       <div className="border-t px-5 py-3 text-caption text-muted-foreground">
-        {role ? <span className="capitalize">{role}</span> : 'No role'} · Phase 2
+        {role ? <span className="capitalize">{role}</span> : 'No role'}
       </div>
     </div>
   );
