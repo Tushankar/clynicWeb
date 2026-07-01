@@ -1,0 +1,14 @@
+{
+  "name": "Clinic OS",
+  "short_name": "Clinic OS",
+  "description": "Book appointments, view prescriptions and invoices, and pay — from your clinic.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#f8fafc",
+  "theme_color": "#15847a",
+  "icons": [
+    { "src": "/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }
+  ]
+}
