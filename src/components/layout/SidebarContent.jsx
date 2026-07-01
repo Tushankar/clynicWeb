@@ -1,5 +1,8 @@
 import { NavLink } from 'react-router-dom';
-import { LayoutDashboard, CalendarDays, ListChecks, Users, HeartPulse, MessageSquare, Receipt, CreditCard, ShieldAlert, Lock, Building2, HeartHandshake, BarChart3, Sparkles, Globe } from 'lucide-react';
+import {
+  House, Stethoscope, CalendarCheck, ListChecks, Users, Receipt, Handshake,
+  ChartLineUp, Sparkle, Globe, ChatCircle, Buildings, CreditCard, ShieldStar, LockSimple,
+} from '@phosphor-icons/react';
 import { Logo } from '@/components/Logo';
 import { cn } from '@/lib/utils';
 import { useRole } from '@/hooks/useRole';
@@ -8,21 +11,27 @@ import { useIsSuperAdmin } from '@/hooks/useAdmin';
 
 // Nav is filtered by role (8.5) and gated by plan feature. Locked items render
 // disabled with a lock so staff can see what an upgrade unlocks (Rule 5 UI side).
+// Icons are Phosphor: they render as a light `regular` outline when inactive and a
+// solid `fill` in the brand color when active — the premium dashboard pattern (Stripe/iOS).
 export const NAV_ITEMS = [
-  { to: '/', label: 'Dashboard', icon: LayoutDashboard, roles: ['owner', 'doctor', 'receptionist'], end: true },
-  { to: '/doctor', label: 'Doctor', icon: HeartPulse, roles: ['owner', 'doctor'], feature: 'DOCTOR_DASHBOARD' },
-  { to: '/appointments', label: 'Appointments', icon: CalendarDays, roles: ['owner', 'receptionist'] },
-  { to: '/queue', label: 'Live queue', icon: ListChecks, roles: ['owner', 'doctor', 'receptionist'] },
-  { to: '/patients', label: 'Patients', icon: Users, roles: ['owner', 'doctor', 'receptionist'] },
-  { to: '/billing', label: 'Billing', icon: Receipt, roles: ['owner', 'receptionist'], feature: 'BILLING' },
-  { to: '/crm', label: 'CRM', icon: HeartHandshake, roles: ['owner', 'receptionist'], feature: 'CRM' },
-  { to: '/analytics', label: 'Analytics', icon: BarChart3, roles: ['owner'], feature: 'ANALYTICS' },
-  { to: '/ai', label: 'AI assistant', icon: Sparkles, roles: ['owner', 'doctor', 'receptionist'], feature: 'AI_FEATURES' },
-  { to: '/website', label: 'Website', icon: Globe, roles: ['owner'], feature: 'WEBSITE_BUILDER' },
-  { to: '/messages', label: 'Messages', icon: MessageSquare, roles: ['owner', 'doctor', 'receptionist'], feature: 'INTERNAL_CHAT' },
-  { to: '/branches', label: 'Branches', icon: Building2, roles: ['owner'], feature: 'MULTI_BRANCH' },
-  { to: '/plan', label: 'Plan', icon: CreditCard, roles: ['owner'] },
+  { to: '/dashboard', label: 'Dashboard', icon: House, roles: ['owner', 'doctor', 'receptionist'], end: true },
+  { to: '/dashboard/doctor', label: 'Doctor', icon: Stethoscope, roles: ['owner', 'doctor'], feature: 'DOCTOR_DASHBOARD' },
+  { to: '/dashboard/appointments', label: 'Appointments', icon: CalendarCheck, roles: ['owner', 'receptionist'] },
+  { to: '/dashboard/queue', label: 'Live queue', icon: ListChecks, roles: ['owner', 'doctor', 'receptionist'] },
+  { to: '/dashboard/patients', label: 'Patients', icon: Users, roles: ['owner', 'doctor', 'receptionist'] },
+  { to: '/dashboard/billing', label: 'Billing', icon: Receipt, roles: ['owner', 'receptionist'], feature: 'BILLING' },
+  { to: '/dashboard/crm', label: 'CRM', icon: Handshake, roles: ['owner', 'receptionist'], feature: 'CRM' },
+  { to: '/dashboard/analytics', label: 'Analytics', icon: ChartLineUp, roles: ['owner'], feature: 'ANALYTICS' },
+  { to: '/dashboard/ai', label: 'AI assistant', icon: Sparkle, roles: ['owner', 'doctor', 'receptionist'], feature: 'AI_FEATURES' },
+  { to: '/dashboard/website', label: 'Website', icon: Globe, roles: ['owner'], feature: 'WEBSITE_LIVE' },
+  { to: '/dashboard/messages', label: 'Messages', icon: ChatCircle, roles: ['owner', 'doctor', 'receptionist'], feature: 'INTERNAL_CHAT' },
+  { to: '/dashboard/branches', label: 'Branches', icon: Buildings, roles: ['owner'], feature: 'MULTI_BRANCH' },
+  { to: '/dashboard/plan', label: 'Plan', icon: CreditCard, roles: ['owner'] },
 ];
+
+const ITEM_BASE = 'flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition-colors';
+const linkClass = ({ isActive }) =>
+  cn(ITEM_BASE, isActive ? 'bg-accent font-medium text-accent-foreground' : 'text-muted-foreground hover:bg-muted hover:text-foreground');
 
 export function SidebarContent({ onNavigate }) {
   const { role } = useRole();
@@ -36,7 +45,7 @@ export function SidebarContent({ onNavigate }) {
       <div className="flex h-16 items-center border-b px-4">
         <Logo className="h-8" />
       </div>
-      <nav className="flex-1 space-y-1 overflow-y-auto p-3">
+      <nav className="flex-1 space-y-0.5 overflow-y-auto p-3">
         {items.map((item) => {
           // While the plan is loading, don't flash entitled items as locked.
           const locked = !planLoading && item.feature && !features[item.feature];
@@ -46,42 +55,33 @@ export function SidebarContent({ onNavigate }) {
                 key={item.to}
                 aria-disabled="true"
                 title="Upgrade to unlock"
-                className="flex cursor-not-allowed items-center gap-3 rounded-md px-3 py-2 text-sm text-muted-foreground/60"
+                className={cn(ITEM_BASE, 'cursor-not-allowed text-muted-foreground/60')}
               >
-                <item.icon className="h-4 w-4 shrink-0" />
+                <item.icon weight="regular" className="h-[18px] w-[18px] shrink-0" />
                 {item.label}
-                <Lock className="ml-auto h-3.5 w-3.5" />
+                <LockSimple weight="fill" className="ml-auto h-3.5 w-3.5" />
               </div>
             );
           }
           return (
-            <NavLink
-              key={item.to}
-              to={item.to}
-              end={item.end}
-              onClick={onNavigate}
-              className={({ isActive }) =>
-                cn(
-                  'flex items-center gap-3 rounded-md px-3 py-2 text-sm transition-colors',
-                  isActive ? 'bg-accent font-medium text-accent-foreground' : 'text-muted-foreground hover:bg-muted hover:text-foreground'
-                )
-              }
-            >
-              <item.icon className="h-4 w-4 shrink-0" />
-              {item.label}
+            <NavLink key={item.to} to={item.to} end={item.end} onClick={onNavigate} className={linkClass}>
+              {({ isActive }) => (
+                <>
+                  <item.icon weight={isActive ? 'fill' : 'regular'} className="h-[18px] w-[18px] shrink-0" />
+                  {item.label}
+                </>
+              )}
             </NavLink>
           );
         })}
         {isSuperAdmin && (
-          <NavLink
-            to="/admin"
-            onClick={onNavigate}
-            className={({ isActive }) =>
-              cn('flex items-center gap-3 rounded-md px-3 py-2 text-sm transition-colors', isActive ? 'bg-accent font-medium text-accent-foreground' : 'text-muted-foreground hover:bg-muted hover:text-foreground')
-            }
-          >
-            <ShieldAlert className="h-4 w-4 shrink-0" />
-            Platform
+          <NavLink to="/dashboard/admin" onClick={onNavigate} className={linkClass}>
+            {({ isActive }) => (
+              <>
+                <ShieldStar weight={isActive ? 'fill' : 'regular'} className="h-[18px] w-[18px] shrink-0" />
+                Platform
+              </>
+            )}
           </NavLink>
         )}
       </nav>

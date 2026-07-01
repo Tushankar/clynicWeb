@@ -88,9 +88,9 @@
   body {
     background-color: hsl(var(--background));
     color: hsl(var(--foreground));
-    font-feature-settings: 'cv11', 'ss01';
     font-variation-settings: normal;
     -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
   /* Number/token displays use tabular figures so they don't jitter as they update. */
   .tabular {

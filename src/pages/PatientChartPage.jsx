@@ -39,7 +39,7 @@ export default function PatientChartPage() {
         description={patient ? `${patient.patientCode}${ageFromDob(patient.dob) != null ? ` · ${ageFromDob(patient.dob)}y` : ''} · ${patient.phone || 'no phone'}` : ''}
         actions={
           <>
-            <Button variant="outline" onClick={() => navigate('/patients')}><ArrowLeft className="h-4 w-4" /> Patients</Button>
+            <Button variant="outline" onClick={() => navigate('/dashboard/patients')}><ArrowLeft className="h-4 w-4" /> Patients</Button>
             {patient && <Button variant="outline" onClick={() => setEditOpen(true)}><Pencil className="h-4 w-4" /> Edit</Button>}
           </>
         }

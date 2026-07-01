@@ -5,9 +5,10 @@ import { QueryClientProvider } from '@tanstack/react-query';
 import { BrowserRouter } from 'react-router-dom';
 import { Toaster } from 'sonner';
 
-import '@fontsource/inter/400.css';
-import '@fontsource/inter/500.css';
-import '@fontsource/inter/600.css';
+// UI font: General Sans (self-hosted, Fontshare) — premium geometric sans, app-wide via fontFamily.sans
+import './fonts.css';
+// Data font: JetBrains Mono (variable) — codes, tokens, IDs (Tailwind font-mono)
+import '@fontsource-variable/jetbrains-mono';
 import './index.css';
 
 import App from './App';

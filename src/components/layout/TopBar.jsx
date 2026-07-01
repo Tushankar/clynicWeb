@@ -18,9 +18,9 @@ export function TopBar({ onMenu }) {
         </Button>
         <OrganizationSwitcher
           hidePersonal
-          afterSelectOrganizationUrl="/"
-          afterCreateOrganizationUrl="/"
-          afterLeaveOrganizationUrl="/"
+          afterSelectOrganizationUrl="/dashboard"
+          afterCreateOrganizationUrl="/dashboard"
+          afterLeaveOrganizationUrl="/dashboard"
           appearance={{ elements: { rootBox: 'flex items-center' } }}
         />
         <BranchSwitcher />

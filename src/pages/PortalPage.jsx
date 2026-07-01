@@ -212,11 +212,11 @@ function QueueTab() {
     <div className="space-y-3">
       <Card className="p-4 text-center">
         <div className="text-caption uppercase tracking-wide text-muted-foreground">Now serving</div>
-        <div className="text-4xl font-bold tabular text-primary">{snap.nowServing?.[0]?.token ?? '—'}</div>
+        <div className="text-4xl font-bold font-mono text-primary">{snap.nowServing?.[0]?.token ?? '—'}</div>
       </Card>
       <Card className="p-3">
         <div className="mb-1 flex items-center gap-2 text-sm font-medium"><ListChecks className="h-4 w-4" /> Waiting ({snap.waiting?.length || 0})</div>
-        {(snap.waiting || []).slice(0, 8).map((w) => <div key={w.id} className="flex justify-between py-1 text-sm"><span className="tabular">{w.token}</span><span className="text-muted-foreground">~{w.waitMinutes}m</span></div>)}
+        {(snap.waiting || []).slice(0, 8).map((w) => <div key={w.id} className="flex justify-between py-1 text-sm"><span className="font-mono">{w.token}</span><span className="text-muted-foreground">~{w.waitMinutes}m</span></div>)}
       </Card>
     </div>
   );

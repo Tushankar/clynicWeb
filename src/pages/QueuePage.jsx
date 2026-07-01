@@ -82,7 +82,7 @@ export default function QueuePage() {
                 {snap.nowServing.map((e) => (
                   <Card key={e.id || e.token} className="flex items-center justify-between gap-3 p-4">
                     <div className="flex items-center gap-3">
-                      <span className="flex h-12 w-14 items-center justify-center rounded-lg bg-primary/10 text-xl font-semibold tabular text-primary">
+                      <span className="flex h-12 w-14 items-center justify-center rounded-lg bg-primary/10 text-xl font-semibold font-mono text-primary">
                         {e.token}
                       </span>
                       <div>
@@ -114,7 +114,7 @@ export default function QueuePage() {
                   <li key={e.id} className="flex items-center justify-between gap-3 rounded-lg border bg-card px-4 py-3">
                     <div className="flex items-center gap-3">
                       <span className="w-6 text-center text-sm text-muted-foreground tabular">{i + 1}</span>
-                      <span className="flex h-9 w-12 items-center justify-center rounded-md bg-muted text-sm font-semibold tabular">{e.token}</span>
+                      <span className="flex h-9 w-12 items-center justify-center rounded-md bg-muted text-sm font-semibold font-mono">{e.token}</span>
                       <div>
                         <div className="text-sm font-medium">{e.name}</div>
                         <div className="text-caption text-muted-foreground">~{e.waitMinutes} min · {e.doctorName || '—'}</div>

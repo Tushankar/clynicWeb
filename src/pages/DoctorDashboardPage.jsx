@@ -46,7 +46,7 @@ function DoctorDashboardInner() {
       header: '',
       align: 'right',
       render: (a) => (
-        <Button variant="ghost" size="sm" onClick={() => navigate(`/patients/${a.patientId}`)}>
+        <Button variant="ghost" size="sm" onClick={() => navigate(`/dashboard/patients/${a.patientId}`)}>
           Open <ArrowRight className="h-4 w-4" />
         </Button>
       ),
@@ -75,7 +75,7 @@ function DoctorDashboardInner() {
           </div>
           {serving ? (
             <div className="mt-2 flex items-baseline gap-3">
-              <span className="text-4xl font-semibold tabular text-primary">{serving.token}</span>
+              <span className="text-4xl font-semibold font-mono text-primary">{serving.token}</span>
               <span className="truncate text-lg font-medium">{serving.name}</span>
             </div>
           ) : (

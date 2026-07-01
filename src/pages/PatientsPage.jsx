@@ -41,7 +41,7 @@ export default function PatientsPage() {
         isError={isError}
         error={error}
         onRetry={refetch}
-        onRowClick={(p) => navigate(`/patients/${p._id}`)}
+        onRowClick={(p) => navigate(`/dashboard/patients/${p._id}`)}
         search={{ value: search, onChange: setSearch, placeholder: 'Search by name, phone, or code…' }}
         empty={{
           icon: Users,

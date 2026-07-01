@@ -19,6 +19,7 @@ import AnalyticsPage from './pages/AnalyticsPage';
 import AiPage from './pages/AiPage';
 import WebsitePage from './pages/WebsitePage';
 import PublicSitePage from './pages/PublicSitePage';
+import PublicCustomPage from './pages/PublicCustomPage';
 import PublicBookingPage from './pages/PublicBookingPage';
 import TvDisplayPage from './pages/TvDisplayPage';
 import PrescriptionPrintPage from './pages/PrescriptionPrintPage';
@@ -29,31 +30,36 @@ export default function App() {
     <Routes>
       {/* Public (no app shell, no Clerk) */}
       <Route path="/sign-in/*" element={<SignInPage />} />
-      <Route path="/c/:slug" element={<PublicBookingPage />} />
-      <Route path="/site/:slug" element={<PublicSitePage />} />
+      {/* Platform root = the flagship clinic's public website (§5.19). PublicSitePage falls
+          back to VITE_MAIN_SITE_SLUG when no :slug param is present. */}
+      <Route path="/" element={<PublicSitePage />} />
+      {/* Every other clinic's website (§8.6): /c/:slug is the site; booking + pages beneath it */}
+      <Route path="/c/:slug" element={<PublicSitePage />} />
+      <Route path="/c/:slug/book" element={<PublicBookingPage />} />
+      <Route path="/c/:slug/p/:pageSlug" element={<PublicCustomPage />} />
       <Route path="/tv/:slug" element={<TvDisplayPage />} />
       <Route path="/portal/:slug" element={<PortalPage />} />
       {/* Standalone printable (auth-gated, no shell) */}
       <Route path="/rx/:id" element={<RequireAuth><PrescriptionPrintPage /></RequireAuth>} />
       <Route path="/invoice/:id" element={<RequireAuth><InvoicePrintPage /></RequireAuth>} />
 
-      {/* Authenticated staff area (Clerk-gated, inside the app shell) */}
-      <Route element={<AppLayout />}>
-        <Route path="/" element={<DashboardPage />} />
-        <Route path="/doctor" element={<DoctorDashboardPage />} />
-        <Route path="/patients" element={<PatientsPage />} />
-        <Route path="/patients/:id" element={<PatientChartPage />} />
-        <Route path="/appointments" element={<AppointmentsPage />} />
-        <Route path="/queue" element={<QueuePage />} />
-        <Route path="/billing" element={<BillingPage />} />
-        <Route path="/plan" element={<PlanPage />} />
-        <Route path="/branches" element={<BranchesPage />} />
-        <Route path="/crm" element={<CrmPage />} />
-        <Route path="/analytics" element={<AnalyticsPage />} />
-        <Route path="/ai" element={<AiPage />} />
-        <Route path="/website" element={<WebsitePage />} />
-        <Route path="/admin" element={<AdminPage />} />
-        <Route path="/messages" element={<MessagesPage />} />
+      {/* Authenticated staff area (Clerk-gated, inside the app shell) — lives under /dashboard */}
+      <Route path="/dashboard" element={<AppLayout />}>
+        <Route index element={<DashboardPage />} />
+        <Route path="doctor" element={<DoctorDashboardPage />} />
+        <Route path="patients" element={<PatientsPage />} />
+        <Route path="patients/:id" element={<PatientChartPage />} />
+        <Route path="appointments" element={<AppointmentsPage />} />
+        <Route path="queue" element={<QueuePage />} />
+        <Route path="billing" element={<BillingPage />} />
+        <Route path="plan" element={<PlanPage />} />
+        <Route path="branches" element={<BranchesPage />} />
+        <Route path="crm" element={<CrmPage />} />
+        <Route path="analytics" element={<AnalyticsPage />} />
+        <Route path="ai" element={<AiPage />} />
+        <Route path="website" element={<WebsitePage />} />
+        <Route path="admin" element={<AdminPage />} />
+        <Route path="messages" element={<MessagesPage />} />
       </Route>
 
       <Route path="*" element={<Navigate to="/" replace />} />

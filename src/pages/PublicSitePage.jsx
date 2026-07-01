@@ -10,7 +10,9 @@ import { getTemplate } from '@/components/site/registry';
  * so every template themes itself from the clinic's palette. Graceful fallback if unavailable.
  */
 export default function PublicSitePage() {
-  const { slug } = useParams();
+  const { slug: slugParam } = useParams();
+  // At the platform root ("/") there is no :slug — serve the flagship clinic's site.
+  const slug = slugParam || import.meta.env.VITE_MAIN_SITE_SLUG || 'clynic';
   const { data, isLoading, isError } = useSite(slug);
   const site = data?.available ? data.site : null;
 
@@ -35,10 +37,22 @@ export default function PublicSitePage() {
     );
   }
 
+  // Defense-in-depth: strip any empty/invalid image URLs so no template can render a broken <img>
+  // (the API already filters, but templates shouldn't depend on upstream).
+  const ok = (u) => typeof u === 'string' && /^https?:\/\//i.test(u.trim());
+  const safe = {
+    ...site,
+    theme: { ...site.theme, logoUrl: ok(site.theme.logoUrl) ? site.theme.logoUrl : '' },
+    content: {
+      ...site.content,
+      hero: { ...site.content.hero, imageUrl: ok(site.content.hero.imageUrl) ? site.content.hero.imageUrl : '' },
+      gallery: (site.content.gallery || []).filter(ok),
+    },
+  };
   const Template = getTemplate(site.template);
   return (
     <div style={{ '--site-primary': site.theme.primaryColor, '--site-accent': site.theme.accentColor }}>
-      <Template site={site} slug={slug} />
+      <Template site={safe} slug={slug} />
     </div>
   );
 }

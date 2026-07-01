@@ -95,7 +95,7 @@ export default function TvDisplayPage() {
               <div className="mt-4 grid flex-1 content-start gap-5 sm:grid-cols-2">
                 {serving.map((e) => (
                   <div key={e.id || e.token} className="rounded-2xl border border-primary/40 bg-primary/10 p-6 text-center">
-                    <div className="text-7xl font-bold tabular text-primary sm:text-8xl">{e.token}</div>
+                    <div className="text-7xl font-bold font-mono text-primary sm:text-8xl">{e.token}</div>
                     <div className="mt-2 truncate text-2xl font-medium">{e.name}</div>
                     <div className="text-lg text-background/60">{e.doctorName || ''}</div>
                   </div>
@@ -115,7 +115,7 @@ export default function TvDisplayPage() {
               <ul className="mt-4 space-y-3">
                 {waiting.slice(0, 8).map((e) => (
                   <li key={e.id} className="flex items-center gap-4 rounded-xl border border-background/15 px-4 py-3">
-                    <span className="flex h-12 w-16 items-center justify-center rounded-lg bg-background/10 text-2xl font-semibold tabular">
+                    <span className="flex h-12 w-16 items-center justify-center rounded-lg bg-background/10 text-2xl font-semibold font-mono">
                       {e.token}
                     </span>
                     <span className="truncate text-xl">{e.name}</span>

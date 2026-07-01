@@ -10,7 +10,12 @@ export default {
     },
     extend: {
       fontFamily: {
-        sans: ['Inter', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+        // UI font — General Sans (premium geometric sans, Roobert-class; self-hosted from
+        // Fontshare). Applied app-wide via Tailwind Preflight (html inherits fontFamily.sans).
+        sans: ['General Sans', 'ui-sans-serif', 'system-ui', '-apple-system', 'Segoe UI', 'Roboto', 'sans-serif'],
+        // Data font — JetBrains Mono (variable). Every `font-mono` element (invoice numbers,
+        // patient codes, queue tokens, IDs) renders in this automatically.
+        mono: ['JetBrains Mono Variable', 'ui-monospace', 'SFMono-Regular', 'Menlo', 'Consolas', 'monospace'],
       },
       colors: {
         // `<alpha-value>` form enables opacity modifiers (bg-primary/10, text-success/80, …).

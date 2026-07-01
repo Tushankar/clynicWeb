@@ -27,7 +27,7 @@ export function GlobalSearch() {
   const show = open && debounced.trim().length >= 2;
 
   const goPatient = (id) => {
-    navigate(`/patients/${id}`);
+    navigate(`/dashboard/patients/${id}`);
     setOpen(false);
     setQ('');
   };
