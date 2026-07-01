@@ -131,8 +131,14 @@ function WebsiteInner() {
   );
 }
 
+let rowKeySeq = 0;
+const nextRowKey = () => `row-${(rowKeySeq += 1)}`;
+
 function ListEditor({ title, items, onChange, blank, render }) {
-  const add = () => onChange([...(items || []), { ...blank }]);
+  // New rows get a stable client key so React never remounts inputs on add/remove (the key is
+  // client-only; the server sanitizer drops unknown fields on save). Server-loaded rows keep a
+  // stable order, so index is a safe fallback for them.
+  const add = () => onChange([...(items || []), { ...blank, _key: nextRowKey() }]);
   const upd = (i, patch) => onChange(items.map((it, idx) => (idx === i ? { ...it, ...patch } : it)));
   const remove = (i) => onChange(items.filter((_, idx) => idx !== i));
   return (
@@ -144,7 +150,7 @@ function ListEditor({ title, items, onChange, blank, render }) {
       {(!items || items.length === 0) && <p className="text-sm text-muted-foreground">None yet.</p>}
       <div className="space-y-2">
         {(items || []).map((item, i) => (
-          <div key={i} className="flex items-center gap-2">
+          <div key={item._key || `idx-${i}`} className="flex items-center gap-2">
             <div className="grid flex-1 gap-2 sm:grid-cols-2">{render(item, (patch) => upd(i, patch))}</div>
             <Button variant="ghost" size="icon" onClick={() => remove(i)} aria-label="Remove"><Trash2 className="h-4 w-4 text-destructive" /></Button>
           </div>

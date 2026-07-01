@@ -138,9 +138,11 @@ function AskFaq() {
         <Button type="submit" disabled={faq.isPending}>Ask</Button>
       </form>
       {faq.isPending && <LoadingSkeleton lines={2} />}
+      {faq.isError && <p className="rounded-md bg-destructive/10 px-3 py-2 text-sm text-destructive">{faq.error?.message || 'Could not get an answer. Try again.'}</p>}
       {faq.data && (
         <Card className="space-y-3 p-4">
           <p className="whitespace-pre-wrap text-sm">{faq.data.answer}</p>
+          <AiDisclaimer text={faq.data.disclaimer} />
         </Card>
       )}
       <p className="text-xs text-muted-foreground">This is the same assistant patients can use on your booking page — it only shares clinic information and never gives medical advice.</p>

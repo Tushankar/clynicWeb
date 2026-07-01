@@ -2,7 +2,10 @@
 // Attaches the Clerk session token to every request and centralizes errors.
 // All calls go through apiFetch — never call fetch() directly elsewhere.
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:4000';
+// API base URL: VITE_API_BASE_URL preferred (VITE_API_URL kept for back-compat).
+const API_URL = import.meta.env.VITE_API_BASE_URL || import.meta.env.VITE_API_URL || 'http://localhost:5000';
+// Socket.IO endpoint (live queue). Defaults to the API origin unless VITE_SOCKET_URL is set.
+const SOCKET_URL = import.meta.env.VITE_SOCKET_URL || API_URL;
 
 // The Clerk session token is only available via the useAuth() hook, so a small
 // bridge component (ApiTokenBridge) registers a getter here at app start.
@@ -89,4 +92,4 @@ export const api = {
   del: (path, opts) => apiFetch(path, { ...opts, method: 'DELETE' }),
 };
 
-export { API_URL };
+export { API_URL, SOCKET_URL };

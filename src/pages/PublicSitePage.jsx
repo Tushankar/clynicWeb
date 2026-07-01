@@ -108,9 +108,9 @@ export default function PublicSitePage() {
               {(c.contact?.phone || clinic.phone) && <li className="flex items-center gap-2"><Phone className="h-4 w-4 text-muted-foreground" /> {c.contact?.phone || clinic.phone}</li>}
               {c.contact?.email && <li className="flex items-center gap-2"><Mail className="h-4 w-4 text-muted-foreground" /> {c.contact.email}</li>}
             </ul>
-            {c.contact?.mapUrl && (
+            {/^https:\/\//i.test(c.contact?.mapUrl || '') && (
               <div className="overflow-hidden rounded-lg border">
-                <iframe title="map" src={c.contact.mapUrl} className="h-56 w-full" loading="lazy" referrerPolicy="no-referrer-when-downgrade" />
+                <iframe title="map" src={c.contact.mapUrl} className="h-56 w-full" loading="lazy" referrerPolicy="no-referrer-when-downgrade" sandbox="allow-scripts allow-same-origin allow-popups" />
               </div>
             )}
           </div>

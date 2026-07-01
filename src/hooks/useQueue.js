@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { io } from 'socket.io-client';
-import { api, API_URL, getAuthToken } from '@/lib/api/client';
+import { api, SOCKET_URL, getAuthToken } from '@/lib/api/client';
 
 // One shared socket connection for the whole app. The Clerk token is sent in the
 // handshake so the server can scope staff notif/chat rooms to the verified identity
@@ -9,7 +9,7 @@ import { api, API_URL, getAuthToken } from '@/lib/api/client';
 let socket = null;
 export function getSocket() {
   if (!socket) {
-    socket = io(API_URL, {
+    socket = io(SOCKET_URL, {
       transports: ['websocket'],
       autoConnect: true,
       auth: (cb) => getAuthToken().then((token) => cb({ token })).catch(() => cb({})),

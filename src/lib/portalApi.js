@@ -1,5 +1,5 @@
 // Patient-portal API client. Uses a patient session token (localStorage), NOT Clerk.
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:4000';
+const API_URL = import.meta.env.VITE_API_BASE_URL || import.meta.env.VITE_API_URL || 'http://localhost:5000';
 const KEY = 'clinic_portal_token';
 
 export const getPortalToken = () => localStorage.getItem(KEY);

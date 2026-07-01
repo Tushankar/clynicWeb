@@ -253,9 +253,9 @@ function PublicFaq({ slug }) {
     setLoading(true);
     try {
       const resp = await apiFetch(`/api/public/c/${slug}/ai/faq`, { auth: false, method: 'POST', body: { question: q.trim() } });
-      setAnswer(resp);
+      setAnswer({ ok: true, ...resp });
     } catch (e) {
-      setAnswer({ answer: e.message });
+      setAnswer({ ok: false, message: e.message });
     } finally {
       setLoading(false);
     }
@@ -268,9 +268,12 @@ function PublicFaq({ slug }) {
           <Input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Fees, timings, location, services…" onKeyDown={(e) => e.key === 'Enter' && ask()} />
           <Button onClick={ask} disabled={loading}>{loading ? '…' : 'Ask'}</Button>
         </div>
-        {answer && (
+        {answer && !answer.ok && <p className="rounded-md bg-destructive/10 px-3 py-2 text-sm text-destructive">{answer.message}</p>}
+        {answer && answer.ok && (
           <div className="space-y-2">
             <p className="whitespace-pre-wrap rounded-md bg-muted/50 p-3 text-sm">{answer.answer}</p>
+            {/* Rule 2: every AI reply carries a not-medical-advice disclaimer. */}
+            {answer.disclaimer && <p className="text-caption text-muted-foreground">{answer.disclaimer}</p>}
           </div>
         )}
       </CardContent>
@@ -287,9 +290,9 @@ function PublicSymptomIntake({ slug, appointmentId }) {
     setBusy(true);
     try {
       const resp = await apiFetch(`/api/public/c/${slug}/ai/symptom-intake`, { auth: false, method: 'POST', body: { appointmentId, symptomsText: text.trim() } });
-      setSent(resp.patientMessage || 'Shared with your doctor.');
+      setSent({ ok: true, msg: resp.patientMessage || 'Shared with your doctor.' });
     } catch (e) {
-      setSent(e.message);
+      setSent({ ok: false, msg: e.message });
     } finally {
       setBusy(false);
     }
@@ -299,7 +302,7 @@ function PublicSymptomIntake({ slug, appointmentId }) {
       <CardContent className="space-y-3 py-4">
         <div className="flex items-center gap-2 text-sm font-medium"><Sparkles className="h-4 w-4 text-primary" /> Tell the doctor your symptoms (optional)</div>
         {sent ? (
-          <p className="whitespace-pre-wrap rounded-md bg-success/10 p-3 text-sm text-foreground">{sent}</p>
+          <p className={cn('whitespace-pre-wrap rounded-md p-3 text-sm', sent.ok ? 'bg-success/10 text-foreground' : 'bg-destructive/10 text-destructive')}>{sent.msg}</p>
         ) : (
           <>
             <Textarea value={text} onChange={(e) => setText(e.target.value)} placeholder="Describe what you're experiencing and for how long. This is shared with your doctor — it is not medical advice." rows={3} />
