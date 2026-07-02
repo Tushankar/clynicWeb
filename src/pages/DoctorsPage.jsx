@@ -1,5 +1,5 @@
 import { Stethoscope } from '@phosphor-icons/react';
-import { PageHeader, DataTable } from '@/components/primitives';
+import { PageHeader, DataTable, Avatar } from '@/components/primitives';
 import { cn } from '@/lib/utils';
 import { useDoctors } from '@/hooks/useDoctors';
 
@@ -8,7 +8,12 @@ export default function DoctorsPage() {
   const doctors = data?.items || [];
 
   const columns = [
-    { key: 'name', header: 'Doctor', render: (d) => <span className="font-medium">{d.name}</span> },
+    { key: 'name', header: 'Doctor', render: (d) => (
+      <span className="flex items-center gap-3">
+        <Avatar name={d.name} />
+        <span className="font-semibold text-foreground">{d.name}</span>
+      </span>
+    ) },
     { key: 'specialization', header: 'Specialization', render: (d) => d.specialization || '—' },
     { key: 'consultationFee', header: 'Consultation fee', align: 'right', className: 'tabular', render: (d) => `₹${(d.consultationFee || 0).toLocaleString('en-IN')}` },
     {

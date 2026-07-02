@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Plus, Receipt } from 'lucide-react';
-import { PageHeader, DataTable } from '@/components/primitives';
+import { PageHeader, DataTable, Avatar } from '@/components/primitives';
 import { FeatureGate } from '@/components/FeatureGate';
 import { Button } from '@/components/ui/button';
 import { useInvoices } from '@/hooks/useBilling';
@@ -37,7 +37,12 @@ function BillingInner() {
 
   const columns = [
     { key: 'invoiceNumber', header: 'Invoice', className: 'font-mono text-xs text-muted-foreground' },
-    { key: 'patient', header: 'Patient', render: (i) => <span className="font-medium">{i.patientName || '—'}</span> },
+    { key: 'patient', header: 'Patient', render: (i) => (
+      <span className="flex items-center gap-3">
+        <Avatar name={i.patientName || '?'} />
+        <span className="font-semibold text-foreground">{i.patientName || '—'}</span>
+      </span>
+    ) },
     { key: 'total', header: 'Total', className: 'tabular', render: (i) => `₹${i.total}` },
     { key: 'paid', header: 'Paid', className: 'tabular', render: (i) => `₹${i.amountPaid}` },
     { key: 'status', header: 'Status', render: (i) => <span className={cn('rounded-full px-2.5 py-0.5 text-xs font-medium capitalize', STATUS_CLS[i.status] || 'bg-muted')}>{i.status.replace('_', ' ')}</span> },

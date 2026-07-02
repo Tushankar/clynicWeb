@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { UserPlus, Users } from 'lucide-react';
-import { PageHeader, DataTable } from '@/components/primitives';
+import { PageHeader, DataTable, Avatar } from '@/components/primitives';
 import { Button } from '@/components/ui/button';
 import { usePatients } from '@/hooks/usePatients';
 import { useHasRole } from '@/hooks/useRole';
@@ -19,7 +19,12 @@ export default function PatientsPage() {
 
   const columns = [
     { key: 'patientCode', header: 'Code', className: 'font-mono text-xs text-muted-foreground' },
-    { key: 'name', header: 'Name', render: (p) => <span className="font-medium">{p.name}</span> },
+    { key: 'name', header: 'Name', render: (p) => (
+      <span className="flex items-center gap-3">
+        <Avatar name={p.name} />
+        <span className="font-semibold text-foreground">{p.name}</span>
+      </span>
+    ) },
     { key: 'phone', header: 'Phone', render: (p) => p.phone || '—' },
     { key: 'age', header: 'Age', render: (p) => ageFromDob(p.dob) ?? '—' },
     { key: 'gender', header: 'Gender', className: 'capitalize', render: (p) => p.gender || '—' },

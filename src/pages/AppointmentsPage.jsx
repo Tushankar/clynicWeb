@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { addDays, parseISO, format } from 'date-fns';
 import { CalendarDays, ChevronLeft, ChevronRight, Plus, UserPlus, MoreHorizontal, LogIn, CalendarClock, XCircle } from 'lucide-react';
-import { PageHeader, DataTable, StatusBadge } from '@/components/primitives';
+import { PageHeader, DataTable, StatusBadge, Avatar } from '@/components/primitives';
 import { Button } from '@/components/ui/button';
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select';
 import {
@@ -72,7 +72,12 @@ export default function AppointmentsPage() {
   const columns = [
     { key: 'time', header: 'Time', className: 'tabular whitespace-nowrap', render: (a) => fmtTime(a.scheduledAt) },
     { key: 'token', header: 'Token', className: 'font-mono text-xs text-muted-foreground', render: (a) => (a.tokenNumber != null ? `#${a.tokenNumber}` : '—') },
-    { key: 'patient', header: 'Patient', render: (a) => <span className="font-medium">{a.patientName || '—'}</span> },
+    { key: 'patient', header: 'Patient', render: (a) => (
+      <span className="flex items-center gap-3">
+        <Avatar name={a.patientName || '?'} />
+        <span className="font-semibold text-foreground">{a.patientName || '—'}</span>
+      </span>
+    ) },
     { key: 'doctor', header: 'Doctor', render: (a) => a.doctorName || '—' },
     { key: 'status', header: 'Status', render: (a) => <StatusBadge status={a.status} /> },
     {

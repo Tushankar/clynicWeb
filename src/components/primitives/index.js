@@ -5,3 +5,4 @@ export { EmptyState } from './EmptyState';
 export { LoadingSkeleton, TableSkeleton, StatCardsSkeleton } from './LoadingSkeleton';
 export { FormField } from './FormField';
 export { DataTable } from './DataTable';
+export { Avatar } from './Avatar';

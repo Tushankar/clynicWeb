@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { HeartHandshake, UserMinus, Repeat, Gem, Cake, CalendarClock, UserPlus, Send } from 'lucide-react';
-import { PageHeader, StatCard, DataTable } from '@/components/primitives';
+import { PageHeader, StatCard, DataTable, Avatar } from '@/components/primitives';
 import { FeatureGate } from '@/components/FeatureGate';
 import { Button } from '@/components/ui/button';
 import { fmtDate } from '@/lib/format';
@@ -71,7 +71,12 @@ function SegmentTable({ segment }) {
   };
 
   const columns = [
-    { key: 'name', header: 'Patient', render: (p) => <span className="font-medium">{p.name}</span> },
+    { key: 'name', header: 'Patient', render: (p) => (
+      <span className="flex items-center gap-3">
+        <Avatar name={p.name} />
+        <span className="font-semibold text-foreground">{p.name}</span>
+      </span>
+    ) },
     { key: 'phone', header: 'Phone', className: 'tabular', render: (p) => p.phone || '—' },
     segment.key === 'high_value'
       ? { key: 'revenue', header: 'Lifetime revenue', align: 'right', className: 'tabular', render: (p) => `₹${(p.revenue ?? 0).toLocaleString('en-IN')}` }

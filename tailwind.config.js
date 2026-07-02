@@ -10,9 +10,9 @@ export default {
     },
     extend: {
       fontFamily: {
-        // UI font — General Sans (premium geometric sans, Roobert-class; self-hosted from
-        // Fontshare). Applied app-wide via Tailwind Preflight (html inherits fontFamily.sans).
-        sans: ['General Sans', 'ui-sans-serif', 'system-ui', '-apple-system', 'Segoe UI', 'Roboto', 'sans-serif'],
+        // UI font — Plus Jakarta Sans (premium variable geometric sans; self-hosted via
+        // @fontsource-variable). Applied app-wide via Tailwind Preflight (html inherits fontFamily.sans).
+        sans: ['"Plus Jakarta Sans Variable"', 'ui-sans-serif', 'system-ui', '-apple-system', 'Segoe UI', 'Roboto', 'sans-serif'],
         // Data font — JetBrains Mono (variable). Every `font-mono` element (invoice numbers,
         // patient codes, queue tokens, IDs) renders in this automatically.
         mono: ['JetBrains Mono Variable', 'ui-monospace', 'SFMono-Regular', 'Menlo', 'Consolas', 'monospace'],

@@ -97,6 +97,19 @@
   .tabular {
     font-variant-numeric: tabular-nums;
   }
+
+  /* Hide scrollbars app-wide for a clean, premium surface — scrolling still works
+     (wheel, touch, keyboard). Applies to the sidebar nav, content area, and any
+     overflow container. */
+  * {
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none; /* legacy Edge/IE */
+  }
+  *::-webkit-scrollbar {
+    width: 0;
+    height: 0;
+    display: none; /* Chrome, Safari, Edge */
+  }
 }
 
 @layer components {
