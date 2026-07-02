@@ -19,8 +19,8 @@
     --popover: 0 0% 100%;
     --popover-foreground: 222 47% 11%;
 
-    /* Brand — calm medical teal */
-    --primary: 175 70% 31%;
+    /* Brand — deep medical blue (#2563EB) */
+    --primary: 221 83% 53%;
     --primary-foreground: 0 0% 100%;
 
     /* Neutral supports */
@@ -28,23 +28,24 @@
     --secondary-foreground: 222 47% 11%;
     --muted: 210 40% 96%;
     --muted-foreground: 215 16% 47%;
-    --accent: 178 48% 95%;
-    --accent-foreground: 175 70% 24%;
+    /* Accent = soft blue (nav-active + hover tints) */
+    --accent: 214 100% 97%;
+    --accent-foreground: 224 76% 48%;
 
-    /* Semantic status */
+    /* Semantic status (#16A34A / #DC2626 / #F59E0B) */
     --destructive: 0 72% 51%;
     --destructive-foreground: 0 0% 100%;
-    --success: 142 68% 38%;
+    --success: 142 76% 36%;
     --success-foreground: 0 0% 100%;
-    --warning: 33 92% 45%;
+    --warning: 38 92% 50%;
     --warning-foreground: 0 0% 100%;
     --info: 199 89% 44%;
     --info-foreground: 0 0% 100%;
 
-    /* Lines & focus */
-    --border: 214 32% 91%;
-    --input: 214 32% 91%;
-    --ring: 175 70% 31%;
+    /* Lines & focus (#E5E7EB) */
+    --border: 220 13% 91%;
+    --input: 220 13% 91%;
+    --ring: 221 83% 53%;
 
     --radius: 0.625rem;
   }
@@ -56,14 +57,14 @@
     --card-foreground: 210 40% 98%;
     --popover: 222 47% 11%;
     --popover-foreground: 210 40% 98%;
-    --primary: 174 64% 44%;
-    --primary-foreground: 222 47% 11%;
+    --primary: 217 91% 60%;
+    --primary-foreground: 210 40% 98%;
     --secondary: 217 33% 18%;
     --secondary-foreground: 210 40% 98%;
     --muted: 217 33% 18%;
     --muted-foreground: 215 20% 65%;
-    --accent: 200 30% 18%;
-    --accent-foreground: 174 64% 70%;
+    --accent: 217 33% 24%;
+    --accent-foreground: 213 94% 78%;
     --destructive: 0 63% 45%;
     --destructive-foreground: 210 40% 98%;
     --success: 142 60% 45%;
@@ -74,7 +75,7 @@
     --info-foreground: 222 47% 11%;
     --border: 217 33% 20%;
     --input: 217 33% 22%;
-    --ring: 174 64% 44%;
+    --ring: 217 91% 60%;
   }
 }
 
@@ -95,5 +96,24 @@
   /* Number/token displays use tabular figures so they don't jitter as they update. */
   .tabular {
     font-variant-numeric: tabular-nums;
+  }
+}
+
+@layer components {
+  /* Dashboard cards: soft shadow + a subtle lift on hover (premium card spec). */
+  .card-lift {
+    transition: transform 0.22s ease, box-shadow 0.22s ease, border-color 0.22s ease;
+  }
+  .card-lift:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 14px 28px -16px rgb(16 24 40 / 0.22);
+    border-color: hsl(var(--border));
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .card-lift,
+    .card-lift:hover {
+      transform: none;
+      transition: none;
+    }
   }
 }

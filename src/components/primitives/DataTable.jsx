@@ -54,10 +54,12 @@ export function DataTable({
       {isLoading ? (
         <TableSkeleton cols={columns.length} />
       ) : isError ? (
-        <div className="flex flex-col items-center justify-center rounded-lg border border-dashed px-6 py-12 text-center">
-          <AlertCircle className="h-6 w-6 text-destructive" />
-          <p className="mt-3 text-sm font-medium text-foreground">Couldn’t load this data</p>
-          <p className="mt-1 text-sm text-muted-foreground">{error?.message || 'Please try again.'}</p>
+        <div className="flex flex-col items-center justify-center rounded-xl border bg-card px-6 py-14 text-center shadow-sm">
+          <span className="flex h-12 w-12 items-center justify-center rounded-full bg-destructive/10 text-destructive">
+            <AlertCircle className="h-6 w-6" />
+          </span>
+          <p className="mt-4 text-base font-medium text-foreground">Couldn’t load this data</p>
+          <p className="mt-1 max-w-sm text-sm text-muted-foreground">{error?.message || 'Please try again.'}</p>
           {onRetry && (
             <Button variant="outline" size="sm" className="mt-4" onClick={onRetry}>
               Retry
@@ -65,14 +67,14 @@ export function DataTable({
           )}
         </div>
       ) : !data || data.length === 0 ? (
-        <div className="rounded-lg border border-dashed">
+        <div className="rounded-xl border border-dashed bg-card/50">
           <EmptyState title={empty.title || 'Nothing here yet'} description={empty.description} action={empty.action} icon={empty.icon} />
         </div>
       ) : (
-        <div className="overflow-hidden rounded-lg border bg-card">
+        <div className="overflow-hidden rounded-xl border bg-card shadow-sm">
           <Table>
             <TableHeader>
-              <TableRow className="hover:bg-transparent">
+              <TableRow className="border-b border-border bg-muted/50 hover:bg-muted/50">
                 {columns.map((col) => (
                   <TableHead key={col.key} className={cn(col.align === 'right' && 'text-right', col.headClassName)}>
                     {col.header}

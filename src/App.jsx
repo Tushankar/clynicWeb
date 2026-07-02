@@ -18,6 +18,9 @@ import CrmPage from './pages/CrmPage';
 import AnalyticsPage from './pages/AnalyticsPage';
 import AiPage from './pages/AiPage';
 import WebsitePage from './pages/WebsitePage';
+import DoctorsPage from './pages/DoctorsPage';
+import WalkInsPage from './pages/WalkInsPage';
+import SettingsPage from './pages/SettingsPage';
 import PublicSitePage from './pages/PublicSitePage';
 import PublicCustomPage from './pages/PublicCustomPage';
 import PublicBookingPage from './pages/PublicBookingPage';
@@ -47,6 +50,9 @@ export default function App() {
       <Route path="/dashboard" element={<AppLayout />}>
         <Route index element={<DashboardPage />} />
         <Route path="doctor" element={<DoctorDashboardPage />} />
+        <Route path="doctors" element={<DoctorsPage />} />
+        <Route path="walk-ins" element={<WalkInsPage />} />
+        <Route path="settings" element={<SettingsPage />} />
         <Route path="patients" element={<PatientsPage />} />
         <Route path="patients/:id" element={<PatientChartPage />} />
         <Route path="appointments" element={<AppointmentsPage />} />

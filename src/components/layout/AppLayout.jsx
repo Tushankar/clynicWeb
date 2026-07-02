@@ -22,7 +22,7 @@ export default function AppLayout() {
         <BranchProvider>
         <div className="flex min-h-screen bg-background">
           {/* Desktop sidebar */}
-          <aside className="hidden w-64 shrink-0 border-r bg-card lg:block">
+          <aside className="hidden w-[260px] shrink-0 border-r bg-card lg:block">
             <div className="sticky top-0 h-screen">
               <SidebarContent />
             </div>
@@ -32,7 +32,7 @@ export default function AppLayout() {
           {mobileOpen && (
             <div className="fixed inset-0 z-50 lg:hidden">
               <div className="absolute inset-0 bg-foreground/40 backdrop-blur-sm" onClick={() => setMobileOpen(false)} />
-              <div className="absolute left-0 top-0 h-full w-64 border-r bg-card shadow-xl">
+              <div className="absolute left-0 top-0 h-full w-[260px] border-r bg-card shadow-xl">
                 <SidebarContent onNavigate={() => setMobileOpen(false)} />
               </div>
             </div>
@@ -40,7 +40,7 @@ export default function AppLayout() {
 
           <div className="flex min-w-0 flex-1 flex-col">
             <TopBar onMenu={() => setMobileOpen(true)} />
-            <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-6 sm:px-6 lg:px-8">
+            <main className="mx-auto w-full max-w-[1600px] flex-1 px-4 py-6 sm:px-6 lg:px-8">
               <Outlet />
             </main>
           </div>

@@ -28,7 +28,7 @@ export function Bars({ data = [], horizontal = false, format = (v) => v, classNa
   return (
     <div className={cn('flex h-44 items-end gap-1', className)}>
       {data.map((d, i) => (
-        <div key={i} className="flex min-w-0 flex-1 flex-col items-center justify-end gap-1">
+        <div key={i} className="flex h-full min-w-0 flex-1 flex-col items-center justify-end gap-1">
           <div
             className={cn('w-full rounded-t bg-primary/80 transition-[height]', barClassName)}
             style={{ height: `${Math.max(2, (d.value / max) * 100)}%` }}
