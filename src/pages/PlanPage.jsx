@@ -7,10 +7,41 @@ import { useSubscription, useChangePlan } from '@/hooks/useSubscription';
 import { cn } from '@/lib/utils';
 import { toast, toastApiError } from '@/lib/toast';
 
+// Keep in sync with the backend feature matrix (clinic-api/src/config/plans.js) — the
+// backend is the real lock; these lines are the marketing view of it.
 const TIERS = [
-  { key: 'basic', name: 'Basic', price: 999, lines: ['Online booking + token', 'Live queue + TV', 'Email reminders', '1 doctor'] },
-  { key: 'standard', name: 'Standard', price: 1999, lines: ['Everything in Basic', 'Doctor dashboard + prescriptions', 'Patient timeline + reports', 'Billing + patient portal', 'Up to 5 doctors'] },
-  { key: 'premium', name: 'Premium', price: 3999, lines: ['Everything in Standard', 'Multi-branch + analytics', 'AI features', 'Unlimited doctors'] },
+  {
+    key: 'basic',
+    name: 'Basic',
+    price: 999,
+    lines: ['Online booking + token', 'Live queue + TV display', 'Email appointment reminders', '1 doctor'],
+  },
+  {
+    key: 'standard',
+    name: 'Standard',
+    price: 1999,
+    lines: [
+      'Everything in Basic',
+      'Doctor dashboard + prescriptions',
+      'Patient timeline + reports',
+      'Billing + patient portal',
+      'CRM: birthday & follow-up email automations',
+      'WhatsApp channel — link your number',
+      'Up to 5 doctors',
+    ],
+  },
+  {
+    key: 'premium',
+    name: 'Premium',
+    price: 3999,
+    lines: [
+      'Everything in Standard',
+      'Multi-branch + owner analytics',
+      'AI assistant + AI-personalized campaigns',
+      'Edit email templates, images & wording',
+      'Unlimited doctors',
+    ],
+  },
 ];
 
 export default function PlanPage() {

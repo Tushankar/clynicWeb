@@ -15,6 +15,7 @@ import PlanPage from './pages/PlanPage';
 import AdminPage from './pages/AdminPage';
 import BranchesPage from './pages/BranchesPage';
 import CrmPage from './pages/CrmPage';
+import CommunicationsPage from './pages/CommunicationsPage';
 import AnalyticsPage from './pages/AnalyticsPage';
 import AiPage from './pages/AiPage';
 import WebsitePage from './pages/WebsitePage';
@@ -61,6 +62,7 @@ export default function App() {
         <Route path="plan" element={<PlanPage />} />
         <Route path="branches" element={<BranchesPage />} />
         <Route path="crm" element={<CrmPage />} />
+        <Route path="communications" element={<CommunicationsPage />} />
         <Route path="analytics" element={<AnalyticsPage />} />
         <Route path="ai" element={<AiPage />} />
         <Route path="website" element={<WebsitePage />} />

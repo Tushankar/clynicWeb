@@ -3,7 +3,7 @@ import { NavLink, Link } from 'react-router-dom';
 import {
   House, CalendarCheck, Stethoscope, Users, ListChecks, UserPlus, Receipt, Handshake,
   ChartLineUp, Sparkle, Globe, ChatCircle, Buildings, Gear, ShieldStar, LockSimple,
-  CaretUpDown, Sun, Moon,
+  CaretUpDown, Sun, Moon, PaperPlaneTilt,
 } from '@phosphor-icons/react';
 import { Logo } from '@/components/Logo';
 import { cn } from '@/lib/utils';
@@ -36,6 +36,7 @@ export const NAV_GROUPS = [
     label: 'Management',
     items: [
       { to: '/dashboard/crm', label: 'CRM', icon: Handshake, roles: ['owner', 'receptionist'], feature: 'CRM' },
+      { to: '/dashboard/communications', label: 'Communications', icon: PaperPlaneTilt, roles: ['owner', 'receptionist'] },
       { to: '/dashboard/analytics', label: 'Analytics', icon: ChartLineUp, roles: ['owner'], feature: 'ANALYTICS' },
       { to: '/dashboard/ai', label: 'AI Assistant', icon: Sparkle, roles: ['owner', 'doctor', 'receptionist'], feature: 'AI_FEATURES' },
       { to: '/dashboard/website', label: 'Website', icon: Globe, roles: ['owner'], feature: 'WEBSITE_LIVE' },
