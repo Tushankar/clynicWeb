@@ -59,7 +59,7 @@ export function DataTable({
   const showControls = pagination && count > PAGE_SIZES[0];
 
   return (
-    <div className={cn('overflow-hidden rounded-2xl border bg-card shadow-sm', className)}>
+    <div className={cn('glass-card overflow-hidden rounded-2xl border', className)}>
       {/* integrated header bar — search melts into the surface, actions sit right */}
       {hasHeaderBar && (
         <div className="flex flex-col gap-3 border-b border-border/70 px-4 py-3 sm:flex-row sm:items-center">

@@ -115,14 +115,113 @@
 }
 
 @layer components {
+  /* ==================== Liquid Glass (Apple-grade) ====================
+     Three optical layers on one class:
+       1. the PANE  — deep blur + saturation/brightness bleed of whatever sits behind
+       2. the RIM   — ::before paints a 1px gradient ring masked to the border:
+                      bright where light enters (top-left), dim opposite = edge lensing
+       3. the SHEEN — ::after is a specular reflection that FOLLOWS THE POINTER
+                      (--gx/--gy set by a rAF-throttled listener in AppLayout),
+                      resting as a quiet top-light when idle.
+     Depth: tight contact shadow + wide ambient. Solid fallbacks below. */
+  .glass-card {
+    position: relative;
+    border-color: transparent; /* the gradient rim replaces the flat border */
+    background: linear-gradient(160deg, hsl(var(--card) / 0.66), hsl(var(--card) / 0.42));
+    box-shadow:
+      0 1px 1px rgb(16 24 40 / 0.05),
+      0 12px 40px -12px rgb(16 24 40 / 0.16);
+    -webkit-backdrop-filter: blur(22px) saturate(1.9) brightness(1.04);
+    backdrop-filter: blur(22px) saturate(1.9) brightness(1.04);
+  }
+  .glass-card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    padding: 1px;
+    background: linear-gradient(
+      135deg,
+      hsl(0 0% 100% / 0.95),
+      hsl(0 0% 100% / 0.35) 30%,
+      hsl(0 0% 100% / 0.08) 55%,
+      hsl(0 0% 100% / 0.45) 100%
+    );
+    -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+    mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    mask-composite: exclude;
+    pointer-events: none;
+  }
+  .glass-card::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    pointer-events: none;
+    background:
+      radial-gradient(240px circle at var(--gx, 70%) var(--gy, -30%), hsl(0 0% 100% / 0.22), transparent 65%),
+      linear-gradient(115deg, hsl(0 0% 100% / 0.13) 0%, transparent 38%);
+  }
+
+  .dark .glass-card {
+    background: linear-gradient(160deg, hsl(0 0% 100% / 0.065), hsl(0 0% 100% / 0.025));
+    box-shadow:
+      0 1px 1px rgb(0 0 0 / 0.4),
+      0 12px 40px -12px rgb(0 0 0 / 0.65);
+  }
+  .dark .glass-card::before {
+    background: linear-gradient(
+      135deg,
+      hsl(0 0% 100% / 0.30),
+      hsl(0 0% 100% / 0.09) 30%,
+      hsl(0 0% 100% / 0.02) 55%,
+      hsl(0 0% 100% / 0.13) 100%
+    );
+  }
+  .dark .glass-card::after {
+    background:
+      radial-gradient(240px circle at var(--gx, 70%) var(--gy, -30%), hsl(0 0% 100% / 0.09), transparent 65%),
+      linear-gradient(115deg, hsl(0 0% 100% / 0.05) 0%, transparent 38%);
+  }
+
+  /* Accessibility + degradation: solid surfaces when transparency is reduced or
+     backdrop-filter is unavailable — the layout never depends on the glass. */
+  @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+    .glass-card,
+    .dark .glass-card {
+      background: hsl(var(--card));
+      border-color: hsl(var(--border));
+    }
+  }
+  @media (prefers-reduced-transparency: reduce) {
+    .glass-card,
+    .dark .glass-card {
+      background: hsl(var(--card));
+      border-color: hsl(var(--border));
+      -webkit-backdrop-filter: none;
+      backdrop-filter: none;
+    }
+    .glass-card::after,
+    .dark .glass-card::after {
+      background: none;
+    }
+  }
+
   /* Dashboard cards: soft shadow + a subtle lift on hover (premium card spec). */
   .card-lift {
-    transition: transform 0.22s ease, box-shadow 0.22s ease, border-color 0.22s ease;
+    transition: transform 0.22s ease, box-shadow 0.22s ease;
   }
   .card-lift:hover {
     transform: translateY(-3px);
-    box-shadow: 0 14px 28px -16px rgb(16 24 40 / 0.22);
-    border-color: hsl(var(--border));
+    box-shadow:
+      0 1px 1px rgb(16 24 40 / 0.05),
+      0 18px 44px -16px rgb(16 24 40 / 0.24);
+  }
+  .dark .card-lift:hover {
+    box-shadow:
+      0 1px 1px rgb(0 0 0 / 0.4),
+      0 18px 44px -16px rgb(0 0 0 / 0.75);
   }
   @media (prefers-reduced-motion: reduce) {
     .card-lift,

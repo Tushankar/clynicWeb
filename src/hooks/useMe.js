@@ -12,11 +12,20 @@ export function useMe() {
   });
 }
 
-/** Owner: update the clinic profile (name/address/phone/gst). Flows to the public website. */
+/** Owner: update the clinic profile (name/address/phone/gst/logo). Flows to the public website. */
 export function useUpdateClinic() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: (patch) => api.patch('/api/me/clinic', patch),
     onSuccess: () => qc.invalidateQueries({ queryKey: ['me'] }),
+  });
+}
+
+/** Owner: the clinic activity feed (PHI-safe audit-log view). */
+export function useActivityLog(params, opts = {}) {
+  return useQuery({
+    queryKey: ['activity', params],
+    queryFn: () => api.get('/api/me/activity', { params }),
+    ...opts,
   });
 }

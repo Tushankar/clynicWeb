@@ -1,8 +1,12 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { api } from '@/lib/api/client';
 
-export function useAiDrafts(status = 'pending_review') {
-  return useQuery({ queryKey: ['ai', 'drafts', status], queryFn: () => api.get('/api/ai/drafts', { params: { status } }) });
+export function useAiDrafts(status = 'pending_review', patientId, opts = {}) {
+  return useQuery({
+    queryKey: ['ai', 'drafts', status, patientId || null],
+    queryFn: () => api.get('/api/ai/drafts', { params: { status, patientId } }),
+    ...opts,
+  });
 }
 
 export function useAiFaq() {
@@ -23,7 +27,16 @@ export function useGenerateVisitSummary() {
 
 function useDraftAction(fn) {
   const qc = useQueryClient();
-  return useMutation({ mutationFn: fn, onSuccess: () => qc.invalidateQueries({ queryKey: ['ai', 'drafts'] }) });
+  return useMutation({
+    mutationFn: fn,
+    onSuccess: () => {
+      // Approving creates a real ClinicalNote → refresh the drafts AND the notes/timeline
+      // so the approved summary appears in the patient chart immediately.
+      qc.invalidateQueries({ queryKey: ['ai', 'drafts'] });
+      qc.invalidateQueries({ queryKey: ['notes'] });
+      qc.invalidateQueries({ queryKey: ['timeline'] });
+    },
+  });
 }
 
 export const useApproveDraft = () => useDraftAction(({ id, editedContent }) => api.post(`/api/ai/drafts/${id}/approve`, { editedContent }));

@@ -4,6 +4,7 @@ import {
   HeartHandshake, UserMinus, Repeat, Gem, Cake, CalendarClock, UserPlus, Send,
   Mail, MessageCircle, Sparkles, Lock, PencilLine, PlayCircle, QrCode, LogOut,
   CheckCircle2, Clock3, Eye, Palette, Upload, RotateCcw, ImageIcon, Braces, Check,
+  Star, BellRing, ExternalLink,
 } from 'lucide-react';
 import { PageHeader, DataTable, Avatar } from '@/components/primitives';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -19,12 +20,14 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, Di
 import { fmtDate } from '@/lib/format';
 import { cn } from '@/lib/utils';
 import { useHasRole } from '@/hooks/useRole';
+import { useFeature } from '@/hooks/usePlan';
 import {
   useCrmSummary, useCrmSegment, useReengage, useCrmSettings, useUpdateCrmSettings,
   useUpdateTemplate, useTestTemplate, useTemplatePreview, useRunCampaign,
   useUpdateEmailTheme, useUploadTemplateImage,
   useWhatsappStatus, useWhatsappConnect, useWhatsappLogout,
 } from '@/hooks/useCrm';
+import { RecallsPanel } from '@/components/crm/RecallsPanel';
 import { toast, toastApiError } from '@/lib/toast';
 
 // Each retention segment: card metadata + how to render its drill-down rows.
@@ -52,12 +55,10 @@ function SegmentCard({ segment, value, active, loading, onClick }) {
       onClick={onClick}
       aria-pressed={active}
       className={cn(
-        'group relative overflow-hidden rounded-xl border bg-card p-3.5 text-left transition-all duration-200',
-        'hover:border-primary/35 hover:shadow-[0_10px_30px_-14px_rgb(16_24_40/0.18)]',
+        'glass-card group relative overflow-hidden rounded-xl border p-3.5 text-left transition-all duration-200',
+        'hover:border-primary/35',
         'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
-        active
-          ? 'border-primary/50 bg-gradient-to-br from-primary/[0.045] to-transparent shadow-[0_10px_30px_-14px_rgb(16_24_40/0.18)]'
-          : 'border-border'
+        active && 'border-primary/50 bg-gradient-to-br from-primary/[0.06] to-transparent'
       )}
     >
       {/* one shared texture: a fine dot matrix fading from the top-right — systematic, not thematic */}
@@ -123,6 +124,7 @@ export default function CrmPage() {
 
 function CrmInner() {
   const isOwner = useHasRole('owner');
+  const hasRecalls = useFeature('RECALLS');
   return (
     <div className="space-y-6">
       <PageHeader
@@ -133,10 +135,12 @@ function CrmInner() {
         <TabsList>
           <TabsTrigger value="overview"><HeartHandshake className="mr-1.5 h-4 w-4" /> Overview</TabsTrigger>
           <TabsTrigger value="automations"><Clock3 className="mr-1.5 h-4 w-4" /> Automations</TabsTrigger>
+          {hasRecalls && <TabsTrigger value="recalls"><BellRing className="mr-1.5 h-4 w-4" /> Recalls</TabsTrigger>}
           <TabsTrigger value="templates"><PencilLine className="mr-1.5 h-4 w-4" /> Templates</TabsTrigger>
         </TabsList>
         <TabsContent value="overview"><Overview /></TabsContent>
         <TabsContent value="automations"><Automations isOwner={isOwner} /></TabsContent>
+        {hasRecalls && <TabsContent value="recalls"><RecallsPanel /></TabsContent>}
         <TabsContent value="templates"><TemplatesPanel isOwner={isOwner} /></TabsContent>
       </Tabs>
     </div>
@@ -289,6 +293,15 @@ function Automations({ isOwner }) {
           disabled={!isOwner || update.isPending}
           running={run.isPending}
         />
+        <AutomationCard
+          icon={Star}
+          title="Post-visit review requests"
+          description="Two hours after each completed visit, the patient gets a 30-second 'rate your visit' link. 4–5★ raters are offered a one-tap Google review; everything lands on your website's reviews wall for approval."
+          enabled={Boolean(s.reviewRequestEnabled)}
+          schedule="2 hours after each completed visit"
+          onToggle={(v) => patch({ reviewRequestEnabled: v })}
+          disabled={!isOwner || update.isPending}
+        />
       </div>
 
       {/* One cohesive delivery-settings surface instead of scattered cards. */}
@@ -315,6 +328,8 @@ function Automations({ isOwner }) {
             </select>
           </div>
 
+          <GoogleReviewRow value={s.googleReviewUrl || ''} disabled={!isOwner || update.isPending} onSave={(url) => patch({ googleReviewUrl: url })} />
+
           <div className="flex flex-wrap items-center justify-between gap-4 p-5">
             <div className="flex items-center gap-3">
               <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-violet-100 text-violet-600"><Sparkles className="h-5 w-5" /></span>
@@ -340,6 +355,42 @@ function Automations({ isOwner }) {
       </div>
 
       <ChannelsCard channels={channels} isOwner={isOwner} />
+    </div>
+  );
+}
+
+/** Google review deep link — where 4–5★ raters are sent after the in-app rating. */
+function GoogleReviewRow({ value, disabled, onSave }) {
+  const [url, setUrl] = useState(value);
+  useEffect(() => setUrl(value), [value]);
+  const dirty = url.trim() !== (value || '');
+  return (
+    <div className="flex flex-wrap items-center justify-between gap-4 p-5">
+      <div className="flex items-center gap-3">
+        <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-amber-100 text-amber-600"><Star className="h-5 w-5" /></span>
+        <div>
+          <p className="text-sm font-semibold text-foreground">Google review link</p>
+          <p className="max-w-xl text-xs text-muted-foreground">
+            4–5★ raters get a one-tap button to post their review on Google. Find yours in Google Business Profile → “Ask for reviews”.
+          </p>
+        </div>
+      </div>
+      <div className="flex w-full items-center gap-2 sm:w-auto">
+        <Input
+          value={url}
+          onChange={(e) => setUrl(e.target.value)}
+          placeholder="https://g.page/r/…/review"
+          disabled={disabled}
+          className="h-9 w-full sm:w-72"
+        />
+        {dirty ? (
+          <Button size="sm" onClick={() => onSave(url.trim())} disabled={disabled}>Save</Button>
+        ) : url ? (
+          <a href={url} target="_blank" rel="noreferrer noopener" className="text-muted-foreground transition-colors hover:text-foreground" aria-label="Open review link">
+            <ExternalLink className="h-4 w-4" />
+          </a>
+        ) : null}
+      </div>
     </div>
   );
 }
@@ -382,9 +433,13 @@ function AutomationCard({ icon: Icon, title, description, enabled, schedule, onT
           <Clock3 className="h-3.5 w-3.5" />
           {enabled ? schedule : 'Not scheduled'}
         </span>
-        <Button variant="outline" size="sm" onClick={onRunNow} disabled={disabled || running || !enabled} title={enabled ? 'Run this campaign now' : 'Turn the automation on first'}>
-          <PlayCircle className="h-3.5 w-3.5" /> Run now
-        </Button>
+        {onRunNow ? (
+          <Button variant="outline" size="sm" onClick={onRunNow} disabled={disabled || running || !enabled} title={enabled ? 'Run this campaign now' : 'Turn the automation on first'}>
+            <PlayCircle className="h-3.5 w-3.5" /> Run now
+          </Button>
+        ) : (
+          <span className="text-[11.5px] text-muted-foreground/60">Event-driven</span>
+        )}
       </div>
     </Card>
   );

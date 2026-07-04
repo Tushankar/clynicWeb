@@ -15,6 +15,8 @@ function clinicalMutation(fn, keys) {
 }
 export const useCreatePrescription = () => clinicalMutation((body) => api.post('/api/prescriptions', body), ['prescriptions', 'timeline']);
 export const useDeletePrescription = () => clinicalMutation((id) => api.del(`/api/prescriptions/${id}`), ['prescriptions', 'timeline']);
+/** Share the prescription with the patient as a tokenized link (§5.23, DOCUMENT_SHARING). */
+export const useSharePrescription = () => useMutation({ mutationFn: (id) => api.post(`/api/prescriptions/${id}/share`) });
 
 // ---- Clinical notes ----
 export function useNotes(patientId) {

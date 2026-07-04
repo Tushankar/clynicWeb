@@ -1,21 +1,41 @@
-import { Stethoscope } from '@phosphor-icons/react';
+import { useState } from 'react';
+import { Stethoscope, PencilSimple } from '@phosphor-icons/react';
 import { PageHeader, DataTable, Avatar } from '@/components/primitives';
+import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { useDoctors } from '@/hooks/useDoctors';
+import { useHasRole } from '@/hooks/useRole';
+import { DoctorFormDialog } from '@/components/doctors/DoctorFormDialog';
+
+const inr = (v) => `₹${(v || 0).toLocaleString('en-IN')}`;
 
 export default function DoctorsPage() {
+  const canManage = useHasRole('owner', 'receptionist'); // front desk manages profiles + hours
   const { data, isLoading, isError, error, refetch } = useDoctors(false); // all doctors, incl. inactive
   const doctors = data?.items || [];
+  const [editing, setEditing] = useState(null);
 
   const columns = [
     { key: 'name', header: 'Doctor', render: (d) => (
       <span className="flex items-center gap-3">
-        <Avatar name={d.name} />
-        <span className="font-semibold text-foreground">{d.name}</span>
+        {d.photoUrl ? (
+          <img src={d.photoUrl} alt="" className="h-9 w-9 shrink-0 rounded-full object-cover ring-1 ring-border" />
+        ) : (
+          <Avatar name={d.name} />
+        )}
+        <span className="min-w-0">
+          <span className="block truncate font-semibold text-foreground">{d.name}</span>
+          {d.qualifications && <span className="block truncate text-xs text-muted-foreground">{d.qualifications}</span>}
+        </span>
       </span>
     ) },
-    { key: 'specialization', header: 'Specialization', render: (d) => d.specialization || '—' },
-    { key: 'consultationFee', header: 'Consultation fee', align: 'right', className: 'tabular', render: (d) => `₹${(d.consultationFee || 0).toLocaleString('en-IN')}` },
+    { key: 'specialization', header: 'Specialization', render: (d) => (
+      <span>
+        {d.specialization || '—'}
+        {d.experienceYears > 0 && <span className="ml-1.5 text-xs text-muted-foreground">· {d.experienceYears}y exp</span>}
+      </span>
+    ) },
+    { key: 'consultationFee', header: 'Consultation fee', align: 'right', className: 'tabular', render: (d) => inr(d.consultationFee) },
     {
       key: 'isActive',
       header: 'Status',
@@ -27,11 +47,28 @@ export default function DoctorsPage() {
         </span>
       ),
     },
+    ...(canManage
+      ? [{
+          key: 'actions',
+          header: '',
+          align: 'right',
+          render: (d) => (
+            <Button size="sm" className="h-8 px-3 text-xs" onClick={(e) => { e.stopPropagation(); setEditing(d); }}>
+              <PencilSimple weight="bold" className="h-3.5 w-3.5" /> Edit
+            </Button>
+          ),
+        }]
+      : []),
   ];
 
   return (
     <div className="space-y-6">
-      <PageHeader title="Doctors" description="Practitioners at your clinic and their consultation fees." />
+      <PageHeader
+        title="Doctors"
+        description={canManage
+          ? 'Set specializations, working hours, and bookable status. Add practitioners from Team in Settings; manage leave on Time Off.'
+          : 'Practitioners at your clinic and their consultation fees.'}
+      />
       <DataTable
         columns={columns}
         data={doctors}
@@ -39,8 +76,15 @@ export default function DoctorsPage() {
         isError={isError}
         error={error}
         onRetry={refetch}
-        empty={{ icon: Stethoscope, title: 'No doctors yet', description: 'Add practitioners so patients can book with them.' }}
+        onRowClick={canManage ? (d) => setEditing(d) : undefined}
+        empty={{
+          icon: Stethoscope,
+          title: 'No doctors yet',
+          description: canManage ? 'Invite a practitioner from Team in Settings — they’ll appear here to set hours & fees.' : 'Add practitioners so patients can book with them.',
+        }}
       />
+
+      {canManage && <DoctorFormDialog open={!!editing} onOpenChange={(o) => !o && setEditing(null)} doctor={editing} />}
     </div>
   );
 }

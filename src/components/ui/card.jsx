@@ -4,10 +4,8 @@ import { cn } from '@/lib/utils';
 const Card = React.forwardRef(({ className, ...props }, ref) => (
   <div
     ref={ref}
-    className={cn(
-      'rounded-[18px] border bg-card text-card-foreground shadow-[0_1px_2px_rgb(16_24_40_/_0.04),0_1px_3px_rgb(16_24_40_/_0.05)]',
-      className
-    )}
+    // Liquid-glass surface (.glass-card in index.css): translucent, blurred, specular edge.
+    className={cn('glass-card rounded-[18px] border text-card-foreground', className)}
     {...props}
   />
 ));

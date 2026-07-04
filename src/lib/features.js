@@ -16,11 +16,22 @@ export const FEATURE_META = {
   WHATSAPP_REMINDERS: { label: 'WhatsApp reminders', tier: 'Standard' },
   CMS_BASIC: { label: 'Website CMS', tier: 'Standard' },
   WEBSITE_LIVE: { label: 'Public website', tier: 'Basic' },
+  SELF_RESCHEDULE: { label: 'Patient self-service links', tier: 'Basic' },
+  AVAILABILITY_BLOCKS: { label: 'Time off & slot blocking', tier: 'Standard' },
+  WAITLIST: { label: 'Cancellation waitlist', tier: 'Standard' },
+  PAYMENT_LINKS: { label: 'Payment links', tier: 'Standard' },
+  CASH_REGISTER: { label: 'Daily cash register', tier: 'Standard' },
+  DOCUMENT_SHARING: { label: 'Document sharing', tier: 'Standard' },
+  DATA_EXPORT: { label: 'CSV data export', tier: 'Standard' },
+  REVIEW_REQUESTS: { label: 'Post-visit review requests', tier: 'Standard' },
   CRM: { label: 'CRM & retention', tier: 'Premium' },
   MULTI_BRANCH: { label: 'Multi-branch', tier: 'Premium' },
   ANALYTICS: { label: 'Owner analytics', tier: 'Premium' },
   AI_FEATURES: { label: 'AI assistant', tier: 'Premium' },
   CMS_ADVANCED: { label: 'Advanced website CMS', tier: 'Premium' },
+  SELF_CHECKIN: { label: 'QR self check-in', tier: 'Premium' },
+  RECALLS: { label: 'Treatment recalls', tier: 'Premium' },
+  EXPENSES: { label: 'Expenses & P&L', tier: 'Premium' },
 };
 
 export const featureLabel = (key) => FEATURE_META[key]?.label || key;

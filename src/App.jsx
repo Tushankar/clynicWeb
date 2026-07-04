@@ -27,6 +27,12 @@ import PublicCustomPage from './pages/PublicCustomPage';
 import PublicBookingPage from './pages/PublicBookingPage';
 import TvDisplayPage from './pages/TvDisplayPage';
 import PrescriptionPrintPage from './pages/PrescriptionPrintPage';
+import ManageAppointmentPage from './pages/ManageAppointmentPage';
+import PayInvoicePage from './pages/PayInvoicePage';
+import ReviewVisitPage from './pages/ReviewVisitPage';
+import SharedDocPage from './pages/SharedDocPage';
+import SelfCheckinPage from './pages/SelfCheckinPage';
+import TimeOffPage from './pages/TimeOffPage';
 import RequireAuth from './components/RequireAuth';
 
 export default function App() {
@@ -40,9 +46,15 @@ export default function App() {
       {/* Every other clinic's website (§8.6): /c/:slug is the site; booking + pages beneath it */}
       <Route path="/c/:slug" element={<PublicSitePage />} />
       <Route path="/c/:slug/book" element={<PublicBookingPage />} />
+      <Route path="/c/:slug/checkin" element={<SelfCheckinPage />} />
       <Route path="/c/:slug/p/:pageSlug" element={<PublicCustomPage />} />
       <Route path="/tv/:slug" element={<TvDisplayPage />} />
       <Route path="/portal/:slug" element={<PortalPage />} />
+      {/* Patient self-service links (§5.20+): the HMAC token binds clinic + record */}
+      <Route path="/manage/:token" element={<ManageAppointmentPage />} />
+      <Route path="/pay/:token" element={<PayInvoicePage />} />
+      <Route path="/review/:token" element={<ReviewVisitPage />} />
+      <Route path="/d/:token" element={<SharedDocPage />} />
       {/* Standalone printable (auth-gated, no shell) */}
       <Route path="/rx/:id" element={<RequireAuth><PrescriptionPrintPage /></RequireAuth>} />
       <Route path="/invoice/:id" element={<RequireAuth><InvoicePrintPage /></RequireAuth>} />
@@ -57,6 +69,7 @@ export default function App() {
         <Route path="patients" element={<PatientsPage />} />
         <Route path="patients/:id" element={<PatientChartPage />} />
         <Route path="appointments" element={<AppointmentsPage />} />
+        <Route path="time-off" element={<TimeOffPage />} />
         <Route path="queue" element={<QueuePage />} />
         <Route path="billing" element={<BillingPage />} />
         <Route path="plan" element={<PlanPage />} />

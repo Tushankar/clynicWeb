@@ -455,8 +455,20 @@ function PrepayScreen({ result, doctor, busy, onPay }) {
 }
 
 function SuccessScreen({ result, doctor, clinic }) {
-  const shareUrl = typeof window !== 'undefined' ? window.location.href : '';
+  // The QR carries the self-service manage link (§5.20) when the plan includes it —
+  // scanning your own ticket opens reschedule/cancel. Falls back to the booking page.
+  const shareUrl = result.manageUrl || (typeof window !== 'undefined' ? window.location.href : '');
   const reduced = useReducedMotion();
+  const [copied, setCopied] = useState(false);
+  const copyManage = async () => {
+    try {
+      await navigator.clipboard.writeText(result.manageUrl);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      /* clipboard unavailable — the link is still in the QR + email */
+    }
+  };
   return (
     <div className="flex flex-col items-center py-2 text-center">
       <motion.span
@@ -503,7 +515,9 @@ function SuccessScreen({ result, doctor, clinic }) {
           <span className="rounded-2xl bg-white p-3">
             <QRCodeSVG value={shareUrl} size={112} />
           </span>
-          <p className="text-[11.5px] text-slate-400">Scan to book again or share this page</p>
+          <p className="text-[11.5px] text-slate-400">
+            {result.manageUrl ? 'Scan to reschedule or cancel anytime' : 'Scan to book again or share this page'}
+          </p>
           {clinic?.address ? (
             <p className="flex items-center gap-1.5 text-[12px] text-slate-300">
               <MapPin className="h-3.5 w-3.5 text-emerald-300" aria-hidden="true" />
@@ -513,8 +527,32 @@ function SuccessScreen({ result, doctor, clinic }) {
         </div>
       </motion.div>
 
+      {result.manageUrl && (
+        <div className="mt-6 flex w-full max-w-sm items-center gap-2">
+          <a
+            href={result.manageUrl}
+            className="flex h-11 flex-1 items-center justify-center gap-2 rounded-2xl border border-slate-200/90 bg-white text-[13.5px] font-semibold text-[#0B1220] transition-all duration-200 hover:-translate-y-0.5 hover:border-emerald-500/40"
+          >
+            <CalendarCheck2 className="h-4 w-4 text-emerald-600" aria-hidden="true" /> Manage appointment
+          </a>
+          <button
+            type="button"
+            onClick={copyManage}
+            className={cn(
+              'flex h-11 items-center justify-center rounded-2xl border px-4 text-[13px] font-semibold transition-all duration-200',
+              copied
+                ? 'border-emerald-300 bg-emerald-50 text-emerald-700'
+                : 'border-slate-200/90 bg-white text-slate-600 hover:border-emerald-500/40'
+            )}
+          >
+            {copied ? 'Copied' : 'Copy link'}
+          </button>
+        </div>
+      )}
+
       <p className="mt-6 max-w-sm text-[13px] leading-relaxed text-slate-500">
-        A confirmation has been emailed to you — reminders will follow before your visit.
+        A confirmation {result.manageUrl ? 'with your manage link ' : ''}has been emailed to you — reminders will follow
+        before your visit.
       </p>
     </div>
   );

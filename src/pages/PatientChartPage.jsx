@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Pencil, Plus, Printer, Trash2, Pill, FileText, FlaskConical, CalendarClock } from 'lucide-react';
+import { ArrowLeft, Pencil, Plus, Printer, Trash2, Pill, FileText, FlaskConical, CalendarClock, Share2 } from 'lucide-react';
 import { PageHeader, EmptyState, LoadingSkeleton } from '@/components/primitives';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
@@ -14,10 +14,10 @@ import { ReportsTab } from '@/components/chart/ReportsTab';
 import { TimelineTab } from '@/components/chart/TimelineTab';
 import { PatientFormDialog } from '@/components/patients/PatientFormDialog';
 import { usePatientDetail } from '@/hooks/usePatients';
-import { usePrescriptions, useDeletePrescription, useNotes, useCreateNote, useLabs, useCreateLab, useSetLabStatus } from '@/hooks/useClinical';
-import { useGenerateVisitSummary } from '@/hooks/useAi';
+import { usePrescriptions, useDeletePrescription, useSharePrescription, useNotes, useCreateNote, useLabs, useCreateLab, useSetLabStatus } from '@/hooks/useClinical';
+import { useGenerateVisitSummary, useAiDrafts, useApproveDraft, useRejectDraft } from '@/hooks/useAi';
 import { useFeature } from '@/hooks/usePlan';
-import { Sparkles } from 'lucide-react';
+import { Sparkles, Check, X, ShieldAlert } from 'lucide-react';
 import { useHasRole } from '@/hooks/useRole';
 import { fmtDate, fmtDateTime, ageFromDob } from '@/lib/format';
 import { toast, toastApiError } from '@/lib/toast';
@@ -124,13 +124,24 @@ function OverviewTab({ patient, visits }) {
 
 function PrescriptionsTab({ patientId }) {
   const canManage = useHasRole('owner', 'doctor');
+  const hasDocSharing = useFeature('DOCUMENT_SHARING');
   const { data, isLoading, isError, error, refetch } = usePrescriptions(patientId);
   const del = useDeletePrescription();
+  const shareRx = useSharePrescription();
   const [open, setOpen] = useState(false);
   const items = data?.items || [];
 
   const remove = async (rx) => {
     try { await del.mutateAsync(rx._id); toast.success('Prescription deleted'); } catch (e) { toastApiError(e); }
+  };
+  const share = async (rx) => {
+    try {
+      const res = await shareRx.mutateAsync(rx._id);
+      try { await navigator.clipboard.writeText(res.url); } catch { /* clipboard unavailable */ }
+      toast.success(res.sent.length ? `Prescription sent via ${res.sent.join(' + ')}` : 'Share link copied — no reachable channel on file');
+    } catch (e) {
+      toastApiError(e);
+    }
   };
 
   return (
@@ -150,6 +161,11 @@ function PrescriptionsTab({ patientId }) {
               </div>
               <div className="flex gap-1">
                 <Button variant="ghost" size="sm" onClick={() => window.open(`/rx/${rx._id}`, '_blank', 'noopener')}><Printer className="h-4 w-4" /> Print</Button>
+                {hasDocSharing && (
+                  <Button variant="ghost" size="sm" onClick={() => share(rx)} disabled={shareRx.isPending}>
+                    <Share2 className="h-4 w-4" /> Share
+                  </Button>
+                )}
                 {canManage && <Button variant="ghost" size="icon" className="text-muted-foreground" onClick={() => remove(rx)}><Trash2 className="h-4 w-4" /></Button>}
               </div>
             </div>
@@ -169,12 +185,82 @@ function PrescriptionsTab({ patientId }) {
   );
 }
 
+const DRAFT_KIND_LABEL = {
+  visit_summary: 'Visit summary',
+  symptom_intake: 'Symptom intake',
+  clinical_note: 'Clinical note',
+};
+
+/**
+ * A pending AI draft, shown inline in the patient chart so the doctor can review, edit,
+ * and approve it right where it belongs (hard rule 2: nothing enters the record until a
+ * doctor approves — approval creates the real clinical note and this card disappears).
+ */
+function AiDraftCard({ draft }) {
+  const approve = useApproveDraft();
+  const reject = useRejectDraft();
+  const [text, setText] = useState(draft.content || '');
+
+  const doApprove = async () => {
+    if (!text.trim()) return;
+    try {
+      await approve.mutateAsync({ id: draft._id, editedContent: text });
+      toast.success('Approved — saved to clinical notes');
+    } catch (e) {
+      toastApiError(e);
+    }
+  };
+  const doReject = async () => {
+    try {
+      await reject.mutateAsync(draft._id);
+      toast.success('Draft discarded');
+    } catch (e) {
+      toastApiError(e);
+    }
+  };
+
+  return (
+    <Card className="border-violet-300/50 bg-violet-50/40 p-4 dark:bg-violet-500/5">
+      <div className="flex items-center gap-2">
+        <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-violet-500/15 text-violet-600">
+          <Sparkles className="h-4 w-4" />
+        </span>
+        <span className="text-sm font-semibold text-foreground">AI draft · {DRAFT_KIND_LABEL[draft.kind] || 'Draft'}</span>
+        <span className="rounded-full bg-violet-500/10 px-2 py-0.5 text-[10.5px] font-semibold uppercase tracking-wide text-violet-600">Needs review</span>
+        {draft.flagged && (
+          <span className="ml-auto inline-flex items-center gap-1 rounded-full bg-amber-100 px-2 py-0.5 text-[10.5px] font-semibold text-amber-700">
+            <ShieldAlert className="h-3 w-3" /> Flagged
+          </span>
+        )}
+      </div>
+
+      <Textarea value={text} onChange={(e) => setText(e.target.value)} rows={5} className="mt-3 bg-background" />
+
+      {draft.disclaimer && <p className="mt-2 text-[11px] leading-relaxed text-muted-foreground">{draft.disclaimer}</p>}
+
+      <div className="mt-3 flex items-center justify-end gap-2">
+        <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-destructive" onClick={doReject} disabled={reject.isPending || approve.isPending}>
+          <X className="h-4 w-4" /> Discard
+        </Button>
+        <Button size="sm" onClick={doApprove} disabled={!text.trim() || approve.isPending || reject.isPending}>
+          <Check className="h-4 w-4" /> {approve.isPending ? 'Approving…' : 'Approve & save'}
+        </Button>
+      </div>
+    </Card>
+  );
+}
+
 function NotesTab({ patientId }) {
   const canManage = useHasRole('owner', 'doctor');
   const hasAi = useFeature('AI_FEATURES');
   const { data, isLoading, isError, error, refetch } = useNotes(patientId);
   const create = useCreateNote();
   const genSummary = useGenerateVisitSummary();
+  // Pending AI drafts for THIS patient — surfaced inline (doctor/owner only, AI plans only).
+  // The request is already patient-scoped; the extra filter guarantees another patient's
+  // draft can never render here (e.g. from a stale cache while switching patients).
+  const draftsQ = useAiDrafts('pending_review', patientId, { enabled: hasAi && canManage && !!patientId });
+  const drafts = (draftsQ.data?.items || []).filter((d) => String(d.patientId) === String(patientId));
   const [content, setContent] = useState('');
   const items = data?.items || [];
 
@@ -186,7 +272,7 @@ function NotesTab({ patientId }) {
   const draftSummary = async () => {
     try {
       await genSummary.mutateAsync({ patientId });
-      toast.success('AI draft created — review & approve it in AI assistant');
+      toast.success('AI draft created below — review, edit, and approve it');
     } catch (e) {
       toastApiError(e);
     }
@@ -207,8 +293,12 @@ function NotesTab({ patientId }) {
           </div>
         </Card>
       )}
+
+      {/* Pending AI drafts — review before they enter the record (rule 2). */}
+      {drafts.map((d) => <AiDraftCard key={d._id} draft={d} />)}
+
       {isLoading ? <LoadingSkeleton lines={3} /> : isError ? <ErrorBox error={error} onRetry={refetch} /> : items.length === 0 ? (
-        <Empty icon={FileText} title="No clinical notes" />
+        drafts.length === 0 ? <Empty icon={FileText} title="No clinical notes" /> : null
       ) : (
         items.map((n) => (
           <Card key={n._id} className="p-4">

@@ -1,15 +1,25 @@
 import { useState, useEffect } from 'react';
-import { Printer, CreditCard, IndianRupee, Undo2 } from 'lucide-react';
+import { Printer, CreditCard, IndianRupee, Undo2, Link2, Share2 } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select';
 import { LoadingSkeleton } from '@/components/primitives';
-import { useInvoice, useRecordPayment, useRefund, usePayOnline } from '@/hooks/useBilling';
+import { useInvoice, useRecordPayment, useRefund, usePayOnline, useSendPaymentLink, useShareInvoice } from '@/hooks/useBilling';
 import { useHasRole } from '@/hooks/useRole';
+import { useFeature } from '@/hooks/usePlan';
 import { fmtDateTime } from '@/lib/format';
 import { cn } from '@/lib/utils';
 import { toast, toastApiError } from '@/lib/toast';
+
+const copyToClipboard = async (text) => {
+  try {
+    await navigator.clipboard.writeText(text);
+    return true;
+  } catch {
+    return false;
+  }
+};
 
 const STATUS_CLS = {
   paid: 'bg-success/10 text-success',
@@ -22,10 +32,14 @@ const STATUS_CLS = {
 
 export function InvoiceDetailDialog({ invoiceId, open, onOpenChange }) {
   const isOwner = useHasRole('owner');
+  const hasPaymentLinks = useFeature('PAYMENT_LINKS');
+  const hasDocSharing = useFeature('DOCUMENT_SHARING');
   const { data: inv, isLoading } = useInvoice(open ? invoiceId : null);
   const recordPayment = useRecordPayment();
   const refund = useRefund();
   const payOnline = usePayOnline();
+  const sendLink = useSendPaymentLink();
+  const shareInvoice = useShareInvoice();
   const [amount, setAmount] = useState('');
   const [method, setMethod] = useState('cash');
 
@@ -55,6 +69,36 @@ export function InvoiceDetailDialog({ invoiceId, open, onOpenChange }) {
     try {
       await refund.mutateAsync({ id: inv._id, amount: inv.amountPaid, reason: 'Refund' });
       toast.success('Refund issued');
+    } catch (e) {
+      toastApiError(e);
+    }
+  };
+  const doSendLink = async () => {
+    try {
+      const res = await sendLink.mutateAsync({ id: inv._id });
+      const copied = await copyToClipboard(res.url);
+      toast.success(
+        res.sent.length
+          ? `Payment link sent via ${res.sent.join(' + ')}${copied ? ' · copied to clipboard' : ''}`
+          : copied
+            ? 'No reachable channel — link copied, share it manually'
+            : 'Link created — no reachable channel on file'
+      );
+    } catch (e) {
+      toastApiError(e);
+    }
+  };
+  const doShare = async () => {
+    try {
+      const res = await shareInvoice.mutateAsync({ id: inv._id });
+      const copied = await copyToClipboard(res.url);
+      toast.success(
+        res.sent.length
+          ? `Invoice shared via ${res.sent.join(' + ')}${copied ? ' · copied to clipboard' : ''}`
+          : copied
+            ? 'No reachable channel — link copied, share it manually'
+            : 'Share link created'
+      );
     } catch (e) {
       toastApiError(e);
     }
@@ -108,16 +152,30 @@ export function InvoiceDetailDialog({ invoiceId, open, onOpenChange }) {
                     <IndianRupee className="h-4 w-4" /> Record
                   </Button>
                 </div>
-                <Button variant="outline" className="w-full" onClick={pay} disabled={payOnline.isPending}>
-                  <CreditCard className="h-4 w-4" /> {payOnline.isPending ? 'Processing…' : 'Pay online (Razorpay)'}
-                </Button>
+                <div className="grid gap-2 sm:grid-cols-2">
+                  <Button variant="outline" onClick={pay} disabled={payOnline.isPending}>
+                    <CreditCard className="h-4 w-4" /> {payOnline.isPending ? 'Processing…' : 'Pay online here'}
+                  </Button>
+                  {hasPaymentLinks && (
+                    <Button variant="outline" onClick={doSendLink} disabled={sendLink.isPending}>
+                      <Link2 className="h-4 w-4" /> {sendLink.isPending ? 'Sending…' : 'Send payment link'}
+                    </Button>
+                  )}
+                </div>
               </div>
             )}
 
-            <div className="flex justify-between">
-              <Button variant="ghost" size="sm" onClick={() => window.open(`/invoice/${inv._id}`, '_blank', 'noopener')}>
-                <Printer className="h-4 w-4" /> Print
-              </Button>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-1">
+                <Button variant="ghost" size="sm" onClick={() => window.open(`/invoice/${inv._id}`, '_blank', 'noopener')}>
+                  <Printer className="h-4 w-4" /> Print
+                </Button>
+                {hasDocSharing && (
+                  <Button variant="ghost" size="sm" onClick={doShare} disabled={shareInvoice.isPending}>
+                    <Share2 className="h-4 w-4" /> {shareInvoice.isPending ? 'Sharing…' : 'Share'}
+                  </Button>
+                )}
+              </div>
               {isOwner && inv.amountPaid > inv.amountRefunded && (
                 <Button variant="ghost" size="sm" className="text-destructive" onClick={doRefund} disabled={refund.isPending}>
                   <Undo2 className="h-4 w-4" /> Refund

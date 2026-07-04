@@ -17,7 +17,7 @@ export function LoadingSkeleton({ lines = 3, className }) {
  *  `bare` renders without the card chrome, for embedding inside an existing frame. */
 export function TableSkeleton({ rows = 6, cols = 4, bare = false }) {
   return (
-    <div className={cn(!bare && 'overflow-hidden rounded-2xl border bg-card shadow-sm')}>
+    <div className={cn(!bare && 'glass-card overflow-hidden rounded-2xl border')}>
       <div className="flex h-11 items-center gap-4 border-b border-border/70 bg-muted/40 px-5">
         {Array.from({ length: cols }).map((_, i) => (
           <Skeleton key={i} className="h-3 w-24" />

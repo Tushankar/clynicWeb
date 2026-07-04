@@ -11,7 +11,10 @@ import { BranchSwitcher } from './BranchSwitcher';
  */
 export function TopBar({ onMenu }) {
   return (
-    <header className="sticky top-0 z-30 flex h-16 items-center gap-3 border-b bg-card/85 px-4 backdrop-blur sm:px-6">
+    <header
+      className="sticky top-0 z-30 flex h-16 items-center gap-3 border-b border-white/50 bg-card/60 px-4 dark:border-white/10 dark:bg-card/50 sm:px-6"
+      style={{ backdropFilter: 'blur(22px) saturate(1.9) brightness(1.03)', WebkitBackdropFilter: 'blur(22px) saturate(1.9) brightness(1.03)' }}
+    >
       <div className="flex items-center gap-2">
         <Button variant="ghost" size="icon" className="lg:hidden" onClick={onMenu} aria-label="Open navigation">
           <Menu className="h-5 w-5" />

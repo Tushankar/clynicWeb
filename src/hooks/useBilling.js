@@ -24,6 +24,15 @@ export const useCreateInvoice = () => billingMutation((body) => api.post('/api/i
 export const useRecordPayment = () => billingMutation(({ id, ...body }) => api.post(`/api/invoices/${id}/payments`, body));
 export const useRefund = () => billingMutation(({ id, ...body }) => api.post(`/api/invoices/${id}/refund`, body));
 
+/** Daily cash register (§5.23): method split + refunds + dues for a date. */
+export function useDayRegister(params, opts = {}) {
+  return useQuery({ queryKey: ['register', params], queryFn: () => api.get('/api/invoices/register', { params }), ...opts });
+}
+/** Send a pay-online link for the invoice's dues (email + WhatsApp when usable). */
+export const useSendPaymentLink = () => billingMutation(({ id }) => api.post(`/api/invoices/${id}/send-link`));
+/** Share the invoice as a tokenized view/download link. */
+export const useShareInvoice = () => billingMutation(({ id }) => api.post(`/api/invoices/${id}/share`));
+
 /**
  * Pay an invoice online. PRODUCTION: open Razorpay checkout (checkout.js) → it returns
  * {order_id, payment_id, signature} which we POST to /payments/verify (server verifies).

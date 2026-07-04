@@ -5,7 +5,7 @@ export default function ComingSoon({ title, description, icon }) {
   return (
     <div className="space-y-6">
       <PageHeader title={title} description={description} />
-      <div className="rounded-lg border border-dashed bg-card">
+      <div className="rounded-lg border border-dashed bg-card/60 backdrop-blur-md">
         <EmptyState
           icon={icon}
           title="Arriving later in Phase 1"

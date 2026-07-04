@@ -52,23 +52,42 @@ export default function Doctors({ m }) {
                   />
                   <div aria-hidden="true" className="pmx-plus absolute inset-0 opacity-[0.16]" />
 
-                  {/* availability */}
+                  {/* experience / availability badge (experience is real; falls back gracefully) */}
                   <span className="absolute right-4 top-4 inline-flex items-center gap-1.5 rounded-full border border-white/20 bg-white/10 px-3 py-1.5 text-[11px] font-semibold text-white backdrop-blur">
-                    <span className="relative flex h-1.5 w-1.5">
-                      <span className="absolute h-full w-full animate-ping rounded-full bg-emerald-400 opacity-70" />
-                      <span className="relative h-1.5 w-1.5 rounded-full bg-emerald-400" />
-                    </span>
-                    Available today
+                    {d.experienceYears > 0 ? (
+                      <>
+                        <BadgeCheck className="h-3.5 w-3.5 text-emerald-300" aria-hidden="true" />
+                        {d.experienceYears}+ yrs experience
+                      </>
+                    ) : (
+                      <>
+                        <span className="relative flex h-1.5 w-1.5">
+                          <span className="absolute h-full w-full animate-ping rounded-full bg-emerald-400 opacity-70" />
+                          <span className="relative h-1.5 w-1.5 rounded-full bg-emerald-400" />
+                        </span>
+                        Available today
+                      </>
+                    )}
                   </span>
 
-                  {/* monogram portrait */}
+                  {/* portrait — real photo when provided, dignified monogram otherwise */}
                   <div className="absolute inset-x-0 bottom-0 flex justify-center">
-                    <span
-                      className="pmx-display relative -mb-10 flex h-24 w-24 items-center justify-center rounded-full border-[5px] border-white text-[26px] font-semibold text-white shadow-[0_16px_36px_-10px_rgba(10,27,58,0.45)] transition-transform duration-500 group-hover:scale-[1.04]"
-                      style={{ background: GRADIENTS[i % GRADIENTS.length] }}
-                      aria-hidden="true"
-                    >
-                      {initials(d.name)}
+                    <span className="relative -mb-10 block h-24 w-24 transition-transform duration-500 group-hover:scale-[1.04]">
+                      {d.photoUrl ? (
+                        <img
+                          src={d.photoUrl}
+                          alt={d.name}
+                          className="h-24 w-24 rounded-full border-[5px] border-white object-cover shadow-[0_16px_36px_-10px_rgba(10,27,58,0.45)]"
+                        />
+                      ) : (
+                        <span
+                          className="pmx-display flex h-24 w-24 items-center justify-center rounded-full border-[5px] border-white text-[26px] font-semibold text-white shadow-[0_16px_36px_-10px_rgba(10,27,58,0.45)]"
+                          style={{ background: GRADIENTS[i % GRADIENTS.length] }}
+                          aria-hidden="true"
+                        >
+                          {initials(d.name)}
+                        </span>
+                      )}
                       <span className="absolute -bottom-0.5 right-0.5 flex h-6 w-6 items-center justify-center rounded-full bg-white shadow">
                         <BadgeCheck className="h-4 w-4 text-emerald-600" aria-hidden="true" />
                       </span>
@@ -79,7 +98,18 @@ export default function Doctors({ m }) {
                 {/* body */}
                 <div className="flex flex-1 flex-col px-7 pb-7 pt-14 text-center">
                   <h3 className="pmx-display text-[19px] font-semibold tracking-[-0.01em] text-[#0B1220]">{d.name}</h3>
+                  {d.qualifications ? <p className="mt-0.5 text-[12.5px] font-medium text-slate-400">{d.qualifications}</p> : null}
                   <p className="mt-1 text-sm font-medium text-emerald-700">{d.specialization}</p>
+
+                  {d.bio ? <p className="mt-3 line-clamp-2 text-[13px] leading-relaxed text-slate-500">{d.bio}</p> : null}
+
+                  {d.services?.length ? (
+                    <div className="mt-4 flex flex-wrap justify-center gap-1.5">
+                      {d.services.slice(0, 4).map((s) => (
+                        <span key={s} className="rounded-full bg-slate-100 px-2.5 py-1 text-[11.5px] font-medium text-slate-600">{s}</span>
+                      ))}
+                    </div>
+                  ) : null}
 
                   <div className="mt-5 flex items-center justify-center gap-5 border-y border-slate-100 py-3.5">
                     <span className="flex items-center gap-1.5">
@@ -95,6 +125,10 @@ export default function Doctors({ m }) {
                       </>
                     ) : null}
                   </div>
+
+                  {d.languages?.length ? (
+                    <p className="mt-3 text-[12px] text-slate-400">Speaks {d.languages.slice(0, 4).join(', ')}</p>
+                  ) : null}
 
                   <Link
                     to={m.bookHref}

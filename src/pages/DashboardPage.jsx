@@ -386,7 +386,7 @@ export default function DashboardPage() {
         ) : (
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4">
             {doctors.map((d) => (
-              <div key={d.id} className="flex items-center gap-3 rounded-xl border bg-card p-3">
+              <div key={d.id} className="flex items-center gap-3 rounded-xl border border-white/50 bg-card/50 p-3 dark:border-white/10 dark:bg-white/[0.04]">
                 <div className="relative">
                   <Avatar name={d.name} className="h-11 w-11 text-sm" />
                   <span className={cn('absolute -bottom-0.5 -right-0.5 h-3 w-3 rounded-full border-2 border-card', d.status === 'in_consultation' ? 'bg-amber-500' : 'bg-emerald-500')} />
@@ -424,7 +424,10 @@ const ACTIVITY_DOT = {
 function Chip({ icon: Icon, label, tint = 'blue' }) {
   const t = { blue: 'text-blue-600', teal: 'text-teal-600', green: 'text-emerald-600' }[tint];
   return (
-    <span className="inline-flex items-center gap-1.5 rounded-full border bg-card px-3 py-1.5 text-xs font-medium text-foreground">
+    <span
+      className="inline-flex items-center gap-1.5 rounded-full border border-white/60 bg-card/60 px-3 py-1.5 text-xs font-medium text-foreground dark:border-white/10 dark:bg-white/[0.06]"
+      style={{ backdropFilter: 'blur(10px) saturate(1.5)', WebkitBackdropFilter: 'blur(10px) saturate(1.5)' }}
+    >
       <Icon weight="duotone" className={cn('h-4 w-4', t)} /> {label}
     </span>
   );

@@ -3,7 +3,7 @@ import { NavLink, Link } from 'react-router-dom';
 import {
   House, CalendarCheck, Stethoscope, Users, ListChecks, UserPlus, Receipt, Handshake,
   ChartLineUp, Sparkle, Globe, ChatCircle, Buildings, Gear, ShieldStar, LockSimple,
-  CaretUpDown, Sun, Moon, PaperPlaneTilt,
+  CaretUpDown, Sun, Moon, PaperPlaneTilt, CalendarSlash,
 } from '@phosphor-icons/react';
 import { Logo } from '@/components/Logo';
 import { cn } from '@/lib/utils';
@@ -20,6 +20,7 @@ export const NAV_GROUPS = [
     items: [
       { to: '/dashboard', label: 'Dashboard', icon: House, roles: ['owner', 'doctor', 'receptionist'], end: true },
       { to: '/dashboard/appointments', label: 'Appointments', icon: CalendarCheck, roles: ['owner', 'receptionist'] },
+      { to: '/dashboard/time-off', label: 'Time Off', icon: CalendarSlash, roles: ['owner', 'receptionist'], feature: 'AVAILABILITY_BLOCKS' },
       { to: '/dashboard/doctors', label: 'Doctors', icon: Stethoscope, roles: ['owner', 'doctor', 'receptionist'] },
       { to: '/dashboard/patients', label: 'Patients', icon: Users, roles: ['owner', 'doctor', 'receptionist'] },
     ],

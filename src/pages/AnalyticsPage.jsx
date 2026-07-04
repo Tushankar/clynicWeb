@@ -5,6 +5,7 @@ import { Card } from '@/components/ui/card';
 import { Bars } from '@/components/charts/Bars';
 import { useAnalytics } from '@/hooks/useAnalytics';
 import { useBranch } from '@/context/BranchContext';
+import { cn } from '@/lib/utils';
 
 export default function AnalyticsPage() {
   return (
@@ -72,6 +73,191 @@ function AnalyticsInner() {
           <h3 className="mb-4 text-sm font-medium text-muted-foreground">New vs returning</h3>
           {isLoading ? <LoadingSkeleton lines={3} /> : <Bars data={nr} horizontal />}
         </Card>
+
+        {/* Depth (§5.24) */}
+        <Card className="p-5">
+          <h3 className="mb-1 text-sm font-medium text-muted-foreground">Revenue by service</h3>
+          <p className="mb-4 text-xs text-muted-foreground/70">What you actually bill for, ranked.</p>
+          {isLoading ? (
+            <LoadingSkeleton lines={4} />
+          ) : (
+            <Bars data={(a.revenueByService || []).map((s) => ({ label: s.label, value: s.amount }))} horizontal format={inr} />
+          )}
+        </Card>
+        <Card className="p-5">
+          <h3 className="mb-1 text-sm font-medium text-muted-foreground">Doctor utilization</h3>
+          <p className="mb-4 text-xs text-muted-foreground/70">Booked time vs offered availability (net of time off).</p>
+          {isLoading ? <LoadingSkeleton lines={4} /> : <Utilization rows={a.utilization || []} />}
+        </Card>
+        <Card className="p-5 lg:col-span-2">
+          <h3 className="mb-1 text-sm font-medium text-muted-foreground">No-show heatmap</h3>
+          <p className="mb-4 text-xs text-muted-foreground/70">Where no-shows cluster by weekday and hour — tighten reminders or overbook there.</p>
+          {isLoading ? <LoadingSkeleton lines={5} /> : <NoShowHeatmap heatmap={a.heatmap} />}
+        </Card>
+        <Card className="p-5">
+          <h3 className="mb-1 text-sm font-medium text-muted-foreground">Growth (6 months)</h3>
+          <p className="mb-4 text-xs text-muted-foreground/70">New patient registrations vs completed visits.</p>
+          {isLoading ? <LoadingSkeleton lines={4} /> : <Trend trend={a.trend} />}
+        </Card>
+        {a.pnl && (
+          <Card className="p-5">
+            <h3 className="mb-1 text-sm font-medium text-muted-foreground">Profit & loss (6 months)</h3>
+            <p className="mb-4 text-xs text-muted-foreground/70">Collected revenue minus recorded expenses.</p>
+            {isLoading ? <LoadingSkeleton lines={4} /> : <Pnl rows={a.pnl} />}
+          </Card>
+        )}
+      </div>
+    </div>
+  );
+}
+
+/* ------------------------------ depth visualizations ------------------------------ */
+
+const monthLabel = (ym) => {
+  const [y, m] = ym.split('-').map(Number);
+  return new Date(y, m - 1, 1).toLocaleString('en-IN', { month: 'short' });
+};
+
+function Utilization({ rows }) {
+  if (!rows.length) return <p className="text-sm text-muted-foreground">No active doctors in this range.</p>;
+  return (
+    <div className="space-y-3">
+      {rows.map((d) => (
+        <div key={d.doctorId} className="text-sm">
+          <div className="mb-1 flex items-baseline justify-between gap-3">
+            <span className="truncate font-medium text-foreground">{d.name}</span>
+            <span className="shrink-0 tabular text-muted-foreground">
+              {Math.round(d.bookedMinutes / 60)}h / {Math.round(d.availableMinutes / 60)}h ·{' '}
+              <span className={cn('font-semibold', d.utilization >= 75 ? 'text-success' : d.utilization >= 40 ? 'text-foreground' : 'text-warning')}>
+                {d.utilization}%
+              </span>
+            </span>
+          </div>
+          <div className="h-2 overflow-hidden rounded-full bg-muted">
+            <div
+              className={cn('h-full rounded-full', d.utilization >= 75 ? 'bg-success' : d.utilization >= 40 ? 'bg-primary/80' : 'bg-warning')}
+              style={{ width: `${Math.min(100, d.utilization)}%` }}
+            />
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function NoShowHeatmap({ heatmap }) {
+  const cells = heatmap?.cells || [];
+  if (!cells.length) return <p className="text-sm text-muted-foreground">No appointments in this range.</p>;
+
+  const hours = cells.map((c) => c.hour);
+  const minH = Math.min(...hours);
+  const maxH = Math.max(...hours);
+  const range = Array.from({ length: maxH - minH + 1 }, (_, i) => minH + i);
+  const byKey = new Map(cells.map((c) => [`${c.dow}-${c.hour}`, c]));
+  const maxNoShow = Math.max(1, ...cells.map((c) => c.noShow));
+  // Monday-first reading order.
+  const days = [1, 2, 3, 4, 5, 6, 0];
+  const labels = heatmap.dowLabels || ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+
+  return (
+    <div className="overflow-x-auto">
+      <div className="min-w-[520px]">
+        <div className="grid gap-1" style={{ gridTemplateColumns: `44px repeat(${range.length}, minmax(24px, 1fr))` }}>
+          <span />
+          {range.map((h) => (
+            <span key={h} className="text-center text-[10px] tabular text-muted-foreground">{h}</span>
+          ))}
+          {days.map((dow) => (
+            <div key={dow} className="contents">
+              <span className="flex items-center text-[11px] font-medium text-muted-foreground">{labels[dow]}</span>
+              {range.map((h) => {
+                const c = byKey.get(`${dow}-${h}`);
+                const intensity = c ? c.noShow / maxNoShow : 0;
+                return (
+                  <div
+                    key={h}
+                    title={c ? `${labels[dow]} ${h}:00 — ${c.noShow} no-show${c.noShow !== 1 ? 's' : ''} of ${c.total}` : 'No appointments'}
+                    className={cn('flex h-7 items-center justify-center rounded-md text-[10px] font-semibold tabular', !c && 'bg-muted/40')}
+                    style={
+                      c
+                        ? {
+                            backgroundColor: c.noShow > 0 ? `hsl(0 72% 51% / ${0.12 + intensity * 0.55})` : 'hsl(var(--success) / 0.12)',
+                            color: c.noShow > 0 ? (intensity > 0.5 ? '#fff' : 'hsl(0 72% 41%)') : 'hsl(var(--success))',
+                          }
+                        : undefined
+                    }
+                  >
+                    {c ? (c.noShow || '·') : ''}
+                  </div>
+                );
+              })}
+            </div>
+          ))}
+        </div>
+        <p className="mt-3 text-[11px] text-muted-foreground">Red = no-shows (darker = more) · green dot = all attended · number = no-show count.</p>
+      </div>
+    </div>
+  );
+}
+
+function Trend({ trend }) {
+  const months = trend?.months || [];
+  if (!months.length) return <p className="text-sm text-muted-foreground">Not enough history yet.</p>;
+  const max = Math.max(1, ...(trend.visits || []), ...(trend.newPatients || []));
+  return (
+    <div>
+      <div className="flex h-40 items-end gap-2">
+        {months.map((m, i) => (
+          <div key={m} className="flex h-full flex-1 flex-col items-center justify-end gap-1">
+            <div className="flex h-full w-full items-end justify-center gap-1">
+              <div
+                className="w-1/3 rounded-t bg-primary/85"
+                style={{ height: `${Math.max(3, ((trend.visits[i] || 0) / max) * 100)}%` }}
+                title={`${monthLabel(m)}: ${trend.visits[i] || 0} visits`}
+              />
+              <div
+                className="w-1/3 rounded-t bg-success/80"
+                style={{ height: `${Math.max(3, ((trend.newPatients[i] || 0) / max) * 100)}%` }}
+                title={`${monthLabel(m)}: ${trend.newPatients[i] || 0} new patients`}
+              />
+            </div>
+            <span className="text-[10.5px] text-muted-foreground">{monthLabel(m)}</span>
+          </div>
+        ))}
+      </div>
+      <div className="mt-3 flex items-center gap-4 text-[11px] text-muted-foreground">
+        <span className="flex items-center gap-1.5"><span className="h-2 w-2 rounded-sm bg-primary/85" /> Visits</span>
+        <span className="flex items-center gap-1.5"><span className="h-2 w-2 rounded-sm bg-success/80" /> New patients</span>
+      </div>
+    </div>
+  );
+}
+
+function Pnl({ rows }) {
+  const max = Math.max(1, ...rows.map((r) => Math.max(r.revenue, r.expenses)));
+  return (
+    <div className="space-y-2.5">
+      {rows.map((r) => (
+        <div key={r.month} className="text-sm">
+          <div className="mb-1 flex items-baseline justify-between">
+            <span className="text-muted-foreground">{monthLabel(r.month)}</span>
+            <span className={cn('font-semibold tabular', r.net >= 0 ? 'text-success' : 'text-destructive')}>
+              {r.net >= 0 ? '+' : '−'}{inr(Math.abs(r.net))}
+            </span>
+          </div>
+          <div className="space-y-1">
+            <div className="h-2 overflow-hidden rounded-full bg-muted" title={`Revenue ${inr(r.revenue)}`}>
+              <div className="h-full rounded-full bg-success/80" style={{ width: `${(r.revenue / max) * 100}%` }} />
+            </div>
+            <div className="h-2 overflow-hidden rounded-full bg-muted" title={`Expenses ${inr(r.expenses)}`}>
+              <div className="h-full rounded-full bg-destructive/70" style={{ width: `${(r.expenses / max) * 100}%` }} />
+            </div>
+          </div>
+        </div>
+      ))}
+      <div className="flex items-center gap-4 pt-1 text-[11px] text-muted-foreground">
+        <span className="flex items-center gap-1.5"><span className="h-2 w-2 rounded-sm bg-success/80" /> Revenue collected</span>
+        <span className="flex items-center gap-1.5"><span className="h-2 w-2 rounded-sm bg-destructive/70" /> Expenses</span>
       </div>
     </div>
   );
