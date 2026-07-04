@@ -50,31 +50,33 @@
     --radius: 0.625rem;
   }
 
+  /* Dark mode — true neutral, pitch-dark surfaces (no blue/indigo tint). Zero-saturation
+     greys so the UI reads as black glass; only accents and status colors carry hue. */
   .dark {
-    --background: 222 47% 8%;
-    --foreground: 210 40% 98%;
-    --card: 222 47% 11%;
-    --card-foreground: 210 40% 98%;
-    --popover: 222 47% 11%;
-    --popover-foreground: 210 40% 98%;
-    --primary: 217 91% 60%;
-    --primary-foreground: 210 40% 98%;
-    --secondary: 217 33% 18%;
-    --secondary-foreground: 210 40% 98%;
-    --muted: 217 33% 18%;
-    --muted-foreground: 215 20% 65%;
-    --accent: 217 33% 24%;
-    --accent-foreground: 213 94% 78%;
-    --destructive: 0 63% 45%;
-    --destructive-foreground: 210 40% 98%;
-    --success: 142 60% 45%;
-    --success-foreground: 222 47% 11%;
-    --warning: 33 90% 55%;
-    --warning-foreground: 222 47% 11%;
-    --info: 199 85% 55%;
-    --info-foreground: 222 47% 11%;
-    --border: 217 33% 20%;
-    --input: 217 33% 22%;
+    --background: 0 0% 4%;          /* #0a0a0a — pitch dark canvas */
+    --foreground: 0 0% 98%;
+    --card: 0 0% 7%;                /* #121212 — elevated surface */
+    --card-foreground: 0 0% 98%;
+    --popover: 0 0% 8%;
+    --popover-foreground: 0 0% 98%;
+    --primary: 217 91% 60%;         /* product blue — pops on black */
+    --primary-foreground: 0 0% 100%;
+    --secondary: 0 0% 11%;
+    --secondary-foreground: 0 0% 98%;
+    --muted: 0 0% 11%;
+    --muted-foreground: 0 0% 64%;
+    --accent: 0 0% 13%;
+    --accent-foreground: 217 91% 72%;
+    --destructive: 0 72% 55%;
+    --destructive-foreground: 0 0% 98%;
+    --success: 142 66% 45%;
+    --success-foreground: 0 0% 5%;
+    --warning: 38 92% 55%;
+    --warning-foreground: 0 0% 5%;
+    --info: 199 89% 52%;
+    --info-foreground: 0 0% 5%;
+    --border: 0 0% 15%;
+    --input: 0 0% 16%;
     --ring: 217 91% 60%;
   }
 }

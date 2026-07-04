@@ -31,7 +31,8 @@ const TableHead = React.forwardRef(({ className, ...props }, ref) => (
   <th
     ref={ref}
     className={cn(
-      'h-12 whitespace-nowrap px-5 text-left align-middle text-[11px] font-bold uppercase tracking-wider text-foreground [&:has([role=checkbox])]:pr-0',
+      // Quiet, editorial header — micro uppercase in muted ink, never shouting.
+      'h-11 whitespace-nowrap px-4 text-left align-middle text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground first:pl-5 last:pr-5 [&:has([role=checkbox])]:pr-0',
       className
     )}
     {...props}
@@ -40,7 +41,11 @@ const TableHead = React.forwardRef(({ className, ...props }, ref) => (
 TableHead.displayName = 'TableHead';
 
 const TableCell = React.forwardRef(({ className, ...props }, ref) => (
-  <td ref={ref} className={cn('px-5 py-3.5 align-middle text-sm text-foreground [&:has([role=checkbox])]:pr-0', className)} {...props} />
+  <td
+    ref={ref}
+    className={cn('px-4 py-3 align-middle text-sm text-foreground first:pl-5 last:pr-5 [&:has([role=checkbox])]:pr-0', className)}
+    {...props}
+  />
 ));
 TableCell.displayName = 'TableCell';
 

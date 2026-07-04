@@ -13,18 +13,19 @@ export function LoadingSkeleton({ lines = 3, className }) {
   );
 }
 
-/** Table skeleton — used by DataTable's loading state (skeletons, not a spinner). */
-export function TableSkeleton({ rows = 6, cols = 4 }) {
+/** Table skeleton — used by DataTable's loading state (skeletons, not a spinner).
+ *  `bare` renders without the card chrome, for embedding inside an existing frame. */
+export function TableSkeleton({ rows = 6, cols = 4, bare = false }) {
   return (
-    <div className="overflow-hidden rounded-xl border bg-card shadow-sm">
-      <div className="flex h-12 items-center gap-4 border-b border-border bg-muted/50 px-5">
+    <div className={cn(!bare && 'overflow-hidden rounded-2xl border bg-card shadow-sm')}>
+      <div className="flex h-11 items-center gap-4 border-b border-border/70 bg-muted/40 px-5">
         {Array.from({ length: cols }).map((_, i) => (
           <Skeleton key={i} className="h-3 w-24" />
         ))}
       </div>
       <div className="divide-y divide-border/60">
         {Array.from({ length: rows }).map((_, r) => (
-          <div key={r} className="flex items-center gap-4 px-5 py-4">
+          <div key={r} className="flex items-center gap-4 px-5 py-3.5">
             {Array.from({ length: cols }).map((_, c) => (
               <Skeleton key={c} className={cn('h-4', c === 0 ? 'w-40' : 'w-24')} />
             ))}

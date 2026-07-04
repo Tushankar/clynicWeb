@@ -1,8 +1,15 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
-  <rect width="512" height="512" rx="96" fill="#15847a"/>
-  <path d="M256 132c-46 0-83 37-83 83v40c0 38 27 70 64 77v18a45 45 0 1 1-90 0v-14a34 34 0 1 0-22 0v14a67 67 0 0 0 134 0v-18c37-7 64-39 64-77v-40c0-46-37-83-83-83h-44 100z" fill="none"/>
+  <defs>
+    <linearGradient id="pmxg" x1="0" y1="0" x2="512" y2="512" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#0A1B3A"/>
+      <stop offset="0.58" stop-color="#12306B"/>
+      <stop offset="1" stop-color="#1B6B54"/>
+    </linearGradient>
+  </defs>
+  <rect width="512" height="512" rx="115" fill="url(#pmxg)"/>
   <g fill="#ffffff">
-    <rect x="232" y="150" width="48" height="212" rx="24"/>
-    <rect x="150" y="232" width="212" height="48" rx="24"/>
+    <rect x="216" y="123" width="80" height="266" rx="40"/>
+    <rect x="123" y="216" width="266" height="80" rx="40"/>
   </g>
+  <circle cx="389" cy="123" r="34" fill="#34D399" stroke="#ffffff" stroke-width="13"/>
 </svg>

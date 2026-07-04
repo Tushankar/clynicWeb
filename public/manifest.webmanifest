@@ -1,14 +1,26 @@
 {
-  "name": "Clynic",
+  "id": "/",
+  "name": "Clynic — Modern Clinic Care",
   "short_name": "Clynic",
   "description": "Book appointments, view prescriptions and invoices, and pay — from your clinic.",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
   "orientation": "portrait",
-  "background_color": "#f8fafc",
-  "theme_color": "#15847a",
+  "background_color": "#F8FAFC",
+  "theme_color": "#0A1B3A",
+  "categories": ["health", "medical", "lifestyle"],
   "icons": [
-    { "src": "/clynic.png", "sizes": "734x262", "type": "image/png", "purpose": "any" }
+    { "src": "/icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "/icons/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" },
+    { "src": "/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }
+  ],
+  "shortcuts": [
+    {
+      "name": "Staff dashboard",
+      "url": "/dashboard",
+      "icons": [{ "src": "/icons/icon-192.png", "sizes": "192x192", "type": "image/png" }]
+    }
   ]
 }

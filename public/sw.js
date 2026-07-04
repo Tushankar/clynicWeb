@@ -1,6 +1,6 @@
 /* Minimal service worker — enables PWA install + a graceful offline fallback for
    navigations. Intentionally conservative (no aggressive caching of API/medical data). */
-const CACHE = 'clinic-os-v1';
+const CACHE = 'clinic-os-v2'; // bumped: premium redesign shell + new icon set
 
 self.addEventListener('install', (event) => {
   event.waitUntil(caches.open(CACHE).then((c) => c.addAll(['/'])).catch(() => {}));

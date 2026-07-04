@@ -40,16 +40,26 @@ function Avatar({ name, className }) {
 
 function SectionCard({ title, icon: Icon, action, className, bodyClassName, children }) {
   return (
-    <Card className={cn('card-lift flex flex-col', className)}>
+    // h-full: cards in a grid row share one bottom edge — ragged card bottoms read as broken.
+    <Card className={cn('card-lift flex h-full flex-col', className)}>
       <div className="flex items-center justify-between gap-3 border-b px-5 py-3.5">
-        <div className="flex items-center gap-2">
-          {Icon && <Icon weight="duotone" className="h-[18px] w-[18px] text-muted-foreground" />}
-          <h3 className="text-[15px] font-semibold text-foreground">{title}</h3>
+        <div className="flex min-w-0 items-center gap-2">
+          {Icon && <Icon weight="duotone" className="h-[18px] w-[18px] shrink-0 text-muted-foreground" />}
+          <h3 className="truncate text-[15px] font-semibold text-foreground">{title}</h3>
         </div>
-        {action}
+        {action ? <div className="shrink-0">{action}</div> : null}
       </div>
       <div className={cn('flex-1 p-5', bodyClassName)}>{children}</div>
     </Card>
+  );
+}
+
+/** Quiet period metadata for analytics cards — same position on every card, so it's learnable. */
+function PeriodPill({ children }) {
+  return (
+    <span className="rounded-full border border-border/70 bg-muted/40 px-2.5 py-1 text-[11px] font-medium text-muted-foreground">
+      {children}
+    </span>
   );
 }
 
@@ -272,43 +282,70 @@ export default function DashboardPage() {
         </SectionCard>
       </div>
 
-      {/* ---------- Charts + Activity ---------- */}
-      <div className="grid items-start gap-5 xl:grid-cols-12">
-        <SectionCard className="xl:col-span-3" title="Revenue Overview" icon={ChartLineUp}>
-          <p className="-mt-1 text-2xl font-semibold tabular text-foreground">₹{revenueTotal.toLocaleString('en-IN')}</p>
-          <p className="text-xs text-muted-foreground">Last 7 days</p>
-          <MiniArea data={weekly.revenue} color="hsl(var(--primary))" height={120} className="mt-3" />
+      {/* ---------- Charts + Activity ----------
+          Shared card anatomy: header (title + quiet period pill) → stat on a common
+          baseline → visualization pinned to the bottom edge at one height. The grid
+          stretches (no items-start), so all four cards share top and bottom edges. */}
+      <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-12">
+        <SectionCard
+          className="xl:col-span-3"
+          title="Revenue Overview"
+          icon={ChartLineUp}
+          action={<PeriodPill>Last 7 days</PeriodPill>}
+          bodyClassName="flex flex-1 flex-col p-5"
+        >
+          <p className="text-[26px] font-semibold leading-none tracking-tight tabular text-foreground">
+            ₹{revenueTotal.toLocaleString('en-IN')}
+          </p>
+          <p className="mt-1.5 text-xs text-muted-foreground">collected this week</p>
+          <MiniArea data={weekly.revenue} color="hsl(var(--primary))" height={102} className="mt-auto pt-4" />
         </SectionCard>
 
-        <SectionCard className="xl:col-span-3" title="Appointments" icon={CalendarCheck}>
-          <p className="-mt-1 text-2xl font-semibold tabular text-foreground">{apptTotal}</p>
-          <p className="text-xs text-muted-foreground">Last 7 days</p>
-          <Bars className="mt-4 h-[110px]" data={weekly.appointments.map((d) => ({ ...d, short: d.label }))} barClassName="bg-primary/80" />
+        <SectionCard
+          className="xl:col-span-3"
+          title="Appointments"
+          icon={CalendarCheck}
+          action={<PeriodPill>Last 7 days</PeriodPill>}
+          bodyClassName="flex flex-1 flex-col p-5"
+        >
+          <p className="text-[26px] font-semibold leading-none tracking-tight tabular text-foreground">{apptTotal}</p>
+          <p className="mt-1.5 text-xs text-muted-foreground">visits booked this week</p>
+          <Bars className="mt-auto h-[131px] pt-4" data={weekly.appointments.map((d) => ({ ...d, short: d.label }))} />
         </SectionCard>
 
-        <SectionCard className="xl:col-span-3" title="Patient Demographics" icon={Users}>
+        <SectionCard
+          className="xl:col-span-3"
+          title="Patient Demographics"
+          icon={Users}
+          action={<PeriodPill>All patients</PeriodPill>}
+          bodyClassName="flex flex-1 flex-col p-5"
+        >
           {demo.total === 0 ? (
             <EmptyRow icon={Users} text="No patients yet." />
           ) : (
-            <div className="flex items-center gap-4">
+            <div className="flex flex-1 items-center gap-6">
               <Donut
-                size={128}
-                thickness={16}
+                size={124}
+                thickness={13}
                 centerValue={demo.total}
                 centerLabel="patients"
+                className="shrink-0"
                 segments={[
                   { label: 'Male', value: demo.male, color: '#2563eb' },
                   { label: 'Female', value: demo.female, color: '#f43f5e' },
                   { label: 'Other', value: demo.other, color: '#f59e0b' },
                 ]}
               />
-              <ul className="space-y-2 text-sm">
+              {/* legend as a tiny table: label left, % strong, count in a fixed muted column */}
+              <ul className="min-w-0 flex-1 space-y-3">
                 {[{ l: 'Male', v: demo.male, c: 'bg-blue-600' }, { l: 'Female', v: demo.female, c: 'bg-rose-500' }, { l: 'Other', v: demo.other, c: 'bg-amber-500' }].map((r) => (
-                  <li key={r.l} className="flex items-center gap-2">
-                    <span className={cn('h-2.5 w-2.5 rounded-full', r.c)} />
-                    <span className="text-muted-foreground">{r.l}</span>
-                    <span className="ml-auto font-medium tabular">{demo.total ? Math.round((r.v / demo.total) * 100) : 0}%</span>
-                    <span className="tabular text-xs text-muted-foreground">({r.v})</span>
+                  <li key={r.l} className="flex items-center gap-2.5 text-sm">
+                    <span className={cn('h-2.5 w-2.5 shrink-0 rounded-full', r.c)} />
+                    <span className="truncate text-muted-foreground">{r.l}</span>
+                    <span className="ml-auto shrink-0 font-semibold tabular text-foreground">
+                      {demo.total ? Math.round((r.v / demo.total) * 100) : 0}%
+                    </span>
+                    <span className="w-8 shrink-0 text-right tabular text-xs text-muted-foreground">{r.v}</span>
                   </li>
                 ))}
               </ul>
@@ -316,7 +353,13 @@ export default function DashboardPage() {
           )}
         </SectionCard>
 
-        <SectionCard className="xl:col-span-3" title="Activity Feed" icon={Broadcast} action={<ViewAll to="/dashboard/appointments" label="View all" />}>
+        <SectionCard
+          className="xl:col-span-3"
+          title="Activity Feed"
+          icon={Broadcast}
+          action={<ViewAll to="/dashboard/appointments" label="View all" />}
+          bodyClassName="flex-1 p-5"
+        >
           {activity.length === 0 ? (
             <EmptyRow icon={Broadcast} text="No recent activity." />
           ) : (

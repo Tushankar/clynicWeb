@@ -26,15 +26,18 @@ export function Bars({ data = [], horizontal = false, format = (v) => v, classNa
   }
 
   return (
-    <div className={cn('flex h-44 items-end gap-1', className)}>
+    <div className={cn('flex h-44 items-end gap-1.5', className)}>
       {data.map((d, i) => (
-        <div key={i} className="flex h-full min-w-0 flex-1 flex-col items-center justify-end gap-1">
+        <div key={i} className="group flex h-full min-w-0 flex-1 flex-col items-center justify-end gap-1.5">
           <div
-            className={cn('w-full rounded-t bg-primary/80 transition-[height]', barClassName)}
-            style={{ height: `${Math.max(2, (d.value / max) * 100)}%` }}
+            className={cn(
+              'w-full rounded-md rounded-b-[3px] bg-primary/85 transition-colors group-hover:bg-primary',
+              barClassName
+            )}
+            style={{ height: `${Math.max(3, (d.value / max) * 100)}%` }}
             title={`${d.label}: ${format(d.value)}`}
           />
-          {d.short != null && <span className="text-[10px] tabular text-muted-foreground">{d.short}</span>}
+          {d.short != null && <span className="text-[10.5px] tabular text-muted-foreground">{d.short}</span>}
         </div>
       ))}
     </div>
