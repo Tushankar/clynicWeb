@@ -7,6 +7,10 @@ export const fmtDate = (d) => (d ? format(toDate(d), 'd MMM yyyy') : '');
 export const fmtDateTime = (d) => (d ? format(toDate(d), 'd MMM, h:mm a') : '');
 export const todayISODate = () => format(new Date(), 'yyyy-MM-dd');
 
+/** Rupees, grouped (en-IN) and rounded to paise — ONE formatter so every surface renders money
+ * identically (previously each page had its own `inr`, and the portal showed raw unformatted rupees). */
+export const inr = (v) => `₹${(Math.round((Number(v) || 0) * 100) / 100).toLocaleString('en-IN')}`;
+
 export function ageFromDob(dob) {
   if (!dob) return null;
   const d = toDate(dob);

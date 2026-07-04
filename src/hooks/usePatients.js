@@ -35,3 +35,21 @@ export function useUpdatePatient() {
     },
   });
 }
+
+/** Owner-only: recently-deleted patients (the "trash" view) so a mis-deletion is visible + undoable. */
+export function useDeletedPatients(enabled) {
+  return useQuery({
+    queryKey: ['patients', 'deleted'],
+    queryFn: () => api.get('/api/patients/deleted'),
+    enabled: !!enabled,
+  });
+}
+
+/** Owner-only: restore a soft-deleted patient. */
+export function useRestorePatient() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (id) => api.post(`/api/patients/${id}/restore`),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['patients'] }),
+  });
+}

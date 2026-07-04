@@ -1,11 +1,14 @@
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import {
   Phone, MessageCircle, CalendarDays, Clock, Hash, NotebookPen, ReceiptText, LogIn,
-  CalendarClock, XCircle, Check, ExternalLink, Ban, Globe, Footprints, PhoneCall,
+  CalendarClock, XCircle, Check, ExternalLink, Ban, Globe, Footprints, PhoneCall, Plus,
 } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { StatusBadge } from '@/components/primitives';
+import { useFeature } from '@/hooks/usePlan';
+import { InvoiceFormDialog } from '@/components/billing/InvoiceFormDialog';
 import { PaymentBadge } from './PaymentBadge';
 import { fmtDate, fmtDateTime, fmtTime } from '@/lib/format';
 import { cn } from '@/lib/utils';
@@ -78,11 +81,16 @@ function InfoRow({ icon: Icon, label, children }) {
  * timeline. Front-desk actions (check-in / reschedule / cancel) are surfaced when relevant.
  */
 export function AppointmentDetailDialog({ appointment: a, open, onOpenChange, canManage, onCheckIn, onReschedule, onCancel }) {
+  const [billOpen, setBillOpen] = useState(false);
+  const hasBilling = useFeature('BILLING');
   if (!a) return null;
   const src = SOURCE_META[a.source] || { label: a.source || '—', icon: CalendarDays };
   const phone = digits(a.patientPhone);
   const b = a.billing;
   const active = ['booked', 'confirmed'].includes(a.status);
+  // Front desk can bill straight from the appointment — the invoice is LINKED to it, so the board's
+  // payment badge + day-money tiles light up instead of showing a paid patient as still "Due".
+  const canBill = canManage && hasBilling && b && !b.invoiceId && b.status !== 'prepaid';
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -153,6 +161,10 @@ export function AppointmentDetailDialog({ appointment: a, open, onOpenChange, ca
                   <Button asChild variant="outline" size="sm" className="w-full">
                     <a href={`/invoice/${b.invoiceId}`} target="_blank" rel="noreferrer noopener"><ExternalLink className="h-4 w-4" /> View invoice</a>
                   </Button>
+                ) : canBill ? (
+                  <Button size="sm" className="w-full" onClick={() => setBillOpen(true)}>
+                    <Plus className="h-4 w-4" /> Bill / collect payment
+                  </Button>
                 ) : (
                   <Button asChild variant="outline" size="sm" className="w-full">
                     <Link to="/dashboard/billing"><ReceiptText className="h-4 w-4" /> Go to billing</Link>
@@ -172,6 +184,15 @@ export function AppointmentDetailDialog({ appointment: a, open, onOpenChange, ca
           )}
         </div>
       </DialogContent>
+
+      {canBill && (
+        <InvoiceFormDialog
+          open={billOpen}
+          onOpenChange={setBillOpen}
+          patient={{ _id: a.patientId, name: a.patientName, phone: a.patientPhone }}
+          appointmentId={a._id}
+        />
+      )}
     </Dialog>
   );
 }

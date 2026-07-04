@@ -5,6 +5,11 @@ export function useAppointments(params) {
   return useQuery({
     queryKey: ['appointments', params],
     queryFn: () => api.get('/api/appointments', { params }),
+    // Keep the board fresh even without the realtime socket / notification-center plan: an inbound
+    // online/phone/portal booking must not stay invisible to reception until a manual refresh.
+    // The socket 'appointment:changed' event invalidates this instantly; polling is the fallback.
+    refetchInterval: 60_000,
+    refetchOnWindowFocus: true,
   });
 }
 

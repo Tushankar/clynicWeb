@@ -39,15 +39,23 @@ function buildUrl(path, params) {
 
 export async function apiFetch(path, { method = 'GET', body, params, headers = {}, auth = true } = {}) {
   const token = auth ? await tokenGetter() : null;
-  const res = await fetch(buildUrl(path, params), {
-    method,
-    headers: {
-      'content-type': 'application/json',
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
-      ...headers,
-    },
-    ...(body !== undefined ? { body: JSON.stringify(body) } : {}),
-  });
+  let res;
+  try {
+    res = await fetch(buildUrl(path, params), {
+      method,
+      headers: {
+        'content-type': 'application/json',
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        ...headers,
+      },
+      ...(body !== undefined ? { body: JSON.stringify(body) } : {}),
+    });
+  } catch {
+    // fetch() rejects (TypeError) only on a network-level failure: offline, DNS,
+    // connection drop, blocked request. Surface it as a status-0 ApiError so callers
+    // and the queryClient retry guard can treat it as a transient network error.
+    throw new ApiError(0, 'You appear to be offline. Check your connection and try again.');
+  }
 
   const text = await res.text();
   let data = null;
@@ -67,11 +75,17 @@ export async function apiFetch(path, { method = 'GET', body, params, headers = {
 // do NOT set content-type here. Attaches the Clerk token like apiFetch.
 export async function apiUpload(path, formData, { method = 'POST' } = {}) {
   const token = await tokenGetter();
-  const res = await fetch(buildUrl(path), {
-    method,
-    headers: { ...(token ? { Authorization: `Bearer ${token}` } : {}) },
-    body: formData,
-  });
+  let res;
+  try {
+    res = await fetch(buildUrl(path), {
+      method,
+      headers: { ...(token ? { Authorization: `Bearer ${token}` } : {}) },
+      body: formData,
+    });
+  } catch {
+    // Network-level failure (see apiFetch) — surface as a status-0 ApiError.
+    throw new ApiError(0, 'You appear to be offline. Check your connection and try again.');
+  }
   const text = await res.text();
   let data = null;
   try {

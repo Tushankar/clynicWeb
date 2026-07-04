@@ -23,6 +23,7 @@ import {
 import { LinkShell, LinkSplash, LinkError, TicketPanel } from '@/components/public/LinkPageShell';
 import { SlotGrid } from '@/components/public/SlotPickerPublic';
 import { EASE } from '@/components/site/templates/premium-signature/motion';
+import { statusLabel } from '@/components/primitives';
 import { apiFetch } from '@/lib/api/client';
 import { fmtTime, todayISODate } from '@/lib/format';
 import { cn } from '@/lib/utils';
@@ -161,8 +162,8 @@ export default function ManageAppointmentPage() {
               {fmtLong(a.scheduledAt)}
             </h1>
           </div>
-          <span className={cn('shrink-0 rounded-full border px-3 py-1 text-[11px] font-semibold uppercase tracking-wide', STATUS_STYLE[a.status] || STATUS_STYLE.completed)}>
-            {a.status.replace('_', ' ')}
+          <span className={cn('shrink-0 rounded-full border px-3 py-1 text-[11px] font-semibold tracking-wide', STATUS_STYLE[a.status] || STATUS_STYLE.completed)}>
+            {statusLabel(a.status)}
           </span>
         </div>
 

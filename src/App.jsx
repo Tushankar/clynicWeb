@@ -34,6 +34,7 @@ import SharedDocPage from './pages/SharedDocPage';
 import SelfCheckinPage from './pages/SelfCheckinPage';
 import TimeOffPage from './pages/TimeOffPage';
 import RequireAuth from './components/RequireAuth';
+import { RoleGate } from './components/RoleGate';
 
 export default function App() {
   return (
@@ -65,7 +66,7 @@ export default function App() {
         <Route path="doctor" element={<DoctorDashboardPage />} />
         <Route path="doctors" element={<DoctorsPage />} />
         <Route path="walk-ins" element={<WalkInsPage />} />
-        <Route path="settings" element={<SettingsPage />} />
+        <Route path="settings" element={<RoleGate><SettingsPage /></RoleGate>} />
         <Route path="patients" element={<PatientsPage />} />
         <Route path="patients/:id" element={<PatientChartPage />} />
         <Route path="appointments" element={<AppointmentsPage />} />
@@ -73,12 +74,12 @@ export default function App() {
         <Route path="queue" element={<QueuePage />} />
         <Route path="billing" element={<BillingPage />} />
         <Route path="plan" element={<PlanPage />} />
-        <Route path="branches" element={<BranchesPage />} />
+        <Route path="branches" element={<RoleGate><BranchesPage /></RoleGate>} />
         <Route path="crm" element={<CrmPage />} />
         <Route path="communications" element={<CommunicationsPage />} />
-        <Route path="analytics" element={<AnalyticsPage />} />
+        <Route path="analytics" element={<RoleGate><AnalyticsPage /></RoleGate>} />
         <Route path="ai" element={<AiPage />} />
-        <Route path="website" element={<WebsitePage />} />
+        <Route path="website" element={<RoleGate><WebsitePage /></RoleGate>} />
         <Route path="admin" element={<AdminPage />} />
         <Route path="messages" element={<MessagesPage />} />
       </Route>

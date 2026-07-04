@@ -15,7 +15,7 @@ import {
   Trash2,
   Wallet,
 } from 'lucide-react';
-import { PageHeader, DataTable, Avatar, StatCard } from '@/components/primitives';
+import { PageHeader, DataTable, Avatar, StatCard, InvoiceStatusBadge } from '@/components/primitives';
 import { FeatureGate } from '@/components/FeatureGate';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -39,15 +39,6 @@ import { toast, toastApiError } from '@/lib/toast';
 import { cn } from '@/lib/utils';
 import { InvoiceFormDialog } from '@/components/billing/InvoiceFormDialog';
 import { InvoiceDetailDialog } from '@/components/billing/InvoiceDetailDialog';
-
-const STATUS_CLS = {
-  paid: 'bg-success/10 text-success',
-  partially_paid: 'bg-warning/15 text-warning',
-  unpaid: 'bg-secondary text-secondary-foreground',
-  refunded: 'bg-info/10 text-info',
-  cancelled: 'bg-muted text-muted-foreground',
-  draft: 'bg-muted text-muted-foreground',
-};
 
 const inr = (v) => `₹${(Math.round((v ?? 0) * 100) / 100).toLocaleString('en-IN')}`;
 
@@ -125,7 +116,7 @@ function InvoicesTab() {
       const bal = Math.max(0, Math.round((i.total - i.amountPaid) * 100) / 100);
       return bal > 0 ? <span className="font-semibold text-warning">{inr(bal)}</span> : <span className="text-muted-foreground">—</span>;
     } },
-    { key: 'status', header: 'Status', render: (i) => <span className={cn('rounded-full px-2.5 py-0.5 text-xs font-medium capitalize', STATUS_CLS[i.status] || 'bg-muted')}>{i.status.replace('_', ' ')}</span> },
+    { key: 'status', header: 'Status', render: (i) => <InvoiceStatusBadge status={i.status} /> },
     { key: 'date', header: 'Date', render: (i) => fmtDate(i.createdAt) },
   ];
 

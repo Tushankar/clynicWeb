@@ -109,7 +109,7 @@ export default function PublicBookingPage() {
     setErr(null);
     setBusy(true);
     try {
-      const res = await apiFetch(`/api/public/c/${slug}/otp/request`, { auth: false, method: 'POST', body: { email: form.email } });
+      const res = await apiFetch(`/api/public/c/${slug}/otp/request`, { auth: false, method: 'POST', body: { contact: form.email || form.phone } });
       setDevCode(res.devCode || null);
       setCode('');
       setStep(3);
@@ -124,7 +124,7 @@ export default function PublicBookingPage() {
     setErr(null);
     setBusy(true);
     try {
-      await apiFetch(`/api/public/c/${slug}/otp/verify`, { auth: false, method: 'POST', body: { email: form.email, code } });
+      await apiFetch(`/api/public/c/${slug}/otp/verify`, { auth: false, method: 'POST', body: { contact: form.email || form.phone, code } });
       const booking = await apiFetch(`/api/public/c/${slug}/book`, {
         auth: false,
         method: 'POST',
@@ -340,7 +340,7 @@ export default function PublicBookingPage() {
                         <Field label="Phone" required>
                           <input className={INPUT} value={form.phone} onChange={setField('phone')} placeholder="+91 98300 00000" inputMode="tel" autoComplete="tel" />
                         </Field>
-                        <Field label="Email" required>
+                        <Field label="Email" hint="Optional if you gave a mobile number.">
                           <input className={INPUT} type="email" value={form.email} onChange={setField('email')} placeholder="you@email.com" autoComplete="email" />
                         </Field>
                       </div>
@@ -350,9 +350,9 @@ export default function PublicBookingPage() {
                       <PmxButton
                         icon={busy ? Loader2 : ShieldCheck}
                         magnetic={false}
-                        className={cn('w-full', (!form.name || !form.email || busy) && 'pointer-events-none opacity-40', busy && '[&_svg]:animate-spin')}
-                        aria-disabled={!form.name || !form.email || busy}
-                        onClick={() => form.name && form.email && !busy && sendCode()}
+                        className={cn('w-full', (!form.name || !(form.email || form.phone) || busy) && 'pointer-events-none opacity-40', busy && '[&_svg]:animate-spin')}
+                        aria-disabled={!form.name || !(form.email || form.phone) || busy}
+                        onClick={() => form.name && (form.email || form.phone) && !busy && sendCode()}
                       >
                         {busy ? 'Sending code…' : 'Send verification code'}
                       </PmxButton>
@@ -366,7 +366,7 @@ export default function PublicBookingPage() {
                 {step === 3 && (
                   <Pane key="verify">
                     <BackChip onClick={() => setStep(2)} label="Edit details" />
-                    <StepTitle title="Check your inbox" sub={`We sent a 6-digit code to ${form.email}.`} className="mt-4" />
+                    <StepTitle title="Check your messages" sub={`We sent a 6-digit code to ${form.email || form.phone}.`} className="mt-4" />
                     <div className="mt-7 space-y-6">
                       {devCode ? (
                         <p className="inline-flex items-center gap-2 rounded-full border border-amber-200 bg-amber-50 px-4 py-2 text-[12.5px] font-medium text-amber-800">
@@ -516,7 +516,7 @@ function SuccessScreen({ result, doctor, clinic }) {
             <QRCodeSVG value={shareUrl} size={112} />
           </span>
           <p className="text-[11.5px] text-slate-400">
-            {result.manageUrl ? 'Scan to reschedule or cancel anytime' : 'Scan to book again or share this page'}
+            {result.manageUrl ? 'Scan to reschedule or cancel (up to 2 hours before)' : 'Scan to book again or share this page'}
           </p>
           {clinic?.address ? (
             <p className="flex items-center gap-1.5 text-[12px] text-slate-300">
@@ -714,17 +714,17 @@ function SummaryPanel({ clinic, doctor, slot, form, result }) {
     },
     {
       key: 'details',
-      done: !!(form.name && form.email),
+      done: !!(form.name && (form.email || form.phone)),
       placeholder: 'Add your details',
       content:
-        form.name && form.email ? (
+        form.name && (form.email || form.phone) ? (
           <div className="flex items-center gap-3">
             <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white/10 text-slate-200">
               <UserRound className="h-5 w-5" aria-hidden="true" />
             </span>
             <div className="min-w-0">
               <p className="pmx-display truncate text-[14.5px] font-semibold text-white">{form.name}</p>
-              <p className="truncate text-[12px] text-slate-400">{form.email}</p>
+              <p className="truncate text-[12px] text-slate-400">{form.email || form.phone}</p>
             </div>
           </div>
         ) : null,
@@ -785,7 +785,7 @@ function SummaryPanel({ clinic, doctor, slot, form, result }) {
           {[
             { icon: ShieldCheck, text: 'Private & encrypted end to end' },
             { icon: Zap, text: result ? 'Booked in under a minute' : 'Instant confirmation' },
-            { icon: RefreshCcw, text: 'Free rescheduling, anytime' },
+            { icon: RefreshCcw, text: 'Free online rescheduling' },
           ].map((t) => (
             <p key={t.text} className="flex items-center gap-2.5 text-[13px] text-slate-300">
               <t.icon className="h-4 w-4 shrink-0 text-emerald-400" aria-hidden="true" />

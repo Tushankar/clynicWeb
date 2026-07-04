@@ -22,6 +22,7 @@ export default function SelfCheckinPage() {
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState(null);
   const [result, setResult] = useState(null);
+  const [chooseFrom, setChooseFrom] = useState(null); // [{ appointmentId, name, token, doctorName }]
   const [live, setLive] = useState(null); // { position, waitMinutes, serving }
   const inputRef = useRef(null);
 
@@ -36,11 +37,17 @@ export default function SelfCheckinPage() {
     if (ctx && !result) inputRef.current?.focus();
   }, [ctx, result]);
 
-  const checkin = async () => {
+  const checkin = async (appointmentId) => {
     setErr(null);
     setBusy(true);
     try {
-      const res = await apiFetch(`/api/public/c/${slug}/checkin`, { auth: false, method: 'POST', body: { phone } });
+      const res = await apiFetch(`/api/public/c/${slug}/checkin`, { auth: false, method: 'POST', body: { phone, ...(appointmentId ? { appointmentId } : {}) } });
+      if (res.chooseFrom) {
+        // Shared number with more than one person booked today — ask who is checking in.
+        setChooseFrom(res.chooseFrom);
+        return;
+      }
+      setChooseFrom(null);
       setResult(res);
       setLive(res.queue ? { position: res.queue.position, waitMinutes: res.queue.waitMinutes, serving: res.queue.nowServing || [] } : null);
     } catch (e) {
@@ -82,6 +89,37 @@ export default function SelfCheckinPage() {
     <LinkShell clinic={ctx.clinic} badge="Self check-in">
       <AnimatePresence mode="wait">
         {!result ? (
+          chooseFrom ? (
+            <motion.section
+              key="choose"
+              initial={{ opacity: 0, y: 14 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              className="rounded-[28px] border border-slate-200/80 bg-white p-6 shadow-[0_24px_60px_-24px_rgba(10,27,58,0.18)] sm:p-8"
+            >
+              <h1 className="pmx-display text-center text-[22px] font-semibold tracking-tight text-[#0A1B3A]">Who’s checking in?</h1>
+              <p className="mx-auto mt-2 max-w-sm text-center text-[14px] text-slate-500">More than one person is booked today on this number. Tap your name.</p>
+              <div className="mx-auto mt-6 flex max-w-sm flex-col gap-2.5">
+                {chooseFrom.map((p) => (
+                  <button
+                    key={p.appointmentId}
+                    type="button"
+                    disabled={busy}
+                    onClick={() => checkin(p.appointmentId)}
+                    className="flex items-center justify-between gap-3 rounded-2xl border border-slate-200 bg-white px-4 py-3.5 text-left transition-colors hover:border-emerald-500/60 hover:bg-emerald-50/40 disabled:opacity-50"
+                  >
+                    <span>
+                      <span className="block text-[15px] font-semibold text-[#0A1B3A]">{p.name}</span>
+                      <span className="block text-[12.5px] text-slate-500">{p.doctorName || 'Consultation'} · token #{p.token}</span>
+                    </span>
+                    <LogIn className="h-5 w-5 text-emerald-500" aria-hidden="true" />
+                  </button>
+                ))}
+              </div>
+              {err && <p className="mx-auto mt-4 max-w-sm rounded-xl border border-red-100 bg-red-50 px-3.5 py-2.5 text-center text-[13px] text-red-600">{err}</p>}
+              <button type="button" onClick={() => { setChooseFrom(null); setErr(null); }} className="mx-auto mt-5 block text-[13px] font-medium text-slate-400 hover:text-slate-600">← Use a different number</button>
+            </motion.section>
+          ) : (
           <motion.section
             key="form"
             initial={{ opacity: 0, y: 14 }}
@@ -127,6 +165,7 @@ export default function SelfCheckinPage() {
             </button>
             <p className="mt-4 text-[12px] text-slate-400">No booking today? The front desk will be happy to help.</p>
           </motion.section>
+          )
         ) : (
           <motion.section key="done" initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} className="space-y-5">
             <div className="rounded-[28px] bg-[#0A1B3A] p-8 text-center text-white shadow-[0_32px_80px_-28px_rgba(10,27,58,0.55)] sm:p-10">

@@ -13,7 +13,7 @@ import {
   DialogDescription,
   DialogFooter,
 } from '@/components/ui/dialog';
-import { useBlocks, useCreateBlock, useRemoveBlock } from '@/hooks/useSchedule';
+import { useBlocks, useCreateBlock, useRemoveBlock, useCancelImpacted } from '@/hooks/useSchedule';
 import { useDoctors } from '@/hooks/useDoctors';
 import { useSlots } from '@/hooks/useAppointments';
 import { useHasRole } from '@/hooks/useRole';
@@ -212,6 +212,7 @@ function BlockSlotGrid({ slots, selected, onToggle }) {
 function TimeOffFormDialog({ open, onOpenChange }) {
   const doctors = useDoctors().data?.items || [];
   const create = useCreateBlock();
+  const cancelImpacted = useCancelImpacted();
   const [mode, setMode] = useState('range'); // 'range' | 'slots'
   const [who, setWho] = useState('clinic');
   const [startDate, setStartDate] = useState(todayISODate());
@@ -275,7 +276,22 @@ function TimeOffFormDialog({ open, onOpenChange }) {
       type: who === 'clinic' ? 'holiday' : 'leave',
     });
     if (res.impactedAppointments > 0) {
-      toast.warning(`Time off added — ${res.impactedAppointments} existing appointment${res.impactedAppointments > 1 ? 's fall' : ' falls'} inside it. Please reschedule ${res.impactedAppointments > 1 ? 'them' : 'it'}.`);
+      const n = res.impactedAppointments;
+      const blockId = res.block?._id;
+      toast.warning(`Time off added — ${n} booked appointment${n > 1 ? 's' : ''} fall${n > 1 ? '' : 's'} inside it.`, {
+        description: 'Their reminders are paused. Cancel & notify those patients, or reschedule them.',
+        duration: 12000,
+        action: blockId
+          ? {
+              label: `Cancel & notify ${n}`,
+              onClick: () =>
+                cancelImpacted
+                  .mutateAsync(blockId)
+                  .then((r) => toast.success(`Cancelled & notified ${r.cancelled} patient${r.cancelled === 1 ? '' : 's'}`))
+                  .catch(toastApiError),
+            }
+          : undefined,
+      });
     } else {
       toast.success('Time off added — those slots are no longer bookable');
     }

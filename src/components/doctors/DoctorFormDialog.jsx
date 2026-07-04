@@ -6,19 +6,24 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
 import { Avatar } from '@/components/primitives';
-import { useUpdateDoctor } from '@/hooks/useDoctors';
+import { useCreateDoctor, useUpdateDoctor, useStaffDirectory } from '@/hooks/useDoctors';
 import { useHasRole } from '@/hooks/useRole';
 import { toast, toastApiError } from '@/lib/toast';
 import { cn } from '@/lib/utils';
 
 /**
- * Edit an existing practitioner's clinic profile (owner-only): fees, the public profile
- * (photo, credentials, capabilities, bio), AND the recurring WEEKLY WORKING HOURS that
- * generate every bookable slot. Practitioners are added as team members via Clerk;
- * one-off leave/holidays live on the Time Off page. Working hours ≠ time off:
+ * Add OR edit a practitioner's clinic profile (owner-only): name, fees, the public profile
+ * (photo, credentials, capabilities, bio), the recurring WEEKLY WORKING HOURS that generate
+ * every bookable slot, and an optional link to a login account (for the doctor dashboard).
+ * A clinic needs at least one doctor with hours to be bookable. One-off leave/holidays live on
+ * the Time Off page. Working hours ≠ time off:
  *   - Working hours = the doctor's normal weekly schedule (here).
  *   - Time Off      = exceptions to it (leave, holidays, blocked slots).
  */
+
+// A sensible starting schedule for a brand-new doctor (Mon–Fri, 10:00–17:00) so they are
+// immediately bookable; the owner can adjust before saving.
+const DEFAULT_NEW_AVAILABILITY = { mon: [{ start: '10:00', end: '17:00' }], tue: [{ start: '10:00', end: '17:00' }], wed: [{ start: '10:00', end: '17:00' }], thu: [{ start: '10:00', end: '17:00' }], fri: [{ start: '10:00', end: '17:00' }] };
 
 const DAYS = [
   ['mon', 'Monday'],
@@ -87,31 +92,44 @@ function Labeled({ label, hint, children }) {
 }
 
 export function DoctorFormDialog({ open, onOpenChange, doctor }) {
+  const isCreate = !doctor;
   const update = useUpdateDoctor();
+  const create = useCreateDoctor();
   const canEditFees = useHasRole('owner'); // fees are owner-only; receptionists edit everything else
+  const { data: dirData } = useStaffDirectory(open);
+  const staff = dirData?.items || [];
   const [form, setForm] = useState(null);
   const [avail, setAvail] = useState(emptyAvail);
   const [photoBroken, setPhotoBroken] = useState(false);
+  const busy = isCreate ? create.isPending : update.isPending;
 
   useEffect(() => {
-    if (open && doctor) {
-      setForm({
-        specialization: doctor.specialization || '',
-        qualifications: doctor.qualifications || '',
-        experienceYears: doctor.experienceYears ?? '',
-        registrationNumber: doctor.registrationNumber || '',
-        consultationFee: doctor.consultationFee ?? '',
-        followUpFee: doctor.followUpFee ?? '',
-        photoUrl: doctor.photoUrl || '',
-        bio: doctor.bio || '',
-        services: Array.isArray(doctor.services) ? doctor.services : [],
-        languages: Array.isArray(doctor.languages) ? doctor.languages : [],
-        isActive: doctor.isActive !== false,
-      });
-      setAvail(normalizeAvailability(doctor.availability));
-      setPhotoBroken(false);
-    }
+    if (!open) return;
+    setForm({
+      name: doctor?.name || '',
+      specialization: doctor?.specialization || '',
+      qualifications: doctor?.qualifications || '',
+      experienceYears: doctor?.experienceYears ?? '',
+      registrationNumber: doctor?.registrationNumber || '',
+      consultationFee: doctor?.consultationFee ?? '',
+      followUpFee: doctor?.followUpFee ?? '',
+      photoUrl: doctor?.photoUrl || '',
+      bio: doctor?.bio || '',
+      services: Array.isArray(doctor?.services) ? doctor.services : [],
+      languages: Array.isArray(doctor?.languages) ? doctor.languages : [],
+      isActive: doctor?.isActive !== false,
+      linkClerkUserId: '',
+    });
+    setAvail(normalizeAvailability(doctor ? doctor.availability : DEFAULT_NEW_AVAILABILITY));
+    setPhotoBroken(false);
   }, [open, doctor]);
+
+  // Prefill the "linked login" picker with the doctor's current link once the directory loads (edit mode).
+  useEffect(() => {
+    if (!open || isCreate || !doctor?.staffId || !staff.length) return;
+    const current = staff.find((s) => s.staffId && String(s.staffId) === String(doctor.staffId));
+    if (current) setForm((f) => (f && !f.linkClerkUserId ? { ...f, linkClerkUserId: current.clerkUserId } : f));
+  }, [open, isCreate, doctor, staff]);
 
   const set = (k) => (v) => setForm((f) => ({ ...f, [k]: v }));
 
@@ -128,7 +146,11 @@ export function DoctorFormDialog({ open, onOpenChange, doctor }) {
 
   const workingDays = DAYS.filter(([k]) => avail[k].length > 0).length;
 
+  const canLink = canEditFees; // linking to a login is owner-only (matches the staff-directory route)
+  const dirLoaded = staff.length > 0;
+
   const submit = async () => {
+    if (!form.name.trim()) return toast.error('Doctor name is required');
     const photo = form.photoUrl.trim();
     if (photo && !/^https?:\/\//i.test(photo)) return toast.error('Photo must be a hosted http(s) image URL');
     // Only keep valid windows (end after start); drop empty days.
@@ -137,40 +159,55 @@ export function DoctorFormDialog({ open, onOpenChange, doctor }) {
       const windows = avail[k].filter((w) => w.start && w.end && w.start < w.end);
       if (windows.length) availability[k] = windows;
     }
+    const payload = {
+      name: form.name.trim(),
+      specialization: form.specialization.trim(),
+      qualifications: form.qualifications.trim(),
+      experienceYears: Number(form.experienceYears) || 0,
+      registrationNumber: form.registrationNumber.trim(),
+      // Fees only when the owner edits — the server also strips these for other roles.
+      ...(canEditFees ? { consultationFee: Number(form.consultationFee) || 0, followUpFee: Number(form.followUpFee) || 0 } : {}),
+      photoUrl: photo,
+      bio: form.bio.trim(),
+      services: form.services,
+      languages: form.languages,
+      isActive: form.isActive,
+      availability,
+    };
     try {
-      await update.mutateAsync({
-        id: doctor._id,
-        specialization: form.specialization.trim(),
-        qualifications: form.qualifications.trim(),
-        experienceYears: Number(form.experienceYears) || 0,
-        registrationNumber: form.registrationNumber.trim(),
-        // Fees only when the owner edits — the server also strips these for other roles.
-        ...(canEditFees ? { consultationFee: Number(form.consultationFee) || 0, followUpFee: Number(form.followUpFee) || 0 } : {}),
-        photoUrl: photo,
-        bio: form.bio.trim(),
-        services: form.services,
-        languages: form.languages,
-        isActive: form.isActive,
-        availability,
-      });
-      toast.success('Doctor profile updated');
+      if (isCreate) {
+        await create.mutateAsync({ ...payload, ...(canLink && form.linkClerkUserId ? { linkClerkUserId: form.linkClerkUserId } : {}) });
+        toast.success('Doctor added — they’re now bookable');
+      } else {
+        // Only touch the login link when we actually loaded the picker, so we never accidentally unlink.
+        await update.mutateAsync({ id: doctor._id, ...payload, ...(canLink && dirLoaded ? { linkClerkUserId: form.linkClerkUserId } : {}) });
+        toast.success('Doctor profile updated');
+      }
       onOpenChange(false);
     } catch (e) {
       toastApiError(e);
     }
   };
 
-  if (!doctor || !form) return null;
+  if (!form) return null;
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-lg">
         <DialogHeader>
-          <DialogTitle>Edit {doctor.name}</DialogTitle>
-          <DialogDescription>Fees, the public profile, and the weekly hours that generate bookable slots.</DialogDescription>
+          <DialogTitle>{isCreate ? 'Add a doctor' : `Edit ${doctor.name}`}</DialogTitle>
+          <DialogDescription>
+            {isCreate
+              ? 'Name, fees, and the weekly hours that generate bookable slots. A clinic needs at least one doctor with hours to take bookings.'
+              : 'Name, fees, the public profile, and the weekly hours that generate bookable slots.'}
+          </DialogDescription>
         </DialogHeader>
 
         <div className="max-h-[68vh] space-y-5 overflow-y-auto pr-1">
+          <Labeled label="Full name" hint="Shown on booking, the queue, and the public site.">
+            <Input value={form.name} onChange={(e) => set('name')(e.target.value)} placeholder="Dr. Anjali Sen" autoFocus={isCreate} />
+          </Labeled>
+
           {/* Photo + identity */}
           <div className="flex gap-4">
             <div className="shrink-0 text-center">
@@ -178,7 +215,7 @@ export function DoctorFormDialog({ open, onOpenChange, doctor }) {
                 <img src={form.photoUrl.trim()} alt="" onError={() => setPhotoBroken(true)} className="h-16 w-16 rounded-full object-cover ring-2 ring-border" />
               ) : (
                 <div className="relative">
-                  <Avatar name={doctor.name} className="h-16 w-16 text-lg" />
+                  <Avatar name={form.name || 'New doctor'} className="h-16 w-16 text-lg" />
                   {photoBroken && <ImageOff className="absolute -bottom-1 -right-1 h-4 w-4 rounded-full bg-background text-destructive" />}
                 </div>
               )}
@@ -283,6 +320,24 @@ export function DoctorFormDialog({ open, onOpenChange, doctor }) {
             </div>
           </div>
 
+          {/* Optional: link to a login account so this doctor gets their own "My day" dashboard */}
+          {canLink && dirLoaded && (
+            <Labeled label="Linked login account" hint="Give this doctor their own dashboard (today’s patients, charts). Optional — leave blank if they don’t log in.">
+              <select
+                value={form.linkClerkUserId}
+                onChange={(e) => set('linkClerkUserId')(e.target.value)}
+                className="h-10 w-full rounded-xl border border-input bg-background px-3 text-sm outline-none focus:ring-2 focus:ring-ring/30"
+              >
+                <option value="">— No linked login —</option>
+                {staff.map((s) => (
+                  <option key={s.clerkUserId} value={s.clerkUserId} disabled={s.linked && String(s.staffId) !== String(doctor?.staffId || '')}>
+                    {s.name}{s.role ? ` · ${s.role}` : ''}{s.linked && String(s.staffId) !== String(doctor?.staffId || '') ? ' (already linked)' : ''}
+                  </option>
+                ))}
+              </select>
+            </Labeled>
+          )}
+
           <label className="flex items-center justify-between rounded-lg border px-3.5 py-3">
             <span>
               <span className="block text-sm font-medium text-foreground">Bookable</span>
@@ -294,7 +349,7 @@ export function DoctorFormDialog({ open, onOpenChange, doctor }) {
 
         <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)}>Cancel</Button>
-          <Button onClick={submit} disabled={update.isPending}>{update.isPending ? 'Saving…' : 'Save profile'}</Button>
+          <Button onClick={submit} disabled={busy}>{busy ? 'Saving…' : isCreate ? 'Add doctor' : 'Save profile'}</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

@@ -4,7 +4,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select';
-import { LoadingSkeleton } from '@/components/primitives';
+import { LoadingSkeleton, InvoiceStatusBadge } from '@/components/primitives';
 import { useInvoice, useRecordPayment, useRefund, usePayOnline, useSendPaymentLink, useShareInvoice } from '@/hooks/useBilling';
 import { useHasRole } from '@/hooks/useRole';
 import { useFeature } from '@/hooks/usePlan';
@@ -21,14 +21,6 @@ const copyToClipboard = async (text) => {
   }
 };
 
-const STATUS_CLS = {
-  paid: 'bg-success/10 text-success',
-  partially_paid: 'bg-warning/15 text-warning',
-  unpaid: 'bg-secondary text-secondary-foreground',
-  refunded: 'bg-info/10 text-info',
-  cancelled: 'bg-muted text-muted-foreground',
-  draft: 'bg-muted text-muted-foreground',
-};
 
 export function InvoiceDetailDialog({ invoiceId, open, onOpenChange }) {
   const isOwner = useHasRole('owner');
@@ -42,16 +34,23 @@ export function InvoiceDetailDialog({ invoiceId, open, onOpenChange }) {
   const shareInvoice = useShareInvoice();
   const [amount, setAmount] = useState('');
   const [method, setMethod] = useState('cash');
+  // Idempotency key for this desk-payment "intent": a retry after a dropped response reuses the
+  // same key (server no-ops the duplicate), while a genuinely new payment gets a fresh key. We
+  // regenerate it whenever the invoice's paid amount changes (i.e., after a successful record).
+  const [payKey, setPayKey] = useState('');
 
   const outstanding = inv ? Math.round((inv.total - inv.amountPaid) * 100) / 100 : 0;
   useEffect(() => {
-    if (inv) setAmount(String(outstanding > 0 ? outstanding : ''));
+    if (inv) {
+      setAmount(String(outstanding > 0 ? outstanding : ''));
+      setPayKey(globalThis.crypto?.randomUUID ? crypto.randomUUID() : `k_${Date.now()}_${Math.random().toString(36).slice(2)}`);
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [inv?._id, inv?.amountPaid]);
 
   const take = async () => {
     try {
-      await recordPayment.mutateAsync({ id: inv._id, amount: Number(amount), method });
+      await recordPayment.mutateAsync({ id: inv._id, amount: Number(amount), method, idempotencyKey: payKey });
       toast.success('Payment recorded');
     } catch (e) {
       toastApiError(e);
@@ -116,7 +115,7 @@ export function InvoiceDetailDialog({ invoiceId, open, onOpenChange }) {
           <div className="space-y-4">
             <div className="flex items-center justify-between">
               <div className="text-sm"><span className="font-medium">{inv.patientName}</span> · {fmtDateTime(inv.createdAt)}</div>
-              <span className={cn('rounded-full px-2.5 py-0.5 text-xs font-medium capitalize', STATUS_CLS[inv.status] || 'bg-muted')}>{inv.status.replace('_', ' ')}</span>
+              <InvoiceStatusBadge status={inv.status} />
             </div>
 
             <div className="rounded-md border">

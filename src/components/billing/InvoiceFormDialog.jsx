@@ -11,7 +11,7 @@ import { toast, toastApiError } from '@/lib/toast';
 const emptyItem = () => ({ description: '', amount: '', quantity: 1 });
 const round2 = (n) => Math.round((Number(n) || 0) * 100) / 100;
 
-export function InvoiceFormDialog({ open, onOpenChange, patient: fixedPatient }) {
+export function InvoiceFormDialog({ open, onOpenChange, patient: fixedPatient, appointmentId }) {
   const create = useCreateInvoice();
   const [patient, setPatient] = useState(null);
   const [psearch, setPsearch] = useState('');
@@ -38,6 +38,9 @@ export function InvoiceFormDialog({ open, onOpenChange, patient: fixedPatient })
     try {
       await create.mutateAsync({
         patientId: patient._id,
+        // Link the invoice to its appointment (when billed from one) so the Appointments board's
+        // payment badge + day-money tiles reflect it instead of showing the patient as still "Due".
+        ...(appointmentId ? { appointmentId } : {}),
         gstRate: Number(gstRate) || 0,
         items: items.filter((it) => it.description).map((it) => ({ description: it.description, amount: Number(it.amount) || 0, quantity: Number(it.quantity) || 1 })),
       });

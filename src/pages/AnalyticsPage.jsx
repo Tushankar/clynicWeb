@@ -1,4 +1,4 @@
-import { IndianRupee, Users, UserX, CalendarCheck, TrendingUp } from 'lucide-react';
+import { IndianRupee, Users, UserX, CalendarCheck, TrendingUp, UserMinus } from 'lucide-react';
 import { PageHeader, StatCard, LoadingSkeleton } from '@/components/primitives';
 import { FeatureGate } from '@/components/FeatureGate';
 import { Card } from '@/components/ui/card';
@@ -49,11 +49,12 @@ function AnalyticsInner() {
     <div className="space-y-6">
       <PageHeader title="Analytics" description="Your clinic's performance over the last 30 days." />
 
-      <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+      <div className="grid grid-cols-2 gap-4 lg:grid-cols-3 xl:grid-cols-5">
         <StatCard label="Revenue (30d)" value={inr(a.revenue?.total)} icon={IndianRupee} loading={isLoading} hint={`${a.revenue?.invoices ?? 0} invoices`} />
         <StatCard label="Patients seen" value={seen} icon={Users} loading={isLoading} hint={`${a.patients?.new ?? 0} new · ${a.patients?.returning ?? 0} returning`} />
         <StatCard label="No-show rate" value={`${a.appointments?.noShowRate ?? 0}%`} icon={UserX} loading={isLoading} hint={`${a.appointments?.total ?? 0} appointments`} />
         <StatCard label="Follow-up completion" value={`${a.followUp?.completionRate ?? 0}%`} icon={CalendarCheck} loading={isLoading} hint={`${a.followUp?.completed ?? 0}/${a.followUp?.due ?? 0} due`} />
+        <StatCard label="Lapsed patients" value={a.retention?.lapsed ?? 0} icon={UserMinus} loading={isLoading} hint={`at risk · ${a.retention?.neverReturned ?? 0} never returned`} />
       </div>
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">

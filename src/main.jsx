@@ -13,6 +13,8 @@ import './index.css';
 
 import App from './App';
 import ApiTokenBridge from './components/ApiTokenBridge';
+import ErrorBoundary from './components/ErrorBoundary';
+import OfflineBanner from './components/OfflineBanner';
 import { queryClient } from './lib/queryClient';
 
 const PUBLISHABLE_KEY = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
@@ -28,14 +30,17 @@ if ('serviceWorker' in navigator) {
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
-    <ClerkProvider publishableKey={PUBLISHABLE_KEY} afterSignOutUrl="/sign-in">
-      <QueryClientProvider client={queryClient}>
-        <ApiTokenBridge />
-        <BrowserRouter>
-          <App />
-        </BrowserRouter>
-        <Toaster richColors closeButton position="top-right" />
-      </QueryClientProvider>
-    </ClerkProvider>
+    <ErrorBoundary>
+      <ClerkProvider publishableKey={PUBLISHABLE_KEY} afterSignOutUrl="/sign-in">
+        <QueryClientProvider client={queryClient}>
+          <ApiTokenBridge />
+          <OfflineBanner />
+          <BrowserRouter>
+            <App />
+          </BrowserRouter>
+          <Toaster richColors closeButton position="top-right" />
+        </QueryClientProvider>
+      </ClerkProvider>
+    </ErrorBoundary>
   </React.StrictMode>
 );

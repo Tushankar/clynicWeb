@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Stethoscope, PencilSimple } from '@phosphor-icons/react';
+import { Stethoscope, PencilSimple, Plus } from '@phosphor-icons/react';
 import { PageHeader, DataTable, Avatar } from '@/components/primitives';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
@@ -11,9 +11,12 @@ const inr = (v) => `₹${(v || 0).toLocaleString('en-IN')}`;
 
 export default function DoctorsPage() {
   const canManage = useHasRole('owner', 'receptionist'); // front desk manages profiles + hours
+  const canAdd = useHasRole('owner'); // adding a practitioner is owner-level
   const { data, isLoading, isError, error, refetch } = useDoctors(false); // all doctors, incl. inactive
   const doctors = data?.items || [];
   const [editing, setEditing] = useState(null);
+  const [creating, setCreating] = useState(false);
+  const dialogOpen = creating || !!editing;
 
   const columns = [
     { key: 'name', header: 'Doctor', render: (d) => (
@@ -66,8 +69,13 @@ export default function DoctorsPage() {
       <PageHeader
         title="Doctors"
         description={canManage
-          ? 'Set specializations, working hours, and bookable status. Add practitioners from Team in Settings; manage leave on Time Off.'
+          ? 'Add practitioners and set their fees, weekly hours, and bookable status. Manage one-off leave on Time Off.'
           : 'Practitioners at your clinic and their consultation fees.'}
+        actions={canAdd ? (
+          <Button onClick={() => setCreating(true)}>
+            <Plus weight="bold" className="h-4 w-4" /> Add doctor
+          </Button>
+        ) : undefined}
       />
       <DataTable
         columns={columns}
@@ -80,11 +88,22 @@ export default function DoctorsPage() {
         empty={{
           icon: Stethoscope,
           title: 'No doctors yet',
-          description: canManage ? 'Invite a practitioner from Team in Settings — they’ll appear here to set hours & fees.' : 'Add practitioners so patients can book with them.',
+          description: canAdd
+            ? 'Add your first practitioner to start taking bookings — set their weekly hours and fee.'
+            : canManage
+            ? 'Ask the clinic owner to add a practitioner, then set their hours & fees here.'
+            : 'Add practitioners so patients can book with them.',
+          action: canAdd ? <Button onClick={() => setCreating(true)}><Plus weight="bold" className="h-4 w-4" /> Add doctor</Button> : undefined,
         }}
       />
 
-      {canManage && <DoctorFormDialog open={!!editing} onOpenChange={(o) => !o && setEditing(null)} doctor={editing} />}
+      {canManage && (
+        <DoctorFormDialog
+          open={dialogOpen}
+          onOpenChange={(o) => { if (!o) { setEditing(null); setCreating(false); } }}
+          doctor={editing}
+        />
+      )}
     </div>
   );
 }

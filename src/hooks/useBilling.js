@@ -16,6 +16,9 @@ function billingMutation(fn) {
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['invoices'] });
       qc.invalidateQueries({ queryKey: ['invoice'] });
+      // An invoice/payment change flips the payment badge + money tiles on the Appointments board.
+      qc.invalidateQueries({ queryKey: ['appointments'] });
+      qc.invalidateQueries({ queryKey: ['register'] });
     },
   });
 }

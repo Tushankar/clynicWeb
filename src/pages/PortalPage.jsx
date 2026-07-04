@@ -6,7 +6,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
-import { fmtDateTime, fmtDate } from '@/lib/format';
+import { fmtDateTime, fmtDate, inr } from '@/lib/format';
 import { portalFetch, portalUpload, getPortalToken, setPortalToken, API_URL } from '@/lib/portalApi';
 import { collectPayment } from '@/lib/payments/razorpayCheckout';
 
@@ -55,15 +55,24 @@ function PortalLogin({ slug, onLoggedIn }) {
           {err && <p className="rounded-md bg-destructive/10 px-3 py-2 text-sm text-destructive">{err}</p>}
           {stage === 'email' ? (
             <>
-              <p className="text-sm text-muted-foreground">Sign in with the email on your clinic record.</p>
-              <Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@email.com" />
+              <p className="text-sm text-muted-foreground">Sign in with the email or mobile number on your clinic record.</p>
+              <Input type="text" inputMode="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@email.com or 98XXXXXXXX" />
               <Button className="w-full" onClick={request} disabled={!email || busy}>{busy ? 'Sending…' : 'Send code'}</Button>
             </>
           ) : (
             <>
+              <p className="text-sm text-muted-foreground">We sent a 6-digit code to <span className="font-medium text-foreground">{email}</span>. It expires in 10 minutes.</p>
               {devCode && <p className="text-caption text-muted-foreground">Dev code: <span className="font-mono font-medium">{devCode}</span></p>}
-              <Input value={code} onChange={(e) => setCode(e.target.value)} inputMode="numeric" placeholder="6-digit code" />
+              <Input value={code} onChange={(e) => setCode(e.target.value)} inputMode="numeric" placeholder="6-digit code" autoFocus />
               <Button className="w-full" onClick={verify} disabled={!code || busy}>{busy ? 'Verifying…' : 'Sign in'}</Button>
+              <div className="flex items-center justify-between text-caption">
+                <button type="button" className="font-medium text-muted-foreground hover:text-foreground" onClick={() => { setStage('email'); setCode(''); setErr(null); setDevCode(null); }}>
+                  ← Change email
+                </button>
+                <button type="button" className="font-medium text-primary hover:underline disabled:opacity-50" onClick={() => { setCode(''); request(); }} disabled={busy}>
+                  {busy ? 'Sending…' : 'Resend code'}
+                </button>
+              </div>
             </>
           )}
         </CardContent>
@@ -160,10 +169,10 @@ function InvoicesTab() {
     <Card key={inv._id} className="p-3">
       <div className="flex items-center justify-between text-sm">
         <span className="flex items-center gap-2"><Receipt className="h-4 w-4 text-muted-foreground" /> {inv.invoiceNumber}</span>
-        <span className="font-medium tabular">₹{inv.total}</span>
+        <span className="font-medium tabular">{inr(inv.total)}</span>
       </div>
       <div className="mt-1 flex items-center justify-between">
-        <span className="text-caption capitalize text-muted-foreground">{inv.status.replace('_', ' ')} · paid ₹{inv.amountPaid}</span>
+        <span className="text-caption capitalize text-muted-foreground">{inv.status.replace('_', ' ')} · paid {inr(inv.amountPaid)}</span>
         {inv.amountPaid < inv.total && (
           <Button size="sm" onClick={() => pay(inv)} disabled={paying === inv._id}><CreditCard className="h-4 w-4" /> {paying === inv._id ? 'Paying…' : 'Pay'}</Button>
         )}
@@ -208,8 +217,20 @@ function QueueTab() {
   const q = usePortal('/api/portal/queue');
   const snap = q.data || { nowServing: [], waiting: [] };
   if (q.loading) return <p className="py-6 text-center text-sm text-muted-foreground">Loading…</p>;
+  const you = snap.you;
   return (
     <div className="space-y-3">
+      {you && (
+        <Card className="border-primary p-4 text-center ring-1 ring-primary">
+          <div className="text-caption uppercase tracking-wide text-primary">Your token</div>
+          <div className="text-4xl font-bold font-mono text-primary">#{you.token}</div>
+          {you.position === 0 ? (
+            <p className="mt-1 text-sm font-semibold text-primary">It’s your turn — please go in.</p>
+          ) : (
+            <p className="mt-1 text-sm text-muted-foreground">You’re position <span className="font-semibold text-foreground">{you.position}</span> · about <span className="font-semibold text-foreground">{you.waitMinutes} min</span></p>
+          )}
+        </Card>
+      )}
       <Card className="p-4 text-center">
         <div className="text-caption uppercase tracking-wide text-muted-foreground">Now serving</div>
         <div className="text-4xl font-bold font-mono text-primary">{snap.nowServing?.[0]?.token ?? '—'}</div>

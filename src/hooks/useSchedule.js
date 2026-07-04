@@ -27,6 +27,17 @@ export function useRemoveBlock() {
     },
   });
 }
+/** Cancel & notify every patient booked inside a leave/holiday block (one click from the toast). */
+export function useCancelImpacted() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (blockId) => api.post(`/api/availability/${blockId}/cancel-impacted`),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['appointments'] });
+      qc.invalidateQueries({ queryKey: ['availability-blocks'] });
+    },
+  });
+}
 
 // ---- Waitlist ----
 export function useWaitlist(params, opts = {}) {

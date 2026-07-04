@@ -1,7 +1,9 @@
+import { Link } from 'react-router-dom';
 import { Lock, Sparkles } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { usePlan } from '@/hooks/usePlan';
+import { useHasRole } from '@/hooks/useRole';
 import { featureLabel, featureTier } from '@/lib/features';
 
 /**
@@ -11,6 +13,7 @@ import { featureLabel, featureTier } from '@/lib/features';
  */
 export function UpgradeNotice({ feature, className }) {
   const plan = usePlan().data?.plan;
+  const isOwner = useHasRole('owner');
   const label = featureLabel(feature);
   const tier = featureTier(feature);
 
@@ -26,9 +29,16 @@ export function UpgradeNotice({ feature, className }) {
           {plan ? <Badge variant="secondary" className="capitalize">{plan}</Badge> : 'current'} plan. Upgrade to{' '}
           {tier} to unlock {label.toLowerCase()}.
         </p>
-        <div className="mt-5 inline-flex items-center gap-2 rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground">
-          <Sparkles className="h-4 w-4" /> Contact your administrator to upgrade
-        </div>
+        {/* The owner IS the administrator — send them to the Plan page, not a dead-end instruction. */}
+        {isOwner ? (
+          <Link to="/dashboard/plan" className="mt-5 inline-flex items-center gap-2 rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-opacity hover:opacity-90">
+            <Sparkles className="h-4 w-4" /> View plans &amp; upgrade
+          </Link>
+        ) : (
+          <div className="mt-5 inline-flex items-center gap-2 rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground">
+            <Sparkles className="h-4 w-4" /> Ask the clinic owner to upgrade
+          </div>
+        )}
       </CardContent>
     </Card>
   );

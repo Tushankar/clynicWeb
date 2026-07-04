@@ -62,3 +62,5 @@ function useQueueMutation(fn) {
 export const useCallNext = () => useQueueMutation((body) => api.post('/api/queue/call-next', body));
 export const useCompleteEntry = () => useQueueMutation((id) => api.post(`/api/queue/${id}/complete`));
 export const useSkipEntry = () => useQueueMutation((id) => api.post(`/api/queue/${id}/skip`));
+// Un-skip: put a mistakenly-skipped (or returned) patient back into the queue.
+export const useReQueueEntry = () => useQueueMutation((id) => api.post(`/api/queue/${id}/requeue`));

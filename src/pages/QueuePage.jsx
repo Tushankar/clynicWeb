@@ -1,4 +1,5 @@
 import { useRef, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { ListChecks, Megaphone, Tv, Check, SkipForward, Clock3, Users, QrCode, Download } from 'lucide-react';
 import { QRCodeSVG, QRCodeCanvas } from 'qrcode.react';
 import { PageHeader, StatCard, EmptyState, LoadingSkeleton } from '@/components/primitives';
@@ -9,41 +10,50 @@ import { useRole } from '@/hooks/useRole';
 import { useMe } from '@/hooks/useMe';
 import { useFeature } from '@/hooks/usePlan';
 import { usePrimaryBranch } from '@/hooks/useBranches';
-import { useQueue, useCallNext, useCompleteEntry, useSkipEntry } from '@/hooks/useQueue';
+import { useDoctors } from '@/hooks/useDoctors';
+import { useQueue, useCallNext, useCompleteEntry, useSkipEntry, useReQueueEntry } from '@/hooks/useQueue';
 import { toast, toastApiError } from '@/lib/toast';
 
 export default function QueuePage() {
+  const navigate = useNavigate();
   const { clinicId } = useRole();
   const { branchId } = usePrimaryBranch();
   const slug = useMe().data?.clinic?.slug;
   const hasSelfCheckin = useFeature('SELF_CHECKIN');
   const [qrOpen, setQrOpen] = useState(false);
+  const [callDoctorId, setCallDoctorId] = useState(''); // '' = next across all doctors
   const { data, isLoading, isError, error, refetch } = useQueue(branchId, clinicId);
+  const { data: doctorsData } = useDoctors(true);
+  const doctors = doctorsData?.items || [];
 
   const callNext = useCallNext();
   const complete = useCompleteEntry();
   const skip = useSkipEntry();
+  const reQueue = useReQueueEntry();
 
   const snap = data || { nowServing: [], waiting: [], counts: { waiting: 0, serving: 0 } };
+  const openChart = (patientId) => patientId && navigate(`/dashboard/patients/${patientId}`);
 
   const doCall = async () => {
     try {
-      await callNext.mutateAsync({ branchId });
+      await callNext.mutateAsync({ branchId, ...(callDoctorId ? { doctorId: callDoctorId } : {}) });
       toast.success('Called next patient');
     } catch (err) {
       toastApiError(err);
     }
   };
-  const wrap = (fn, ok) => async (id) => {
+  const doComplete = async (id) => {
+    try { await complete.mutateAsync(id); toast.success('Marked complete'); } catch (err) { toastApiError(err); }
+  };
+  // Skip, but offer an immediate Undo (re-queue) — a mis-tap shouldn't strand a patient as a no-show.
+  const doSkip = async (id) => {
     try {
-      await fn.mutateAsync(id);
-      toast.success(ok);
+      await skip.mutateAsync(id);
+      toast.success('Skipped', { action: { label: 'Undo', onClick: () => reQueue.mutateAsync(id).then(() => toast.success('Back in the queue')).catch(toastApiError) } });
     } catch (err) {
       toastApiError(err);
     }
   };
-  const doComplete = wrap(complete, 'Marked complete');
-  const doSkip = wrap(skip, 'Skipped');
 
   const openTv = () => slug && window.open(`/tv/${slug}`, '_blank', 'noopener');
 
@@ -62,6 +72,17 @@ export default function QueuePage() {
             <Button variant="outline" onClick={openTv} disabled={!slug}>
               <Tv className="h-4 w-4" /> Open TV display
             </Button>
+            {doctors.length > 1 && (
+              <select
+                value={callDoctorId}
+                onChange={(e) => setCallDoctorId(e.target.value)}
+                aria-label="Call next for doctor"
+                className="h-9 rounded-lg border border-input bg-background px-2 text-sm outline-none focus:ring-2 focus:ring-ring/30"
+              >
+                <option value="">All doctors</option>
+                {doctors.map((d) => <option key={d._id} value={d._id}>{d.name}</option>)}
+              </select>
+            )}
             <Button onClick={doCall} disabled={callNext.isPending || (snap.waiting?.length || 0) === 0}>
               <Megaphone className="h-4 w-4" /> Call next
             </Button>
@@ -94,15 +115,21 @@ export default function QueuePage() {
               <div className="space-y-3">
                 {snap.nowServing.map((e) => (
                   <Card key={e.id || e.token} className="flex items-center justify-between gap-3 p-4">
-                    <div className="flex items-center gap-3">
+                    <button
+                      type="button"
+                      onClick={() => openChart(e.patientId)}
+                      disabled={!e.patientId}
+                      title={e.patientId ? 'Open patient chart' : undefined}
+                      className="flex items-center gap-3 rounded-lg text-left transition-colors enabled:hover:opacity-80 disabled:cursor-default"
+                    >
                       <span className="flex h-12 w-14 items-center justify-center rounded-lg bg-primary/10 text-xl font-semibold font-mono text-primary">
                         {e.token}
                       </span>
                       <div>
-                        <div className="font-medium">{e.name}</div>
+                        <div className="font-medium underline-offset-2 hover:underline">{e.name}</div>
                         <div className="text-caption text-muted-foreground">{e.doctorName || '—'}</div>
                       </div>
-                    </div>
+                    </button>
                     {e.id && (
                       <Button size="sm" variant="outline" onClick={() => doComplete(e.id)}>
                         <Check className="h-4 w-4" /> Complete
@@ -125,14 +152,20 @@ export default function QueuePage() {
               <ol className="space-y-2">
                 {snap.waiting.map((e, i) => (
                   <li key={e.id} className="glass-card flex items-center justify-between gap-3 rounded-lg border px-4 py-3">
-                    <div className="flex items-center gap-3">
+                    <button
+                      type="button"
+                      onClick={() => openChart(e.patientId)}
+                      disabled={!e.patientId}
+                      title={e.patientId ? 'Open patient chart' : undefined}
+                      className="flex items-center gap-3 rounded-md text-left transition-colors enabled:hover:opacity-80 disabled:cursor-default"
+                    >
                       <span className="w-6 text-center text-sm text-muted-foreground tabular">{i + 1}</span>
                       <span className="flex h-9 w-12 items-center justify-center rounded-md bg-muted text-sm font-semibold font-mono">{e.token}</span>
                       <div>
-                        <div className="text-sm font-medium">{e.name}</div>
+                        <div className="text-sm font-medium underline-offset-2 hover:underline">{e.name}</div>
                         <div className="text-caption text-muted-foreground">~{e.waitMinutes} min · {e.doctorName || '—'}</div>
                       </div>
-                    </div>
+                    </button>
                     <Button size="sm" variant="ghost" className="text-muted-foreground" onClick={() => doSkip(e.id)}>
                       <SkipForward className="h-4 w-4" /> Skip
                     </Button>

@@ -1,9 +1,9 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { UserPlus, Users, Download, Eye } from 'lucide-react';
+import { UserPlus, Users, Download, Eye, Trash2, RotateCcw } from 'lucide-react';
 import { PageHeader, DataTable, Avatar } from '@/components/primitives';
 import { Button } from '@/components/ui/button';
-import { usePatients } from '@/hooks/usePatients';
+import { usePatients, useDeletedPatients, useRestorePatient } from '@/hooks/usePatients';
 import { useHasRole } from '@/hooks/useRole';
 import { useFeature } from '@/hooks/usePlan';
 import { useExportCsv } from '@/hooks/useExport';
@@ -29,8 +29,20 @@ export default function PatientsPage() {
   const isOwner = useHasRole('owner');
   const hasExport = useFeature('DATA_EXPORT');
   const exportCsv = useExportCsv();
+  const [showDeleted, setShowDeleted] = useState(false);
   const { data, isLoading, isError, error, refetch } = usePatients(search);
   const patients = data?.items || [];
+  const deleted = useDeletedPatients(isOwner && showDeleted);
+  const restore = useRestorePatient();
+
+  const doRestore = async (p) => {
+    try {
+      await restore.mutateAsync(p._id);
+      toast.success(`${p.name} restored`);
+    } catch (e) {
+      toastApiError(e);
+    }
+  };
 
   const doExport = async () => {
     try {
@@ -91,32 +103,59 @@ export default function PatientsPage() {
         description="Search before registering — reuse an existing record to avoid duplicates."
         actions={
           <>
-            {isOwner && hasExport && (
+            {isOwner && (
+              <Button variant="ghost" onClick={() => setShowDeleted((v) => !v)} aria-pressed={showDeleted}>
+                <Trash2 className="h-4 w-4" /> {showDeleted ? 'Back to patients' : 'Recently deleted'}
+              </Button>
+            )}
+            {isOwner && hasExport && !showDeleted && (
               <Button variant="ghost" onClick={doExport} disabled={exportCsv.isPending}>
                 <Download className="h-4 w-4" /> Export
               </Button>
             )}
-            {canCreate && <Button onClick={() => setFormOpen(true)}><UserPlus className="h-4 w-4" /> New patient</Button>}
+            {canCreate && !showDeleted && <Button onClick={() => setFormOpen(true)}><UserPlus className="h-4 w-4" /> New patient</Button>}
           </>
         }
       />
 
-      <DataTable
-        columns={columns}
-        data={patients}
-        isLoading={isLoading}
-        isError={isError}
-        error={error}
-        onRetry={refetch}
-        onRowClick={(p) => navigate(`/dashboard/patients/${p._id}`)}
-        search={{ value: search, onChange: setSearch, placeholder: 'Search by name, phone, or code…' }}
-        empty={{
-          icon: Users,
-          title: search ? 'No matching patients' : 'No patients yet',
-          description: search ? 'Try a different name or phone number.' : 'Register your first patient to get started.',
-          action: canCreate && !search ? <Button onClick={() => setFormOpen(true)}><UserPlus className="h-4 w-4" /> New patient</Button> : null,
-        }}
-      />
+      {showDeleted ? (
+        <DataTable
+          columns={[
+            { key: 'patientCode', header: 'Code', className: 'font-mono text-xs text-muted-foreground' },
+            { key: 'name', header: 'Name', render: (p) => <span className="flex items-center gap-3"><Avatar name={p.name} /><span className="font-semibold text-foreground">{p.name}</span></span> },
+            { key: 'phone', header: 'Phone', render: (p) => p.phone || '—' },
+            { key: 'deletedAt', header: 'Deleted', render: (p) => (p.deletedAt ? fmtDate(p.deletedAt) : '—') },
+            { key: 'actions', header: '', align: 'right', render: (p) => (
+              <Button size="sm" variant="outline" className="h-8 px-3 text-xs" disabled={restore.isPending} onClick={() => doRestore(p)}>
+                <RotateCcw className="h-3.5 w-3.5" /> Restore
+              </Button>
+            ) },
+          ]}
+          data={deleted.data?.items || []}
+          isLoading={deleted.isLoading}
+          isError={deleted.isError}
+          error={deleted.error}
+          onRetry={deleted.refetch}
+          empty={{ icon: Trash2, title: 'Nothing in the trash', description: 'Deleted patients from the last while will appear here so you can restore them.' }}
+        />
+      ) : (
+        <DataTable
+          columns={columns}
+          data={patients}
+          isLoading={isLoading}
+          isError={isError}
+          error={error}
+          onRetry={refetch}
+          onRowClick={(p) => navigate(`/dashboard/patients/${p._id}`)}
+          search={{ value: search, onChange: setSearch, placeholder: 'Search by name, phone, or code…' }}
+          empty={{
+            icon: Users,
+            title: search ? 'No matching patients' : 'No patients yet',
+            description: search ? 'Try a different name or phone number.' : 'Register your first patient to get started.',
+            action: canCreate && !search ? <Button onClick={() => setFormOpen(true)}><UserPlus className="h-4 w-4" /> New patient</Button> : null,
+          }}
+        />
+      )}
 
       <PatientFormDialog open={formOpen} onOpenChange={setFormOpen} patient={null} />
     </div>

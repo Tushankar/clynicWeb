@@ -3,7 +3,7 @@ import { NavLink, Link } from 'react-router-dom';
 import {
   House, CalendarCheck, Stethoscope, Users, ListChecks, UserPlus, Receipt, Handshake,
   ChartLineUp, Sparkle, Globe, ChatCircle, Buildings, Gear, ShieldStar, LockSimple,
-  CaretUpDown, Sun, Moon, PaperPlaneTilt, CalendarSlash,
+  CaretUpDown, Sun, Moon, PaperPlaneTilt, CalendarSlash, UserCircle,
 } from '@phosphor-icons/react';
 import { Logo } from '@/components/Logo';
 import { cn } from '@/lib/utils';
@@ -19,6 +19,8 @@ export const NAV_GROUPS = [
     label: 'Main',
     items: [
       { to: '/dashboard', label: 'Dashboard', icon: House, roles: ['owner', 'doctor', 'receptionist'], end: true },
+      // A doctor's own day (today's patients → open the chart). Was an orphan route with no nav link.
+      { to: '/dashboard/doctor', label: 'My day', icon: UserCircle, roles: ['owner', 'doctor'], feature: 'DOCTOR_DASHBOARD' },
       { to: '/dashboard/appointments', label: 'Appointments', icon: CalendarCheck, roles: ['owner', 'receptionist'] },
       { to: '/dashboard/time-off', label: 'Time Off', icon: CalendarSlash, roles: ['owner', 'receptionist'], feature: 'AVAILABILITY_BLOCKS' },
       { to: '/dashboard/doctors', label: 'Doctors', icon: Stethoscope, roles: ['owner', 'doctor', 'receptionist'] },
@@ -109,7 +111,9 @@ export function SidebarContent({ onNavigate }) {
   const clinic = useMe().data?.clinic;
   const planTier = clinic?.subscriptionPlan ? `${clinic.subscriptionPlan[0].toUpperCase()}${clinic.subscriptionPlan.slice(1)}` : null;
 
-  const groups = NAV_GROUPS.map((g) => ({ ...g, items: g.items.filter((i) => !role || i.roles.includes(role)) })).filter((g) => g.items.length);
+  // Treat an unknown/loading role as NO access (not all-access): otherwise owner-only links flash to
+  // everyone during auth load and stay visible for a mis-configured Clerk 'member' (role → null).
+  const groups = NAV_GROUPS.map((g) => ({ ...g, items: g.items.filter((i) => role && i.roles.includes(role)) })).filter((g) => g.items.length);
 
   return (
     <div className="flex h-full flex-col bg-card">

@@ -71,6 +71,39 @@ function ViewAll({ to, label = 'View all' }) {
   );
 }
 
+/** First-run guidance shown until the clinic has at least one (bookable) doctor. */
+function SetupChecklist() {
+  const steps = [
+    { to: '/dashboard/doctors', title: 'Add your first doctor', desc: 'Set their name, fee, and weekly hours — this is what makes your clinic bookable.', primary: true },
+    { to: '/dashboard/settings', title: 'Complete your clinic profile', desc: 'Name, address, phone and logo — shown on your website and invoices.' },
+    { to: '/dashboard/website', title: 'Review & publish your website', desc: 'Preview your public site and go live when it looks right.' },
+    { to: '/dashboard/settings', title: 'Invite your team', desc: 'Add receptionists and doctors so everyone can log in.' },
+  ];
+  return (
+    <Card className="card-lift p-5">
+      <div className="flex items-center gap-2">
+        <Sparkle weight="duotone" className="h-5 w-5 text-primary" />
+        <h2 className="text-[15px] font-semibold text-foreground">Finish setting up your clinic</h2>
+      </div>
+      <p className="mt-1 text-sm text-muted-foreground">A few quick steps and you’re ready to take bookings.</p>
+      <ol className="mt-4 grid gap-2 sm:grid-cols-2">
+        {steps.map((s, i) => (
+          <li key={s.title}>
+            <Link to={s.to} className={cn('flex h-full items-start gap-3 rounded-xl border p-3 transition-colors hover:border-primary/50 hover:bg-primary/5', s.primary && 'border-primary/40 bg-primary/5')}>
+              <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary/10 text-xs font-bold text-primary">{i + 1}</span>
+              <span className="min-w-0 flex-1">
+                <span className="block text-sm font-medium text-foreground">{s.title}</span>
+                <span className="block text-xs text-muted-foreground">{s.desc}</span>
+              </span>
+              <CaretRight weight="bold" className="mt-0.5 h-4 w-4 shrink-0 text-muted-foreground" />
+            </Link>
+          </li>
+        ))}
+      </ol>
+    </Card>
+  );
+}
+
 function kpiTrend(key, k) {
   if (!k) return null;
   const text = key === 'avgWait'
@@ -108,6 +141,10 @@ export default function DashboardPage() {
   const revenueTotal = weekly.revenue.reduce((s, d) => s + d.value, 0);
   const apptTotal = weekly.appointments.reduce((s, d) => s + d.value, 0);
 
+  // First-run truth: a clinic with no doctors cannot take a single booking, so the dashboard must
+  // NOT claim "everything looks healthy / operational". Show setup guidance instead until it's ready.
+  const needsSetup = !isLoading && doctors.length === 0;
+
   const KPI = [
     { key: 'patients', label: "Today's Patients", icon: Users, tint: 'blue', fmt: (v) => v },
     { key: 'appointments', label: 'Appointments', icon: CalendarCheck, tint: 'teal', fmt: (v) => v },
@@ -127,7 +164,7 @@ export default function DashboardPage() {
           <h1 className="mt-0.5 text-[32px] font-bold leading-tight tracking-tight text-foreground">
             {user?.fullName || clinicName || 'Welcome back'} <span className="align-middle">👋</span>
           </h1>
-          <p className="mt-1 text-sm text-muted-foreground">Everything looks healthy today.</p>
+          <p className="mt-1 text-sm text-muted-foreground">{needsSetup ? 'Let’s finish setting up your clinic so you can start taking bookings.' : 'Everything looks healthy today.'}</p>
           <div className="mt-4 flex flex-wrap gap-2">
             <Chip icon={CalendarCheck} tint="blue" label={`${k?.appointments.value ?? '—'} appointments`} />
             <Chip icon={Users} tint="teal" label={`${queue.counts.waiting} patients waiting`} />
@@ -149,10 +186,21 @@ export default function DashboardPage() {
           </div>
           <div className="flex flex-col py-3 sm:py-0 sm:px-4">
             <div className="flex h-5 items-center gap-1.5 text-xs font-medium text-muted-foreground"><Broadcast weight="duotone" className="h-4 w-4 shrink-0" /> <span className="truncate">Status</span></div>
-            <span className="mt-2 inline-flex w-fit items-center gap-1.5 rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-semibold text-emerald-600">
-              <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" /> Operational
-            </span>
-            <p className="mt-1 truncate text-xs text-muted-foreground">All systems normal</p>
+            {needsSetup ? (
+              <>
+                <span className="mt-2 inline-flex w-fit items-center gap-1.5 rounded-full bg-amber-50 px-2.5 py-1 text-xs font-semibold text-amber-600">
+                  <span className="h-1.5 w-1.5 rounded-full bg-amber-500" /> Setup needed
+                </span>
+                <p className="mt-1 truncate text-xs text-muted-foreground">Add a doctor to go live</p>
+              </>
+            ) : (
+              <>
+                <span className="mt-2 inline-flex w-fit items-center gap-1.5 rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-semibold text-emerald-600">
+                  <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" /> Operational
+                </span>
+                <p className="mt-1 truncate text-xs text-muted-foreground">All systems normal</p>
+              </>
+            )}
           </div>
           <div className="flex flex-col py-3 last:pb-0 sm:py-0 sm:pl-4">
             <div className="flex h-5 items-center gap-1.5 text-xs font-medium text-muted-foreground"><ClockCountdown weight="duotone" className="h-4 w-4 shrink-0" /> <span className="truncate">Next visit</span></div>
@@ -168,6 +216,9 @@ export default function DashboardPage() {
           </div>
         </Card>
       </div>
+
+      {/* ---------- First-run setup (owner-facing, until there's a bookable doctor) ---------- */}
+      {needsSetup && canManage && <SetupChecklist />}
 
       {/* ---------- KPI row ---------- */}
       <div className="grid grid-cols-2 gap-4 md:grid-cols-3 xl:grid-cols-5">

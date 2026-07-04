@@ -1,11 +1,27 @@
 import { IndianRupee, TrendingUp, Building2, Activity, AlertTriangle, ShieldAlert } from 'lucide-react';
-import { PageHeader, StatCard, LoadingSkeleton } from '@/components/primitives';
+import { PageHeader, StatCard, LoadingSkeleton, DataTable } from '@/components/primitives';
 import { Card } from '@/components/ui/card';
-import { useAdminAnalytics } from '@/hooks/useAdmin';
+import { useAdminAnalytics, useAdminClinics, useSetClinicPlan } from '@/hooks/useAdmin';
+import { fmtDate } from '@/lib/format';
+import { toast, toastApiError } from '@/lib/toast';
+import { cn } from '@/lib/utils';
+
+const PLAN_OPTS = ['basic', 'standard', 'premium'];
 
 /** Super-admin platform cockpit (cross-clinic aggregates only). Clinic users get 403 → blocked view. */
 export default function AdminPage() {
   const { data, isLoading, isError, error } = useAdminAnalytics();
+  const clinicsQ = useAdminClinics();
+  const setPlan = useSetClinicPlan();
+
+  const changePlan = async (clinicId, plan) => {
+    try {
+      await setPlan.mutateAsync({ clinicId, plan });
+      toast.success(`Plan set to ${plan}`);
+    } catch (e) {
+      toastApiError(e);
+    }
+  };
 
   if (isError) {
     return (
@@ -48,9 +64,53 @@ export default function AdminPage() {
               <div className="text-2xl font-semibold tabular">{a.subscriptions?.churnRate ?? 0}%</div>
               <div className="text-muted-foreground">Churn</div>
             </div>
+            <div>
+              <div className="text-2xl font-semibold tabular text-warning">{a.subscriptions?.pastDue ?? 0}</div>
+              <div className="text-muted-foreground">Past due</div>
+            </div>
           </div>
         )}
       </Card>
+
+      {/* Per-clinic control plane — see & act on individual clinics (not just aggregates). */}
+      <div>
+        <h3 className="mb-3 text-sm font-medium text-muted-foreground">Clinics</h3>
+        <DataTable
+          columns={[
+            { key: 'name', header: 'Clinic', render: (c) => (
+              <span className="min-w-0">
+                <span className="block truncate font-semibold text-foreground">{c.name}</span>
+                <span className="block truncate font-mono text-[11px] text-muted-foreground">/{c.slug}</span>
+              </span>
+            ) },
+            { key: 'plan', header: 'Plan', render: (c) => (
+              <select
+                value={c.plan}
+                onChange={(e) => changePlan(c.clinicId, e.target.value)}
+                disabled={setPlan.isPending}
+                className="h-8 rounded-lg border border-input bg-background px-2 text-xs capitalize outline-none focus:ring-2 focus:ring-ring/30"
+                aria-label={`Plan for ${c.name}`}
+              >
+                {PLAN_OPTS.map((p) => <option key={p} value={p}>{p}</option>)}
+              </select>
+            ) },
+            { key: 'subscriptionStatus', header: 'Subscription', render: (c) => (
+              c.subscriptionStatus
+                ? <span className={cn('rounded-full px-2 py-0.5 text-[11px] font-medium capitalize', c.subscriptionStatus === 'past_due' ? 'bg-warning/15 text-warning' : c.subscriptionStatus === 'active' ? 'bg-success/10 text-success' : 'bg-muted text-muted-foreground')}>{c.subscriptionStatus.replace('_', ' ')}</span>
+                : <span className="text-muted-foreground">—</span>
+            ) },
+            { key: 'doctors', header: 'Doctors', align: 'right', render: (c) => c.doctors },
+            { key: 'dues', header: 'Dues', align: 'right', render: (c) => (c.dues > 0 ? <span className="font-semibold text-warning tabular">₹{c.dues.toLocaleString('en-IN')}</span> : <span className="text-muted-foreground">—</span>) },
+            { key: 'lastActivityAt', header: 'Last activity', align: 'right', render: (c) => (c.lastActivityAt ? fmtDate(c.lastActivityAt) : '—') },
+          ]}
+          data={clinicsQ.data?.items || []}
+          isLoading={clinicsQ.isLoading}
+          isError={clinicsQ.isError}
+          error={clinicsQ.error}
+          onRetry={clinicsQ.refetch}
+          empty={{ icon: Building2, title: 'No clinics yet' }}
+        />
+      </div>
     </div>
   );
 }

@@ -24,7 +24,7 @@ export const FEATURE_META = {
   DOCUMENT_SHARING: { label: 'Document sharing', tier: 'Standard' },
   DATA_EXPORT: { label: 'CSV data export', tier: 'Standard' },
   REVIEW_REQUESTS: { label: 'Post-visit review requests', tier: 'Standard' },
-  CRM: { label: 'CRM & retention', tier: 'Premium' },
+  CRM: { label: 'CRM & retention', tier: 'Standard' },
   MULTI_BRANCH: { label: 'Multi-branch', tier: 'Premium' },
   ANALYTICS: { label: 'Owner analytics', tier: 'Premium' },
   AI_FEATURES: { label: 'AI assistant', tier: 'Premium' },

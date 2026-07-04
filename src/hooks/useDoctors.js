@@ -9,9 +9,24 @@ export function useDoctors(activeOnly = true) {
 }
 
 /**
+ * Owner: add a new practitioner directly — name, specialization, fee, and the weekly working
+ * hours that generate bookable slots. This is what makes a clinic bookable; without at least one
+ * doctor there are no slots, no online booking, and no public-site content.
+ */
+export function useCreateDoctor() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (body) => api.post('/api/doctors', body),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['doctors'] });
+      qc.invalidateQueries({ queryKey: ['slots'] });
+    },
+  });
+}
+
+/**
  * Owner: update an EXISTING practitioner's profile — consultation fee, specialization,
- * bookable status. Practitioners themselves are added as staff via Clerk (the team), and
- * their leave lives on the Time Off page; this only edits the doctor's clinic profile.
+ * bookable status, and weekly hours. Their leave lives on the Time Off page.
  */
 export function useUpdateDoctor() {
   const qc = useQueryClient();
@@ -21,5 +36,15 @@ export function useUpdateDoctor() {
       qc.invalidateQueries({ queryKey: ['doctors'] });
       qc.invalidateQueries({ queryKey: ['slots'] }); // a fee/status change affects booking
     },
+  });
+}
+
+/** Owner: clinic team members, for linking a doctor to a login account (drives the doctor dashboard). */
+export function useStaffDirectory(enabled = true) {
+  return useQuery({
+    queryKey: ['staff-directory'],
+    queryFn: () => api.get('/api/doctors/staff-directory'),
+    enabled,
+    staleTime: 60_000,
   });
 }

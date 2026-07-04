@@ -9,8 +9,18 @@ import { useCommsSummary, useCommsList } from '@/hooks/useCommunications';
 // Template → display metadata (icon + badge tint). Keep in sync with the API's template enum.
 const TEMPLATE_META = {
   reengage: { label: 'Re-engagement', icon: Handshake, badge: 'bg-violet-100 text-violet-700' },
+  birthday: { label: 'Birthday wish', icon: Handshake, badge: 'bg-pink-100 text-pink-700' },
+  followup: { label: 'Follow-up reminder', icon: CalendarClock, badge: 'bg-amber-100 text-amber-700' },
   appointment_24h: { label: 'Reminder · 24h', icon: CalendarClock, badge: 'bg-blue-100 text-blue-700' },
   appointment_2h: { label: 'Reminder · 2h', icon: CalendarClock, badge: 'bg-sky-100 text-sky-700' },
+  booking_confirmation: { label: 'Booking confirmation', icon: CalendarClock, badge: 'bg-emerald-100 text-emerald-700' },
+  appointment_cancelled: { label: 'Cancellation notice', icon: CalendarClock, badge: 'bg-rose-100 text-rose-700' },
+  appointment_rescheduled: { label: 'Reschedule notice', icon: CalendarClock, badge: 'bg-teal-100 text-teal-700' },
+  review_request: { label: 'Review request', icon: Handshake, badge: 'bg-indigo-100 text-indigo-700' },
+  recall: { label: 'Treatment recall', icon: CalendarClock, badge: 'bg-cyan-100 text-cyan-700' },
+  waitlist: { label: 'Waitlist alert', icon: Megaphone, badge: 'bg-orange-100 text-orange-700' },
+  payment_link: { label: 'Payment link', icon: Megaphone, badge: 'bg-green-100 text-green-700' },
+  document: { label: 'Shared document', icon: Mail, badge: 'bg-slate-100 text-slate-700' },
   custom: { label: 'Message', icon: Megaphone, badge: 'bg-slate-100 text-slate-700' },
 };
 const CHANNEL_ICON = { email: Mail, whatsapp: MessageCircle, sms: MessageCircle };

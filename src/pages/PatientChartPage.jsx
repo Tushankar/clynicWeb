@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Pencil, Plus, Printer, Trash2, Pill, FileText, FlaskConical, CalendarClock, Share2 } from 'lucide-react';
 import { PageHeader, EmptyState, LoadingSkeleton } from '@/components/primitives';
@@ -13,11 +13,14 @@ import { PrescriptionEditorDialog } from '@/components/chart/PrescriptionEditorD
 import { ReportsTab } from '@/components/chart/ReportsTab';
 import { TimelineTab } from '@/components/chart/TimelineTab';
 import { PatientFormDialog } from '@/components/patients/PatientFormDialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
 import { usePatientDetail } from '@/hooks/usePatients';
 import { usePrescriptions, useDeletePrescription, useSharePrescription, useNotes, useCreateNote, useLabs, useCreateLab, useSetLabStatus } from '@/hooks/useClinical';
 import { useGenerateVisitSummary, useAiDrafts, useApproveDraft, useRejectDraft } from '@/hooks/useAi';
+import { useCreateRecall } from '@/hooks/useSchedule';
+import { useSetStatus } from '@/hooks/useAppointments';
 import { useFeature } from '@/hooks/usePlan';
-import { Sparkles, Check, X, ShieldAlert } from 'lucide-react';
+import { Sparkles, Check, X, ShieldAlert, CalendarPlus, CheckCircle2 } from 'lucide-react';
 import { useHasRole } from '@/hooks/useRole';
 import { fmtDate, fmtDateTime, ageFromDob } from '@/lib/format';
 import { toast, toastApiError } from '@/lib/toast';
@@ -28,9 +31,27 @@ export default function PatientChartPage() {
   const { id } = useParams();
   const navigate = useNavigate();
   const [editOpen, setEditOpen] = useState(false);
+  const [followUpOpen, setFollowUpOpen] = useState(false);
   const { data, isLoading, isError, error, refetch } = usePatientDetail(id);
   const patient = data?.patient;
   const visits = data?.visits || [];
+
+  const isClinician = useHasRole('owner', 'doctor', 'receptionist');
+  const hasRecalls = useFeature('RECALLS');
+  const setStatus = useSetStatus();
+  // The visit in progress right now (if any) — lets the doctor close it out from the chart instead
+  // of walking back to the Live Queue.
+  const activeVisit = visits.find((v) => v.status === 'in_consultation');
+
+  const completeVisit = async () => {
+    try {
+      await setStatus.mutateAsync({ id: activeVisit._id, status: 'completed' });
+      toast.success('Visit completed');
+      refetch();
+    } catch (e) {
+      toastApiError(e);
+    }
+  };
 
   return (
     <div className="space-y-6">
@@ -40,6 +61,12 @@ export default function PatientChartPage() {
         actions={
           <>
             <Button variant="outline" onClick={() => navigate('/dashboard/patients')}><ArrowLeft className="h-4 w-4" /> Patients</Button>
+            {patient && activeVisit && (
+              <Button onClick={completeVisit} disabled={setStatus.isPending}><CheckCircle2 className="h-4 w-4" /> Complete visit</Button>
+            )}
+            {patient && isClinician && hasRecalls && (
+              <Button variant="outline" onClick={() => setFollowUpOpen(true)}><CalendarPlus className="h-4 w-4" /> Follow-up</Button>
+            )}
             {patient && <Button variant="outline" onClick={() => setEditOpen(true)}><Pencil className="h-4 w-4" /> Edit</Button>}
           </>
         }
@@ -75,7 +102,69 @@ export default function PatientChartPage() {
       )}
 
       <PatientFormDialog open={editOpen} onOpenChange={setEditOpen} patient={patient} />
+      {patient && <FollowUpDialog open={followUpOpen} onOpenChange={setFollowUpOpen} patientId={id} patientName={patient.name} />}
     </div>
+  );
+}
+
+const FOLLOWUP_INTERVALS = [
+  { label: 'In 2 weeks', weeks: 2 },
+  { label: 'In 1 month', weeks: 4 },
+  { label: 'In 3 months', weeks: 13 },
+  { label: 'In 6 months', weeks: 26 },
+  { label: 'In 1 year', weeks: 52 },
+];
+
+/** Schedule a treatment recall (follow-up) straight from the chart — reachable by doctors, who
+ * previously had no UI to set one. Rides the existing recall automation (reminder on due date). */
+function FollowUpDialog({ open, onOpenChange, patientId, patientName }) {
+  const create = useCreateRecall();
+  const [label, setLabel] = useState('');
+  const [weeks, setWeeks] = useState(13);
+
+  useEffect(() => {
+    if (open) { setLabel(''); setWeeks(13); }
+  }, [open]);
+
+  const submit = async () => {
+    const dueDate = new Date(Date.now() + Number(weeks) * 7 * 86400000).toISOString();
+    try {
+      await create.mutateAsync({ patientId, label: label.trim() || 'Follow-up visit', dueDate });
+      toast.success('Follow-up scheduled');
+      onOpenChange(false);
+    } catch (e) {
+      toastApiError(e);
+    }
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="sm:max-w-sm">
+        <DialogHeader>
+          <DialogTitle>Schedule follow-up</DialogTitle>
+          <DialogDescription>A reminder goes to {patientName || 'the patient'} on the due date so they book their return visit.</DialogDescription>
+        </DialogHeader>
+        <div className="space-y-4">
+          <label className="block space-y-1.5">
+            <span className="text-xs font-medium text-muted-foreground">What for?</span>
+            <Input value={label} onChange={(e) => setLabel(e.target.value)} placeholder="e.g. 6-month cleaning, review results" />
+          </label>
+          <label className="block space-y-1.5">
+            <span className="text-xs font-medium text-muted-foreground">When</span>
+            <Select value={String(weeks)} onValueChange={(v) => setWeeks(Number(v))}>
+              <SelectTrigger><SelectValue /></SelectTrigger>
+              <SelectContent>
+                {FOLLOWUP_INTERVALS.map((i) => <SelectItem key={i.weeks} value={String(i.weeks)}>{i.label}</SelectItem>)}
+              </SelectContent>
+            </Select>
+          </label>
+        </div>
+        <DialogFooter>
+          <Button variant="outline" onClick={() => onOpenChange(false)}>Cancel</Button>
+          <Button onClick={submit} disabled={create.isPending}>{create.isPending ? 'Scheduling…' : 'Schedule'}</Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 }
 

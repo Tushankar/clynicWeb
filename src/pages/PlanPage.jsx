@@ -1,4 +1,4 @@
-import { Check, Sparkles } from 'lucide-react';
+import { Check, Sparkles, AlertTriangle } from 'lucide-react';
 import { PageHeader, LoadingSkeleton } from '@/components/primitives';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -62,11 +62,15 @@ export default function PlanPage() {
   const { data, isLoading } = useSubscription();
   const change = useChangePlan();
   const current = data?.plan;
+  const status = data?.subscription?.status;
+  const pastDue = status === 'past_due';
 
   const switchTo = async (plan) => {
     try {
-      await change.mutateAsync(plan);
-      toast.success(`Plan changed to ${plan}`);
+      const res = await change.mutateAsync(plan);
+      if (res?.pending) toast.success(res.message || `Upgrade to ${plan} requested — we’ll confirm shortly.`);
+      else if (res?.downgraded) toast.success(`Plan changed to ${plan}`);
+      else toast.success(`Plan changed to ${plan}`);
     } catch (e) {
       toastApiError(e);
     }
@@ -77,12 +81,24 @@ export default function PlanPage() {
       <PageHeader
         title="Plan & billing"
         description="Your subscription drives which features are unlocked."
-        actions={current ? <Badge className="capitalize">{current}</Badge> : null}
+        actions={current ? <Badge className={cn('capitalize', pastDue && 'bg-warning/15 text-warning')}>{current}{pastDue ? ' · past due' : ''}</Badge> : null}
       />
       {isLoading ? (
         <LoadingSkeleton lines={6} />
       ) : (
         <>
+          {pastDue && (
+            <div className="flex items-start gap-3 rounded-xl border border-warning/30 bg-warning/10 px-4 py-3">
+              <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0 text-warning" />
+              <div className="text-sm">
+                <p className="font-semibold text-foreground">Your last payment failed</p>
+                <p className="mt-0.5 text-muted-foreground">
+                  Please update your payment method to keep your premium features. If your subscription is cancelled,
+                  your clinic drops to the Basic plan and premium features are locked. Contact us if you need help.
+                </p>
+              </div>
+            </div>
+          )}
           <div className="grid gap-4 md:grid-cols-3">
             {TIERS.map((t) => {
               const isCurrent = current === t.key;
@@ -111,8 +127,8 @@ export default function PlanPage() {
             })}
           </div>
           <p className="text-caption text-muted-foreground">
-            Plan changes apply immediately in this environment (mock gateway). In production this is driven by Razorpay
-            subscription billing — the webhook updates your plan and feature access automatically.
+            Downgrades apply immediately. Upgrades are activated by our team after billing is set up — you’ll get a
+            confirmation and won’t lose any data. (In this demo environment every change applies instantly.)
           </p>
         </>
       )}

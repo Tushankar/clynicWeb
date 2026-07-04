@@ -18,10 +18,18 @@ function useStaffSocket(active) {
     const onNotif = () => {
       qc.invalidateQueries({ queryKey: ['notifications'] });
     };
+    // Instant board refresh when any appointment changes (new online booking, reschedule, cancel,
+    // status). PHI-free signal → just invalidate and refetch the affected views.
+    const onAppt = () => {
+      qc.invalidateQueries({ queryKey: ['appointments'] });
+      qc.invalidateQueries({ queryKey: ['dashboard'] });
+    };
     s.on('notification:new', onNotif);
+    s.on('appointment:changed', onAppt);
     return () => {
       s.off('connect', join);
       s.off('notification:new', onNotif);
+      s.off('appointment:changed', onAppt);
     };
   }, [active, clinicId, userId, qc]);
 }
