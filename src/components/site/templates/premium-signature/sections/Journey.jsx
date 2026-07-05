@@ -32,7 +32,7 @@ function CircularGauge({ value, label, percentage, i }) {
             cx="72"
             cy="72"
             r={radius}
-            stroke="#005A36"
+            stroke="#012F24"
             strokeWidth={strokeWidth + 1}
             fill="transparent"
             strokeDasharray={circumference}
@@ -44,7 +44,7 @@ function CircularGauge({ value, label, percentage, i }) {
           />
         </svg>
         {/* Metric value text */}
-        <span className="absolute pmx-display text-3xl font-semibold text-[#0A1C14]">
+        <span className="absolute pmx-display text-3xl font-semibold text-[#012F24]">
           {value}
         </span>
       </div>

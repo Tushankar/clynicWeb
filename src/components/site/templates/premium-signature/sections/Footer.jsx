@@ -51,7 +51,7 @@ export default function Footer({ m, basePath = '' }) {
   const anchor = (hash) => (basePath ? { to: `${basePath}${hash}` } : { href: hash });
 
   return (
-    <footer className="relative bg-[#0A1C14] text-white rounded-t-[3rem] overflow-hidden pt-20 pb-12 select-none" aria-label="Footer">
+    <footer className="relative bg-[#012F24] text-white rounded-t-[3rem] overflow-hidden pt-20 pb-12 select-none" aria-label="Footer">
       <div className="mx-auto max-w-7xl px-6">
         
         {/* Main Columns Grid */}
@@ -93,7 +93,7 @@ export default function Footer({ m, basePath = '' }) {
 
           {/* Column 4 (span 4): Stay In the Loop Newsletter Form (Maven Box Style) */}
           <div className="lg:col-span-4">
-            <div className="rounded-2xl bg-[#005A36]/40 border border-emerald-500/20 p-6">
+            <div className="rounded-2xl bg-[#012F24]/40 border border-emerald-500/20 p-6">
               <h4 className="text-[14px] font-semibold text-white tracking-wide">Stay in the loop</h4>
               
               {subscribed ? (

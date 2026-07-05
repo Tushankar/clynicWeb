@@ -66,7 +66,7 @@ export default function PremiumSignature({ site, slug }) {
   }, [m]);
 
   return (
-    <div className="pmx min-h-screen overflow-x-clip bg-[#FAF8F5] text-[#0B1220] antialiased">
+    <div className="pmx min-h-screen overflow-x-clip bg-[#012F24] text-[#0B1220] antialiased">
       <PmxStyles />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLd }} />
 

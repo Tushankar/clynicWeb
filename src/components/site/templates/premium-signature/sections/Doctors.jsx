@@ -35,7 +35,7 @@ export default function Doctors({ m }) {
               >
                 {/* Doctor Avatar Header (Profile photo aligned left with text on right) */}
                 <div className="flex items-center gap-5 border-b border-slate-100 pb-6">
-                  <div className="relative shrink-0 w-20 h-20 rounded-full overflow-hidden border-[3px] border-[#005A36]/10 shadow-xs">
+                  <div className="relative shrink-0 w-20 h-20 rounded-full overflow-hidden border-[3px] border-[#012F24]/10 shadow-xs">
                     {d.photoUrl ? (
                       <img
                         src={d.photoUrl}
@@ -53,7 +53,7 @@ export default function Doctors({ m }) {
                   </div>
                   
                   <div>
-                    <h3 className="pmx-display text-xl font-semibold leading-tight text-[#0A1C14] group-hover:text-[#005A36] transition-colors">
+                    <h3 className="pmx-display text-xl font-semibold leading-tight text-[#012F24] group-hover:text-[#012F24] transition-colors">
                       {d.name}
                     </h3>
                     <p className="text-[12.5px] font-semibold text-emerald-700 mt-1 uppercase tracking-wider">
@@ -95,12 +95,12 @@ export default function Doctors({ m }) {
                     <div className="flex items-center justify-between border-t border-slate-100 pt-5 text-[13px]">
                       <span className="flex items-center gap-1.5">
                         <Stars rating={m.rating} size="h-3.5 w-3.5" />
-                        <span className="font-bold text-[#0A1C14]">{m.rating.toFixed(1)}</span>
+                        <span className="font-bold text-[#012F24]">{m.rating.toFixed(1)}</span>
                       </span>
                       
                       {fmtFee(d.consultationFee) ? (
                         <span className="text-slate-500 font-medium">
-                          <span className="font-bold text-[#0A1C14]">{fmtFee(d.consultationFee)}</span> consultation
+                          <span className="font-bold text-[#012F24]">{fmtFee(d.consultationFee)}</span> consultation
                         </span>
                       ) : null}
                     </div>
@@ -108,7 +108,7 @@ export default function Doctors({ m }) {
                     {/* Book Button */}
                     <Link
                       to={m.bookHref}
-                      className="group/cta mt-6 inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-[#005A36] hover:bg-[#004225] px-6 py-3.5 text-[13.5px] font-semibold text-white transition-all duration-300 shadow-sm"
+                      className="group/cta mt-6 inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-[#012F24] hover:bg-[#001f18] px-6 py-3.5 text-[13.5px] font-semibold text-white transition-all duration-300 shadow-sm"
                     >
                       <CalendarPlus className="h-4 w-4" aria-hidden="true" />
                       Book with {firstName(d.name)}

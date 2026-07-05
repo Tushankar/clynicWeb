@@ -42,7 +42,7 @@ export default function WhyUs({ m }) {
   const current = tabs[activeTab];
 
   return (
-    <section id="about" className="relative scroll-mt-28 bg-[#0A1C14] text-white py-24 sm:py-32" aria-label="About our care">
+    <section id="about" className="relative scroll-mt-28 bg-[#012F24] text-white py-24 sm:py-32" aria-label="About our care">
       <div className="mx-auto max-w-7xl px-6">
         
         <div className="grid gap-12 lg:grid-cols-12 lg:gap-16 items-center">
@@ -92,7 +92,7 @@ export default function WhyUs({ m }) {
             <div className="mt-12">
               <Link
                 to={m.bookHref}
-                className="inline-flex items-center justify-center bg-emerald-400 text-[#0A1C14] hover:bg-emerald-300 font-semibold rounded-full px-8 py-4 text-sm transition-all duration-300 shadow-md"
+                className="inline-flex items-center justify-center bg-emerald-400 text-[#012F24] hover:bg-emerald-300 font-semibold rounded-full px-8 py-4 text-sm transition-all duration-300 shadow-md"
               >
                 See if Clynic offers your corporate plan
               </Link>
@@ -109,7 +109,7 @@ export default function WhyUs({ m }) {
               />
             </div>
             {/* Stamp Overlay */}
-            <div className="absolute -bottom-6 -left-6 flex items-center gap-2 rounded-2xl bg-[#005A36] px-4.5 py-3 border border-emerald-400/20 shadow-lg text-white">
+            <div className="absolute -bottom-6 -left-6 flex items-center gap-2 rounded-2xl bg-[#012F24] px-4.5 py-3 border border-emerald-400/20 shadow-lg text-white">
               <Sparkles className="h-4 w-4 text-emerald-300 animate-pulse" />
               <span className="text-[11px] font-bold uppercase tracking-wider">Top Tier Clinical Grade</span>
             </div>

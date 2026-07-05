@@ -95,8 +95,8 @@ export function Button({
     lg: 'px-8 py-4 text-[15px]',
   };
   const variants = {
-    primary: 'text-white bg-[#005A36] hover:-translate-y-0.5 hover:bg-[#004225]',
-    light: 'text-[#005A36] bg-white hover:-translate-y-0.5',
+    primary: 'text-white bg-[#012F24] hover:-translate-y-0.5 hover:bg-[#001f18]',
+    light: 'text-[#012F24] bg-white hover:-translate-y-0.5',
     ghost:
       'text-slate-700 bg-white/70 border border-slate-200/80 backdrop-blur hover:border-slate-300 hover:bg-white hover:-translate-y-0.5',
     ghostDark:

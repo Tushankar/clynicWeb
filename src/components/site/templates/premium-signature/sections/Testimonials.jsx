@@ -42,7 +42,7 @@ export default function Testimonials({ m }) {
   return (
     <>
       {/* ── Trusted By TPA/Corporate Insurance Logo Strip (Maven Style) ── */}
-      <div className="bg-[#0A1C14] py-12 border-b border-white/5 select-none">
+      <div className="bg-[#012F24] py-12 border-b border-white/5 select-none">
         <div className="mx-auto max-w-7xl px-6 text-center">
           <span className="text-[11px] font-bold text-white/35 uppercase tracking-widest block mb-7">
             ● Trusted By
@@ -57,7 +57,7 @@ export default function Testimonials({ m }) {
         </div>
       </div>
 
-      <section id="stories" className="scroll-mt-28 bg-[#0A1C14] text-white py-24 sm:py-32" aria-label="Patient stories">
+      <section id="stories" className="scroll-mt-28 bg-[#012F24] text-white py-24 sm:py-32" aria-label="Patient stories">
         <div className="mx-auto max-w-7xl px-6">
           
           {/* Section Head */}
@@ -89,7 +89,7 @@ export default function Testimonials({ m }) {
           </div>
 
           {/* Testimonial Active Card (Side-by-Side Split) */}
-          <div className="max-w-4xl mx-auto rounded-[2.25rem] bg-[#FAF8F5] overflow-hidden shadow-2xl border border-white/5 text-[#0A1C14] grid md:grid-cols-12">
+          <div className="max-w-4xl mx-auto rounded-[2.25rem] bg-[#FAF8F5] overflow-hidden shadow-2xl border border-white/5 text-[#012F24] grid md:grid-cols-12">
             {/* Left Column: Image (span 5) */}
             <div className="md:col-span-5 h-[320px] md:h-auto relative">
               <SafeImg
@@ -109,14 +109,14 @@ export default function Testimonials({ m }) {
               />
               
               <div className="grow flex items-center">
-                <blockquote className="pmx-display text-xl sm:text-[23px] font-medium leading-relaxed tracking-[-0.015em] text-[#0A1C14]">
+                <blockquote className="pmx-display text-xl sm:text-[23px] font-medium leading-relaxed tracking-[-0.015em] text-[#012F24]">
                   “{current.quote}”
                 </blockquote>
               </div>
 
               <div className="mt-8 border-t border-slate-200 pt-6 flex items-center justify-between">
                 <div>
-                  <cite className="not-italic block text-base font-semibold text-[#0A1C14]">
+                  <cite className="not-italic block text-base font-semibold text-[#012F24]">
                     {current.name}
                   </cite>
                   <span className="text-[12.5px] font-medium text-slate-500 mt-0.5 block">

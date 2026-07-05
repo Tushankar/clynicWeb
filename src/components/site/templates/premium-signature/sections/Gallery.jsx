@@ -107,7 +107,7 @@ export default function Gallery({ m }) {
   if (!images.length) return null;
 
   return (
-    <section id="gallery" className="scroll-mt-28 bg-[#0A1C14] text-white" aria-label="Gallery">
+    <section id="gallery" className="scroll-mt-28 bg-[#012F24] text-white" aria-label="Gallery">
       <div className="mx-auto max-w-7xl px-6 py-24 sm:py-32">
         <SectionHead
           tone="dark"
@@ -122,7 +122,7 @@ export default function Gallery({ m }) {
               <button
                 type="button"
                 onClick={() => setOpen(i)}
-                className="group relative block w-full cursor-zoom-in overflow-hidden rounded-3xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#005A36] focus-visible:ring-offset-2"
+                className="group relative block w-full cursor-zoom-in overflow-hidden rounded-3xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#012F24] focus-visible:ring-offset-2"
                 aria-label={`Open gallery image ${i + 1}`}
               >
                 <img
@@ -134,11 +134,11 @@ export default function Gallery({ m }) {
                 />
                 <span
                   aria-hidden="true"
-                  className="absolute inset-0 bg-gradient-to-t from-[#0A1C14]/45 via-transparent to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100"
+                  className="absolute inset-0 bg-gradient-to-t from-[#012F24]/45 via-transparent to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100"
                 />
                 <span
                   aria-hidden="true"
-                  className="absolute bottom-4 right-4 flex h-10 w-10 translate-y-2 items-center justify-center rounded-full bg-white/90 text-[#0A1C14] opacity-0 shadow-lg backdrop-blur transition-all duration-500 group-hover:translate-y-0 group-hover:opacity-100"
+                  className="absolute bottom-4 right-4 flex h-10 w-10 translate-y-2 items-center justify-center rounded-full bg-white/90 text-[#012F24] opacity-0 shadow-lg backdrop-blur transition-all duration-500 group-hover:translate-y-0 group-hover:opacity-100"
                 >
                   <Maximize2 className="h-4 w-4" aria-hidden="true" />
                 </span>

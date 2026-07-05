@@ -20,31 +20,31 @@ export const PMX_STYLES = `
     font-family: 'Lora', Georgia, serif;
     font-weight: 500;
   }
-  .pmx ::selection { background: rgba(0,90,54,0.18); color: #0B1220; }
+  .pmx ::selection { background: rgba(1,47,36,0.18); color: #0B1220; }
 
   /* ── Maven Clinic Forest Green Overrides ── */
-  .pmx .text-emerald-700 { color: #005A36 !important; }
-  .pmx .text-emerald-600 { color: #005A36 !important; }
-  .pmx .text-emerald-800 { color: #004225 !important; }
+  .pmx .text-emerald-700 { color: #012F24 !important; }
+  .pmx .text-emerald-600 { color: #012F24 !important; }
+  .pmx .text-emerald-800 { color: #001f18 !important; }
   .pmx .text-emerald-400 { color: #008f56 !important; }
-  .pmx .bg-emerald-600 { background-color: #005A36 !important; }
-  .pmx .bg-emerald-500 { background-color: #005A36 !important; }
-  .pmx .bg-emerald-750 { background-color: #004225 !important; }
+  .pmx .bg-emerald-600 { background-color: #012F24 !important; }
+  .pmx .bg-emerald-500 { background-color: #012F24 !important; }
+  .pmx .bg-emerald-750 { background-color: #001f18 !important; }
   .pmx .bg-emerald-50\/80 { background-color: rgba(250, 248, 245, 0.85) !important; }
-  .pmx .hover\:bg-emerald-600:hover { background-color: #004225 !important; }
-  .pmx .hover\:text-emerald-600:hover { color: #004225 !important; }
-  .pmx .border-emerald-600\/15 { border-color: rgba(0, 90, 54, 0.15) !important; }
-  .pmx .bg-emerald-500\/10 { background-color: rgba(0, 90, 54, 0.1) !important; }
-  .pmx .border-emerald-500\/25 { border-color: rgba(0, 90, 54, 0.2) !important; }
+  .pmx .hover\:bg-emerald-600:hover { background-color: #001f18 !important; }
+  .pmx .hover\:text-emerald-600:hover { color: #001f18 !important; }
+  .pmx .border-emerald-600\/15 { border-color: rgba(1, 47, 36, 0.15) !important; }
+  .pmx .bg-emerald-500\/10 { background-color: rgba(1, 47, 36, 0.1) !important; }
+  .pmx .border-emerald-500\/25 { border-color: rgba(1, 47, 36, 0.2) !important; }
 
   /* Gradient overrides for emerald elements */
-  .pmx .from-emerald-600 { --tw-gradient-from: #005A36 !important; --tw-gradient-to: rgba(0, 90, 54, 0) !important; --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to) !important; }
-  .pmx .via-emerald-500 { --tw-gradient-to: rgba(0, 90, 54, 0) !important; --tw-gradient-stops: var(--tw-gradient-from), #007d4c !important, var(--tw-gradient-to) !important; }
-  .pmx .to-emerald-500 { --tw-gradient-to: #007d4c !important; }
+  .pmx .from-emerald-600 { --tw-gradient-from: #012F24 !important; --tw-gradient-to: rgba(1, 47, 36, 0) !important; --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to) !important; }
+  .pmx .via-emerald-500 { --tw-gradient-to: rgba(1, 47, 36, 0) !important; --tw-gradient-stops: var(--tw-gradient-from), #012F24 !important, var(--tw-gradient-to) !important; }
+  .pmx .to-emerald-500 { --tw-gradient-to: #012F24 !important; }
 
   /* light dot-grid, faded at the edges */
   .pmx-grid {
-    background-image: radial-gradient(circle, rgba(0,90,54,0.06) 1px, transparent 1.5px);
+    background-image: radial-gradient(circle, rgba(1,47,36,0.06) 1px, transparent 1.5px);
     background-size: 26px 26px;
     -webkit-mask-image: radial-gradient(ellipse 90% 70% at 50% 35%, black 25%, transparent 78%);
     mask-image: radial-gradient(ellipse 90% 70% at 50% 35%, black 25%, transparent 78%);

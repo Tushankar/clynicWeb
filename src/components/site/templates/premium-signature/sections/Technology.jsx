@@ -38,7 +38,7 @@ export default function Technology({ m }) {
 
           {/* Card 2: 30+ Provider Specialties stack */}
           <Item>
-            <div className="relative rounded-[2.25rem] bg-[#005A36] p-8 h-[400px] flex flex-col justify-between text-white group shadow-sm">
+            <div className="relative rounded-[2.25rem] bg-[#012F24] p-8 h-[400px] flex flex-col justify-between text-white group shadow-sm">
               <h3 className="pmx-display text-3xl font-light leading-snug tracking-[-0.02em]">
                 30+ years of collective clinical expertise
               </h3>
@@ -78,7 +78,7 @@ export default function Technology({ m }) {
 
           {/* Card 4: Dark green panel */}
           <Item className="lg:col-span-1">
-            <div className="relative rounded-[2.25rem] bg-[#0A1C14] p-8 h-[280px] flex flex-col justify-between text-white shadow-sm border border-emerald-950/20">
+            <div className="relative rounded-[2.25rem] bg-[#012F24] p-8 h-[280px] flex flex-col justify-between text-white shadow-sm border border-emerald-950/20">
               <h3 className="pmx-display text-2xl font-light leading-snug tracking-[-0.02em]">
                 Your trusted partner in high-quality, pain-free dental healthcare.
               </h3>
@@ -102,14 +102,14 @@ export default function Technology({ m }) {
 
           {/* Card 6: App Mockup */}
           <Item>
-            <div className="relative overflow-hidden rounded-[2.25rem] bg-gradient-to-br from-[#FAF8F5] to-slate-100 border border-slate-200 p-8 h-[280px] flex flex-col justify-between text-[#0A1C14] shadow-sm">
+            <div className="relative overflow-hidden rounded-[2.25rem] bg-gradient-to-br from-[#FAF8F5] to-slate-100 border border-slate-200 p-8 h-[280px] flex flex-col justify-between text-[#012F24] shadow-sm">
               <h3 className="pmx-display text-2xl font-light leading-snug tracking-[-0.02em]">
                 Digital record tracking & instant post-care support via our app.
               </h3>
               
               <div className="absolute right-6 -bottom-10 w-28 h-40 bg-white border border-slate-200/80 rounded-2xl p-2.5 shadow-lg rotate-12 transition-transform duration-500 hover:rotate-6">
-                <div className="w-full h-full bg-[#0A1C14]/5 rounded-lg flex flex-col gap-1.5 p-1.5">
-                  <div className="w-8 h-2.5 bg-[#005A36] rounded-sm"></div>
+                <div className="w-full h-full bg-[#012F24]/5 rounded-lg flex flex-col gap-1.5 p-1.5">
+                  <div className="w-8 h-2.5 bg-[#012F24] rounded-sm"></div>
                   <div className="grow bg-white rounded-md border border-slate-100 flex items-center justify-center text-[10px] text-emerald-800">
                     ✓ Clean
                   </div>
@@ -122,7 +122,7 @@ export default function Technology({ m }) {
         <div className="mt-16 text-center">
           <Link
             to={m.bookHref}
-            className="group inline-flex items-center gap-2 rounded-full bg-[#005A36] hover:bg-[#004225] px-8 py-4 text-[15px] font-semibold text-white transition-all duration-300 hover:-translate-y-0.5 shadow-md"
+            className="group inline-flex items-center gap-2 rounded-full bg-[#012F24] hover:bg-[#001f18] px-8 py-4 text-[15px] font-semibold text-white transition-all duration-300 hover:-translate-y-0.5 shadow-md"
           >
             Explore our clinical platform
             <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" aria-hidden="true" />

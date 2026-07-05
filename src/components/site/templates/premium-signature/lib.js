@@ -10,26 +10,26 @@
 // ---- palette ------------------------------------------------------------------------
 export const C = {
   bg: '#FAF8F5',
-  ink: '#0A1C14', // near-black headings (forest dark)
+  ink: '#012F24', // near-black headings (forest dark)
   body: '#3A4D44', // dark forest muted
   muted: '#5A6E64',
-  navy: '#005A36', // Primary is forest green
-  navy2: '#004225',
-  navyDeep: '#002514',
-  em: '#005A36', // forest green
-  em2: '#007D4C',
-  em3: '#407C5E',
-  line: 'rgba(0,90,54,0.08)',
+  navy: '#012F24', // Primary is forest green
+  navy2: '#001f18',
+  navyDeep: '#00100c',
+  em: '#012F24', // forest green
+  em2: '#012F24',
+  em3: '#004b3a',
+  line: 'rgba(1,47,36,0.08)',
 };
 
 // Gradient recipes reused across icon tiles / avatars — curated cool medical family.
 export const GRADIENTS = [
-  'linear-gradient(135deg,#005A36 0%,#007D4C 100%)', // forest
-  'linear-gradient(135deg,#005A36 0%,#1B4965 100%)', // forest green → navy
-  'linear-gradient(135deg,#005A36 0%,#38BDF8 100%)', // forest green → sky
-  'linear-gradient(135deg,#005A36 0%,#2DD4BF 100%)', // forest green → teal
-  'linear-gradient(135deg,#004225 0%,#6EE7B7 100%)', // dark green → sea green
-  'linear-gradient(135deg,#005A36 0%,#60A5FA 100%)', // forest green → light blue
+  'linear-gradient(135deg,#012F24 0%,#004b3a 100%)', // forest
+  'linear-gradient(135deg,#012F24 0%,#1B4965 100%)', // forest green → navy
+  'linear-gradient(135deg,#012F24 0%,#38BDF8 100%)', // forest green → sky
+  'linear-gradient(135deg,#012F24 0%,#2DD4BF 100%)', // forest green → teal
+  'linear-gradient(135deg,#001f18 0%,#6EE7B7 100%)', // dark green → sea green
+  'linear-gradient(135deg,#012F24 0%,#60A5FA 100%)', // forest green → light blue
 ];
 
 export const SHADOW = {
