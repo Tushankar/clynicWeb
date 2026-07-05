@@ -63,18 +63,12 @@ export default function Navbar({ m, basePath = '' }) {
         initial={reduced ? false : { y: -32, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ duration: 0.7, ease: EASE }}
-        className="fixed inset-x-0 top-0 z-50 px-3 sm:px-5"
-        style={{ paddingTop: 'calc(0.875rem + env(safe-area-inset-top, 0px))' }}
+        className={cx(
+          "fixed inset-x-0 top-0 z-50 w-full border-b bg-white/95 transition-all duration-300",
+          scrolled ? "h-16 border-slate-200/80 shadow-xs" : "h-20 border-slate-200/50"
+        )}
       >
-        <div
-          className={cx(
-            'mx-auto flex max-w-6xl items-center justify-between gap-3 rounded-full border pl-4 pr-2 transition-all duration-500 sm:pl-5 sm:pr-2.5',
-            scrolled
-              ? 'border-slate-200/70 bg-white/85 py-1.5 shadow-[0_10px_36px_-12px_rgba(10,27,58,0.18)]'
-              : 'border-white/50 bg-white/60 py-2.5 shadow-[0_8px_32px_-14px_rgba(10,27,58,0.12)]'
-          )}
-          style={{ backdropFilter: 'blur(20px) saturate(1.5)', WebkitBackdropFilter: 'blur(20px) saturate(1.5)' }}
-        >
+        <div className="relative mx-auto flex h-full max-w-7xl items-center justify-between px-6 lg:px-8">
           {basePath ? (
             <Link to={basePath} className="min-w-0 shrink-0" aria-label={`${m.name} — home`}>
               <BrandMark logoUrl={m.theme.logoUrl} name={m.name} />
@@ -85,18 +79,18 @@ export default function Navbar({ m, basePath = '' }) {
             </a>
           )}
 
-          {/* Desktop links with animated underline */}
-          <nav className="hidden items-center gap-1 lg:flex" aria-label="Primary">
+          {/* Desktop links - centered absolute for symmetry */}
+          <nav className="hidden items-center gap-1 lg:flex absolute left-1/2 -translate-x-1/2" aria-label="Primary">
             {links.map((l) => (
               <Anchor
                 key={l.href}
                 href={l.href}
-                className="group relative rounded-full px-3.5 py-2 text-[13.5px] font-medium text-slate-600 transition-colors hover:text-[#0B1220]"
+                className="group relative rounded-full px-4 py-2 text-[14px] font-medium text-slate-700 transition-colors hover:text-[#005A36]"
               >
                 {l.label}
                 <span
                   aria-hidden="true"
-                  className="absolute inset-x-3.5 -bottom-px h-[2px] origin-left scale-x-0 rounded-full bg-gradient-to-r from-emerald-600 to-emerald-400 transition-transform duration-300 ease-out group-hover:scale-x-100"
+                  className="absolute inset-x-4 -bottom-px h-[2px] origin-left scale-x-0 rounded-full bg-[#005A36] transition-transform duration-300 ease-out group-hover:scale-x-100"
                 />
               </Anchor>
             ))}
@@ -104,36 +98,37 @@ export default function Navbar({ m, basePath = '' }) {
               <Link
                 key={p.slug}
                 to={`/c/${m.clinic.slug}/p/${p.slug}`}
-                className="group relative rounded-full px-3.5 py-2 text-[13.5px] font-medium text-slate-600 transition-colors hover:text-[#0B1220]"
+                className="group relative rounded-full px-4 py-2 text-[14px] font-medium text-slate-700 transition-colors hover:text-[#005A36]"
               >
                 {p.title}
                 <span
                   aria-hidden="true"
-                  className="absolute inset-x-3.5 -bottom-px h-[2px] origin-left scale-x-0 rounded-full bg-gradient-to-r from-emerald-600 to-emerald-400 transition-transform duration-300 ease-out group-hover:scale-x-100"
+                  className="absolute inset-x-4 -bottom-px h-[2px] origin-left scale-x-0 rounded-full bg-[#005A36] transition-transform duration-300 ease-out group-hover:scale-x-100"
                 />
               </Link>
             ))}
           </nav>
 
-          <div className="flex items-center gap-1.5">
+          <div className="flex items-center gap-2">
             {m.contact.phone ? (
               <a
                 href={telHref(m.contact.phone)}
-                className="hidden h-10 w-10 items-center justify-center rounded-full text-slate-600 transition-colors hover:bg-slate-900/5 hover:text-[#0B1220] md:inline-flex"
+                className="hidden h-9 items-center justify-center rounded-full px-4 text-[14px] font-medium text-slate-600 transition-colors hover:bg-slate-50 hover:text-[#005A36] md:inline-flex"
                 aria-label={`Call ${m.name} on ${m.contact.phone}`}
               >
-                <Phone className="h-[17px] w-[17px]" aria-hidden="true" />
+                <Phone className="mr-1.5 h-4 w-4" aria-hidden="true" />
+                {m.contact.phone}
               </a>
             ) : null}
             <span className="hidden sm:block">
-              <Button to={m.bookHref} icon={CalendarPlus} size="sm" magnetic={false}>
+              <Button to={m.bookHref} size="sm" magnetic={false}>
                 Book appointment
               </Button>
             </span>
             <button
               type="button"
               onClick={() => setOpen(true)}
-              className="inline-flex h-10 w-10 items-center justify-center rounded-full text-slate-700 transition-colors hover:bg-slate-900/5 lg:hidden"
+              className="inline-flex h-10 w-10 items-center justify-center rounded-full text-slate-700 transition-colors hover:bg-slate-50 lg:hidden"
               aria-label="Open menu"
               aria-expanded={open}
             >

@@ -70,7 +70,7 @@ export function SectionHead({ eyebrow, title, sub, tone = 'light', align = 'cent
 /* ------------------------------------ buttons ------------------------------------ */
 
 const btnBase =
-  'group/btn relative inline-flex items-center justify-center gap-2 overflow-hidden rounded-full text-sm font-semibold outline-none transition-all duration-300 focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2 active:scale-[0.98]';
+  'group/btn relative inline-flex items-center justify-center gap-2 overflow-hidden rounded-full text-sm font-semibold outline-none transition-all duration-300 whitespace-nowrap focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2 active:scale-[0.98]';
 
 /**
  * Button — variants: primary (deep navy, emerald glow on hover), light (white, for dark
@@ -95,8 +95,8 @@ export function Button({
     lg: 'px-8 py-4 text-[15px]',
   };
   const variants = {
-    primary: 'text-white bg-[#0A1B3A] hover:-translate-y-0.5',
-    light: 'text-[#0A1B3A] bg-white hover:-translate-y-0.5',
+    primary: 'text-white bg-[#005A36] hover:-translate-y-0.5 hover:bg-[#004225]',
+    light: 'text-[#005A36] bg-white hover:-translate-y-0.5',
     ghost:
       'text-slate-700 bg-white/70 border border-slate-200/80 backdrop-blur hover:border-slate-300 hover:bg-white hover:-translate-y-0.5',
     ghostDark:
@@ -104,7 +104,7 @@ export function Button({
     emerald: 'text-white bg-gradient-to-br from-emerald-600 to-emerald-500 hover:-translate-y-0.5',
   };
   const shadows = {
-    primary: { boxShadow: '0 12px 32px -10px rgba(10,27,58,0.45)' },
+    primary: { boxShadow: '0 12px 32px -10px rgba(0,90,54,0.3)' },
     light: { boxShadow: SHADOW.md },
     emerald: { boxShadow: SHADOW.glow },
     ghost: {},
@@ -118,8 +118,8 @@ export function Button({
         aria-hidden="true"
         className="pointer-events-none absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/20 to-transparent transition-transform duration-700 ease-out group-hover/btn:translate-x-full"
       />
-      {Icon ? <Icon className="h-4 w-4 shrink-0" aria-hidden="true" /> : null}
-      <span>{children}</span>
+      {Icon ? <Icon className="h-4.5 w-4.5 shrink-0" aria-hidden="true" /> : null}
+      <span className="inline-flex items-center gap-1.5">{children}</span>
     </>
   );
 

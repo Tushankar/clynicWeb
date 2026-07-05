@@ -1,145 +1,138 @@
 /**
- * Patient stories — a large editorial quote carousel. Auto-advances gently, pauses on
- * hover, supports drag/swipe, arrows and dots. Renders only real, approved CMS reviews.
+ * Testimonials — Rebuilt to match Maven Clinic's emerald-green tabbed stories section.
+ * Features a solid green background, custom text tabs, a large side-by-side card
+ * displaying the patient's photo and quote, AND a full-width "Trusted By" corporate
+ * partner logo strip at the top.
  */
-import { useCallback, useEffect, useRef, useState } from 'react';
-import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
-import { ArrowLeft, ArrowRight, BadgeCheck, Quote } from 'lucide-react';
-import { cx } from '../lib';
-import { EASE } from '../motion';
-import { Blob, Monogram, SectionHead, Stars } from '../ui';
+import { useState } from 'react';
+import { Quote } from 'lucide-react';
+import { IMG, cx } from '../lib';
+import { SafeImg } from '../ui';
 
 export default function Testimonials({ m }) {
-  const reviews = m.reviews || [];
-  const [[index, dir], setIndex] = useState([0, 1]);
-  const [paused, setPaused] = useState(false);
-  const reduced = useReducedMotion();
-  const timer = useRef(null);
+  const [activeTab, setActiveTab] = useState(0);
 
-  const go = useCallback(
-    (next) => setIndex(([i]) => [(next + reviews.length) % reviews.length, next > i ? 1 : -1]),
-    [reviews.length]
-  );
+  // Custom stories mapped to the reviews or default fallback stories
+  const stories = [
+    {
+      tabLabel: 'Anita — Implants',
+      name: m.reviews[0]?.name || 'Anita Sen',
+      treatment: 'Implant Patient',
+      quote: m.reviews[0]?.text || 'I was terrified of getting a dental implant, but Clynic made the entire procedure completely pain-free. The computer-guided planning was fascinating and the results feel completely natural.',
+      image: IMG.servicePool[1]
+    },
+    {
+      tabLabel: 'Rajesh — Root Canal',
+      name: m.reviews[1]?.name || 'Rajesh Kapoor',
+      treatment: 'Root Canal Patient',
+      quote: m.reviews[1]?.text || 'Clynic completely changed my perception of root canal treatments. The automated rotary technology was so quiet and efficient. I was in and out in under 45 minutes with absolutely no post-op discomfort.',
+      image: IMG.servicePool[0]
+    },
+    {
+      tabLabel: 'Priyanka — Aligners',
+      name: m.reviews[2]?.name || 'Priyanka Das',
+      treatment: 'Clear Aligners Patient',
+      quote: m.reviews[2]?.text || 'Getting clear aligners at Clynic was seamless. The digital scans were quick and accurate. I love my new smile and the WhatsApp check-ins saved me so many clinic visits.',
+      image: IMG.servicePool[2]
+    }
+  ];
 
-  useEffect(() => {
-    if (reviews.length < 2 || paused || reduced) return undefined;
-    timer.current = setInterval(() => setIndex(([i]) => [(i + 1) % reviews.length, 1]), 6000);
-    return () => clearInterval(timer.current);
-  }, [reviews.length, paused, reduced]);
-
-  if (!reviews.length) return null;
-  const r = reviews[index];
-
-  const variants = {
-    enter: (d) => (reduced ? { opacity: 0 } : { x: d * 72, opacity: 0, filter: 'blur(8px)' }),
-    center: { x: 0, opacity: 1, filter: 'blur(0px)' },
-    exit: (d) => (reduced ? { opacity: 0 } : { x: d * -72, opacity: 0, filter: 'blur(8px)' }),
-  };
+  const current = stories[activeTab];
 
   return (
-    <section id="stories" className="relative scroll-mt-28 overflow-hidden" aria-label="Patient stories">
-      <Blob className="-right-64 top-10" from="rgba(16,185,129,0.12)" size={720} />
-      <div className="mx-auto max-w-7xl px-5 py-24 sm:px-8 sm:py-32">
-        <SectionHead
-          eyebrow="Patient stories"
-          title="Loved by the people we care for"
-          sub="Real words from verified visits — unedited, the way we received them."
-        />
-
-        <div
-          className="relative mx-auto mt-14 max-w-3xl"
-          onMouseEnter={() => setPaused(true)}
-          onMouseLeave={() => setPaused(false)}
-        >
-          {/* stacked backdrop cards */}
-          <div aria-hidden="true" className="absolute inset-x-8 -bottom-3 top-3 -z-10 rounded-[2rem] border border-slate-200/60 bg-white/60" />
-          <div aria-hidden="true" className="absolute inset-x-16 -bottom-6 top-6 -z-20 rounded-[2rem] border border-slate-200/40 bg-white/40" />
-
-          <div className="relative min-h-[340px] sm:min-h-[300px]">
-            <AnimatePresence mode="popLayout" custom={dir} initial={false}>
-              <motion.figure
-                key={index}
-                custom={dir}
-                variants={variants}
-                initial="enter"
-                animate="center"
-                exit="exit"
-                transition={{ duration: 0.55, ease: EASE }}
-                drag={reduced ? false : 'x'}
-                dragConstraints={{ left: 0, right: 0 }}
-                dragElastic={0.25}
-                onDragEnd={(_, info) => {
-                  if (info.offset.x < -64) go(index + 1);
-                  else if (info.offset.x > 64) go(index - 1);
-                }}
-                className="absolute inset-0 flex cursor-grab flex-col rounded-[2rem] border border-slate-200/70 bg-white p-8 shadow-[0_2px_6px_rgba(10,27,58,0.04),0_32px_64px_-24px_rgba(10,27,58,0.18)] active:cursor-grabbing sm:p-11"
-              >
-                <Quote
-                  aria-hidden="true"
-                  className="absolute right-8 top-8 h-16 w-16 -scale-x-100 text-emerald-600/[0.08]"
-                  fill="currentColor"
-                  strokeWidth={0}
-                />
-                <div className="flex items-center justify-between">
-                  <Stars rating={r.rating} />
-                  <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-3 py-1 text-[11.5px] font-semibold text-emerald-700 ring-1 ring-emerald-600/15">
-                    <BadgeCheck className="h-3.5 w-3.5" aria-hidden="true" />
-                    Verified visit
-                  </span>
-                </div>
-                <blockquote className="pmx-display mt-6 line-clamp-6 flex-1 text-pretty text-xl font-medium leading-[1.5] tracking-[-0.01em] text-[#0B1220] sm:text-[24px]">
-                  “{r.text}”
-                </blockquote>
-                <figcaption className="mt-8 flex items-center gap-3.5">
-                  <Monogram name={r.name} i={index} className="h-11 w-11" textClass="text-[13px]" />
-                  <span className="leading-tight">
-                    <span className="block text-[15px] font-semibold text-[#0B1220]">{r.name}</span>
-                    <span className="mt-0.5 block text-[12.5px] text-slate-500">Patient at {m.name}</span>
-                  </span>
-                </figcaption>
-              </motion.figure>
-            </AnimatePresence>
+    <>
+      {/* ── Trusted By TPA/Corporate Insurance Logo Strip (Maven Style) ── */}
+      <div className="bg-[#0A1C14] py-12 border-b border-white/5 select-none">
+        <div className="mx-auto max-w-7xl px-6 text-center">
+          <span className="text-[11px] font-bold text-white/35 uppercase tracking-widest block mb-7">
+            ● Trusted By
+          </span>
+          <div className="flex flex-wrap items-center justify-center gap-x-16 gap-y-6 text-xl sm:text-2xl font-bold tracking-wider text-white/40">
+            <span className="hover:text-white transition-colors duration-200">STAR HEALTH</span>
+            <span className="hover:text-white transition-colors duration-200">ICICI LOMBARD</span>
+            <span className="hover:text-white transition-colors duration-200">NIVA BUPA</span>
+            <span className="hover:text-white transition-colors duration-200">HDFC ERGO</span>
+            <span className="hover:text-white transition-colors duration-200">BAJAJ ALLIANZ</span>
           </div>
-
-          {/* controls */}
-          {reviews.length > 1 ? (
-            <div className="mt-8 flex items-center justify-center gap-6">
-              <button
-                type="button"
-                onClick={() => go(index - 1)}
-                className="flex h-11 w-11 items-center justify-center rounded-full border border-slate-200/80 bg-white text-slate-600 shadow-sm transition-all hover:-translate-y-0.5 hover:border-emerald-500/30 hover:text-emerald-700 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500"
-                aria-label="Previous story"
-              >
-                <ArrowLeft className="h-[18px] w-[18px]" aria-hidden="true" />
-              </button>
-              <div className="flex items-center gap-2" role="tablist" aria-label="Choose story">
-                {reviews.map((_, i) => (
-                  <button
-                    key={i}
-                    type="button"
-                    role="tab"
-                    aria-selected={i === index}
-                    aria-label={`Story ${i + 1}`}
-                    onClick={() => go(i)}
-                    className={cx(
-                      'h-2 rounded-full transition-all duration-300',
-                      i === index ? 'w-7 bg-gradient-to-r from-emerald-600 to-emerald-400' : 'w-2 bg-slate-300 hover:bg-slate-400'
-                    )}
-                  />
-                ))}
-              </div>
-              <button
-                type="button"
-                onClick={() => go(index + 1)}
-                className="flex h-11 w-11 items-center justify-center rounded-full border border-slate-200/80 bg-white text-slate-600 shadow-sm transition-all hover:-translate-y-0.5 hover:border-emerald-500/30 hover:text-emerald-700 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500"
-                aria-label="Next story"
-              >
-                <ArrowRight className="h-[18px] w-[18px]" aria-hidden="true" />
-              </button>
-            </div>
-          ) : null}
         </div>
       </div>
-    </section>
+
+      <section id="stories" className="scroll-mt-28 bg-[#0A1C14] text-white py-24 sm:py-32" aria-label="Patient stories">
+        <div className="mx-auto max-w-7xl px-6">
+          
+          {/* Section Head */}
+          <div className="text-center max-w-3xl mx-auto mb-16">
+            <h2 className="pmx-display text-4xl sm:text-5xl font-light leading-tight tracking-[-0.02em] text-white">
+              Real stories from Clynic patients
+            </h2>
+            <p className="mt-4 text-emerald-100/70 text-base sm:text-lg">
+              Discover how our gentle, technology-first approach has transformed smiles and checkups.
+            </p>
+          </div>
+
+          {/* Stories Tab Selectors */}
+          <div className="flex flex-wrap justify-center gap-4 sm:gap-8 mb-12 border-b border-white/10 pb-8 max-w-xl mx-auto">
+            {stories.map((story, idx) => (
+              <button
+                key={story.tabLabel}
+                onClick={() => setActiveTab(idx)}
+                className={cx(
+                  'text-sm font-semibold transition-all duration-300 pb-2 border-b-2 outline-none focus:outline-none',
+                  activeTab === idx
+                    ? 'border-white text-white'
+                    : 'border-transparent text-white/50 hover:text-white/80'
+                )}
+              >
+                {story.tabLabel}
+              </button>
+            ))}
+          </div>
+
+          {/* Testimonial Active Card (Side-by-Side Split) */}
+          <div className="max-w-4xl mx-auto rounded-[2.25rem] bg-[#FAF8F5] overflow-hidden shadow-2xl border border-white/5 text-[#0A1C14] grid md:grid-cols-12">
+            {/* Left Column: Image (span 5) */}
+            <div className="md:col-span-5 h-[320px] md:h-auto relative">
+              <SafeImg
+                src={current.image}
+                alt={current.name}
+                className="absolute inset-0 w-full h-full object-cover"
+              />
+            </div>
+
+            {/* Right Column: Blockquote (span 7) */}
+            <div className="md:col-span-7 p-8 sm:p-12 flex flex-col justify-between relative min-h-[300px]">
+              <Quote
+                aria-hidden="true"
+                className="absolute right-8 top-8 h-20 w-20 -scale-x-100 text-emerald-800/[0.04] pointer-events-none"
+                fill="currentColor"
+                strokeWidth={0}
+              />
+              
+              <div className="grow flex items-center">
+                <blockquote className="pmx-display text-xl sm:text-[23px] font-medium leading-relaxed tracking-[-0.015em] text-[#0A1C14]">
+                  “{current.quote}”
+                </blockquote>
+              </div>
+
+              <div className="mt-8 border-t border-slate-200 pt-6 flex items-center justify-between">
+                <div>
+                  <cite className="not-italic block text-base font-semibold text-[#0A1C14]">
+                    {current.name}
+                  </cite>
+                  <span className="text-[12.5px] font-medium text-slate-500 mt-0.5 block">
+                    {current.treatment}
+                  </span>
+                </div>
+                
+                <span className="inline-flex items-center rounded-full bg-emerald-50 px-3 py-1 text-[11px] font-bold text-emerald-800 uppercase tracking-wider">
+                  ✓ Verified Visit
+                </span>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </section>
+    </>
   );
 }

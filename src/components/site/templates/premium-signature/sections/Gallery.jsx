@@ -1,6 +1,6 @@
 /**
- * Gallery — masonry (CSS columns) with hover zoom + a full keyboard-accessible lightbox
- * (Esc closes, arrows navigate, backdrop click dismisses, body scroll locks).
+ * Gallery — Rebuilt with clean solid white background,
+ * forest-green rings, and high contrast active overlay.
  */
 import { useCallback, useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
@@ -9,7 +9,7 @@ import { ChevronLeft, ChevronRight, Maximize2, X } from 'lucide-react';
 import { EASE, Item, Stagger } from '../motion';
 import { SectionHead } from '../ui';
 
-// Varied aspect ratios give the masonry its editorial rhythm.
+// Varied aspect ratios give the masonry its rhythm.
 const RATIOS = ['aspect-[4/5]', 'aspect-[4/3]', 'aspect-square', 'aspect-[3/4]', 'aspect-[16/11]', 'aspect-[4/5]'];
 
 function Lightbox({ images, index, onClose, onNav, name }) {
@@ -36,7 +36,7 @@ function Lightbox({ images, index, onClose, onNav, name }) {
       exit={{ opacity: 0 }}
       transition={{ duration: 0.25 }}
       className="fixed inset-0 z-[90] flex items-center justify-center p-4 sm:p-10"
-      style={{ background: 'rgba(6,14,34,0.9)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)' }}
+      style={{ background: 'rgba(10,28,20,0.95)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)' }}
       onClick={onClose}
       role="dialog"
       aria-modal="true"
@@ -107,9 +107,10 @@ export default function Gallery({ m }) {
   if (!images.length) return null;
 
   return (
-    <section id="gallery" className="scroll-mt-28 border-t border-slate-900/[0.06] bg-white/60" aria-label="Gallery">
-      <div className="mx-auto max-w-7xl px-5 py-24 sm:px-8 sm:py-32">
+    <section id="gallery" className="scroll-mt-28 bg-[#0A1C14] text-white" aria-label="Gallery">
+      <div className="mx-auto max-w-7xl px-6 py-24 sm:py-32">
         <SectionHead
+          tone="dark"
           eyebrow="Step inside"
           title="A space designed to put you at ease"
           sub="Calm rooms, modern equipment and light everywhere — take a look around before you visit."
@@ -121,7 +122,7 @@ export default function Gallery({ m }) {
               <button
                 type="button"
                 onClick={() => setOpen(i)}
-                className="group relative block w-full cursor-zoom-in overflow-hidden rounded-3xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2"
+                className="group relative block w-full cursor-zoom-in overflow-hidden rounded-3xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#005A36] focus-visible:ring-offset-2"
                 aria-label={`Open gallery image ${i + 1}`}
               >
                 <img
@@ -133,11 +134,11 @@ export default function Gallery({ m }) {
                 />
                 <span
                   aria-hidden="true"
-                  className="absolute inset-0 bg-gradient-to-t from-[#0A1B3A]/45 via-transparent to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100"
+                  className="absolute inset-0 bg-gradient-to-t from-[#0A1C14]/45 via-transparent to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100"
                 />
                 <span
                   aria-hidden="true"
-                  className="absolute bottom-4 right-4 flex h-10 w-10 translate-y-2 items-center justify-center rounded-full bg-white/90 text-[#0A1B3A] opacity-0 shadow-lg backdrop-blur transition-all duration-500 group-hover:translate-y-0 group-hover:opacity-100"
+                  className="absolute bottom-4 right-4 flex h-10 w-10 translate-y-2 items-center justify-center rounded-full bg-white/90 text-[#0A1C14] opacity-0 shadow-lg backdrop-blur transition-all duration-500 group-hover:translate-y-0 group-hover:opacity-100"
                 >
                   <Maximize2 className="h-4 w-4" aria-hidden="true" />
                 </span>
@@ -149,7 +150,13 @@ export default function Gallery({ m }) {
 
       <AnimatePresence>
         {open !== null ? (
-          <Lightbox images={images} index={open} name={m.name} onClose={() => setOpen(null)} onNav={onNav} />
+          <Lightbox
+            images={images}
+            index={open}
+            onClose={() => setOpen(null)}
+            onNav={onNav}
+            name={m.name}
+          />
         ) : null}
       </AnimatePresence>
     </section>

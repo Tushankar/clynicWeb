@@ -9,34 +9,34 @@
 
 // ---- palette ------------------------------------------------------------------------
 export const C = {
-  bg: '#F8FAFC',
-  ink: '#0B1220', // near-black headings
-  body: '#475569', // slate-600
-  muted: '#64748B', // slate-500
-  navy: '#0A1B3A',
-  navy2: '#102B5C',
-  navyDeep: '#060E22',
-  em: '#059669', // emerald-600
-  em2: '#10B981', // emerald-500
-  em3: '#34D399', // emerald-400
-  line: 'rgba(11,18,32,0.08)',
+  bg: '#FAF8F5',
+  ink: '#0A1C14', // near-black headings (forest dark)
+  body: '#3A4D44', // dark forest muted
+  muted: '#5A6E64',
+  navy: '#005A36', // Primary is forest green
+  navy2: '#004225',
+  navyDeep: '#002514',
+  em: '#005A36', // forest green
+  em2: '#007D4C',
+  em3: '#407C5E',
+  line: 'rgba(0,90,54,0.08)',
 };
 
 // Gradient recipes reused across icon tiles / avatars — curated cool medical family.
 export const GRADIENTS = [
-  'linear-gradient(135deg,#059669 0%,#34D399 100%)', // emerald
-  'linear-gradient(135deg,#0A1B3A 0%,#2E5EAA 100%)', // navy → blue
-  'linear-gradient(135deg,#0369A1 0%,#38BDF8 100%)', // deep sky
-  'linear-gradient(135deg,#0F766E 0%,#2DD4BF 100%)', // teal
-  'linear-gradient(135deg,#047857 0%,#6EE7B7 100%)', // sea green
-  'linear-gradient(135deg,#1E3A8A 0%,#60A5FA 100%)', // indigo blue
+  'linear-gradient(135deg,#005A36 0%,#007D4C 100%)', // forest
+  'linear-gradient(135deg,#005A36 0%,#1B4965 100%)', // forest green → navy
+  'linear-gradient(135deg,#005A36 0%,#38BDF8 100%)', // forest green → sky
+  'linear-gradient(135deg,#005A36 0%,#2DD4BF 100%)', // forest green → teal
+  'linear-gradient(135deg,#004225 0%,#6EE7B7 100%)', // dark green → sea green
+  'linear-gradient(135deg,#005A36 0%,#60A5FA 100%)', // forest green → light blue
 ];
 
 export const SHADOW = {
-  sm: '0 1px 2px rgba(10,27,58,0.05), 0 6px 20px -8px rgba(10,27,58,0.08)',
-  md: '0 2px 4px rgba(10,27,58,0.04), 0 16px 40px -12px rgba(10,27,58,0.12)',
-  lg: '0 2px 6px rgba(10,27,58,0.05), 0 32px 72px -20px rgba(10,27,58,0.22)',
-  glow: '0 12px 40px -8px rgba(5,150,105,0.35)',
+  sm: '0 1px 2px rgba(0,90,54,0.05), 0 6px 20px -8px rgba(0,90,54,0.08)',
+  md: '0 2px 4px rgba(0,90,54,0.04), 0 16px 40px -12px rgba(0,90,54,0.12)',
+  lg: '0 2px 6px rgba(0,90,54,0.05), 0 32px 72px -20px rgba(0,90,54,0.22)',
+  glow: '0 12px 40px -8px rgba(0,90,54,0.3)',
 };
 
 // ---- curated premium imagery (graceful fallbacks when the CMS has none) --------------

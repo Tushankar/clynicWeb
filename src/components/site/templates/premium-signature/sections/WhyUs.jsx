@@ -1,104 +1,121 @@
 /**
- * Why choose us — editorial split. A layered photo collage (large + overlapping small +
- * floating satisfaction chip) on the left; the clinic's real "about" narrative and a
- * six-feature checklist on the right. Doubles as the #about anchor.
+ * WhyUs — Rebuilt to Maven Clinic style vertical segment tab selector on dark green background.
+ * Left: Vertical tab options with smooth highlights and custom CTAs.
+ * Right: Large portrait clinical picture matching the active selection.
  */
-import { useMemo } from 'react';
-import * as Icons from 'lucide-react';
-import { HeartHandshake } from 'lucide-react';
-import { IMG, WHY_FEATURES } from '../lib';
-import { Item, Reveal, Stagger } from '../motion';
-import { ArrowLink, Blob, Eyebrow, SafeImg } from '../ui';
+import { useState } from 'react';
+import { Link } from 'react-router-dom';
+import { ArrowRight, Sparkles } from 'lucide-react';
+import { IMG } from '../lib';
+import { Button, SafeImg } from '../ui';
 
 export default function WhyUs({ m }) {
-  // Always the curated editorial consult pair — people-first imagery that stays distinct
-  // from the clinic's own gallery (which fills the hero + masonry).
-  const [big, small] = useMemo(() => [IMG.whyBig, IMG.whySmall], []);
+  const [activeTab, setActiveTab] = useState(0);
+
+  const tabs = [
+    {
+      label: 'For Patients',
+      title: 'Attentive, customized care plans suited to your history',
+      desc: 'We take time to understand your clinical preferences and comfort requirements to deliver dental care that truly considers your long-term health.',
+      image: IMG.whyBig
+    },
+    {
+      label: 'For Families',
+      title: 'Safe, anxiety-free experiences for patients of all ages',
+      desc: 'Our modern clinic design, children-friendly treatment spaces, and empathetic specialists keep your entire family relaxed and looking forward to checkups.',
+      image: IMG.whySmall
+    },
+    {
+      label: 'For Businesses',
+      title: 'Corporate wellness benefits to protect your team\'s health',
+      desc: 'Offer comprehensive, cashless dental plans, prompt diagnostic checkups, and exclusive booking slots for your employees.',
+      image: IMG.servicePool[1]
+    },
+    {
+      label: 'For Specialists',
+      title: 'State-of-the-art clinical infrastructure and radiology referrals',
+      desc: 'Partner with our facility to gain instant access to high-resolution 3D CBCT imaging scans and professional endodontic support.',
+      image: IMG.servicePool[3]
+    }
+  ];
+
+  const current = tabs[activeTab];
 
   return (
-    <section id="about" className="relative scroll-mt-28 overflow-hidden" aria-label="About the clinic">
-      <Blob className="-left-56 top-24" from="rgba(16,185,129,0.10)" size={640} />
-      <div className="mx-auto grid max-w-7xl items-center gap-16 px-5 py-24 sm:px-8 sm:py-32 lg:grid-cols-2 lg:gap-20">
-        {/* -------- photo collage -------- */}
-        <Reveal className="relative mx-auto w-full max-w-[560px]">
-          <div className="relative">
-            <SafeImg
-              src={big}
-              alt={`Inside ${m.name}`}
-              className="aspect-[4/3.4] w-full rounded-[2rem] object-cover shadow-[0_32px_72px_-24px_rgba(10,27,58,0.3)]"
-            />
-            {/* overlapping small image */}
-            <div className="absolute -bottom-10 -right-3 w-[46%] rotate-2 rounded-[1.5rem] border-[5px] border-white shadow-[0_24px_56px_-20px_rgba(10,27,58,0.35)] transition-transform duration-500 hover:rotate-0 sm:-right-8">
-              <SafeImg src={small} alt="" className="aspect-[4/3] w-full rounded-[1.2rem] object-cover" />
+    <section id="about" className="relative scroll-mt-28 bg-[#0A1C14] text-white py-24 sm:py-32" aria-label="About our care">
+      <div className="mx-auto max-w-7xl px-6">
+        
+        <div className="grid gap-12 lg:grid-cols-12 lg:gap-16 items-center">
+          {/* Left Column (span 7): Vertical tab list and CTA */}
+          <div className="lg:col-span-7 flex flex-col justify-between h-full py-2">
+            <div>
+              {/* Green indicator bar above the list */}
+              <div className="w-20 h-1.5 bg-emerald-500 rounded-full mb-10"></div>
+              
+              <ul className="space-y-6">
+                {tabs.map((tab, idx) => {
+                  const isActive = activeTab === idx;
+                  return (
+                    <li key={tab.label} className="border-b border-white/10 pb-6 last:border-0 last:pb-0">
+                      <button
+                        onClick={() => setActiveTab(idx)}
+                        className="w-full text-left flex items-center justify-between group outline-none focus:outline-none"
+                      >
+                        <span className={`pmx-display text-2xl sm:text-3xl font-light tracking-[-0.015em] transition-all duration-300 ${
+                          isActive ? 'text-emerald-400 translate-x-2' : 'text-white/60 hover:text-white'
+                        }`}>
+                          {tab.label}
+                        </span>
+                        <ArrowRight className={`h-6 w-6 transition-all duration-300 ${
+                          isActive ? 'text-emerald-400 translate-x-1 opacity-100' : 'text-white/30 opacity-0 group-hover:opacity-100 group-hover:text-white'
+                        }`} />
+                      </button>
+                      
+                      {/* Active description revealed inline on mobile, or displayed as dynamic text below */}
+                      {isActive && (
+                        <div className="mt-4 pl-2 pr-4 space-y-3">
+                          <h4 className="text-emerald-100 font-semibold text-base sm:text-lg">
+                            {tab.title}
+                          </h4>
+                          <p className="text-emerald-100/60 text-sm leading-relaxed max-w-xl">
+                            {tab.desc}
+                          </p>
+                        </div>
+                      )}
+                    </li>
+                  );
+                })}
+              </ul>
             </div>
-            {/* floating satisfaction chip */}
-            <div
-              className="absolute -left-3 top-8 flex items-center gap-3 rounded-2xl py-3 pl-3 pr-5 sm:-left-8"
-              style={{
-                background: 'rgba(255,255,255,0.85)',
-                backdropFilter: 'blur(14px)',
-                WebkitBackdropFilter: 'blur(14px)',
-                border: '1px solid rgba(255,255,255,0.7)',
-                boxShadow: '0 20px 44px -16px rgba(10,27,58,0.28)',
-              }}
-            >
-              <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-600 to-emerald-400 text-white">
-                <HeartHandshake className="h-5 w-5" aria-hidden="true" />
-              </span>
-              <span className="leading-tight">
-                <span className="pmx-display block text-lg font-semibold text-[#0B1220]">98%</span>
-                <span className="block text-[11.5px] font-medium text-slate-500">patients recommend us</span>
-              </span>
+
+            {/* See if Clynic offers your plan CTA */}
+            <div className="mt-12">
+              <Link
+                to={m.bookHref}
+                className="inline-flex items-center justify-center bg-emerald-400 text-[#0A1C14] hover:bg-emerald-300 font-semibold rounded-full px-8 py-4 text-sm transition-all duration-300 shadow-md"
+              >
+                See if Clynic offers your corporate plan
+              </Link>
             </div>
           </div>
-        </Reveal>
 
-        {/* -------- narrative + features -------- */}
-        <div className="pt-6 lg:pt-0">
-          <Reveal>
-            <Eyebrow>Why {m.name}</Eyebrow>
-          </Reveal>
-          <Reveal delay={0.08}>
-            <h2 className="pmx-display mt-4 text-balance text-[2rem] font-semibold leading-[1.12] tracking-[-0.02em] text-[#0B1220] sm:text-[2.6rem]">
-              Healthcare that feels considered, not processed
-            </h2>
-          </Reveal>
-          {m.about ? (
-            <Reveal delay={0.16}>
-              <p className="mt-5 whitespace-pre-line text-pretty text-base leading-relaxed text-slate-600 sm:text-[17px]">
-                {m.about}
-              </p>
-            </Reveal>
-          ) : null}
-
-          <Stagger className="mt-10 grid gap-x-8 gap-y-7 sm:grid-cols-2" gap={0.07}>
-            {WHY_FEATURES.map((f) => {
-              const Icon = Icons[f.icon] || Icons.Check;
-              return (
-                <Item key={f.title} className="group flex items-start gap-3.5">
-                  <span
-                    className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-emerald-50 text-emerald-700 ring-1 ring-emerald-600/15 transition-all duration-300 group-hover:bg-gradient-to-br group-hover:from-emerald-600 group-hover:to-emerald-400 group-hover:text-white group-hover:shadow-lg group-hover:shadow-emerald-600/25"
-                    aria-hidden="true"
-                  >
-                    <Icon className="h-[18px] w-[18px]" strokeWidth={2} />
-                  </span>
-                  <span>
-                    <span className="block text-[15px] font-semibold text-[#0B1220]">{f.title}</span>
-                    <span className="mt-1 block text-[13.5px] leading-relaxed text-slate-500">{f.text}</span>
-                  </span>
-                </Item>
-              );
-            })}
-          </Stagger>
-
-          {m.doctors.length ? (
-            <Reveal delay={0.1}>
-              <div className="mt-10">
-                <ArrowLink href="#doctors">Meet the doctors behind it</ArrowLink>
-              </div>
-            </Reveal>
-          ) : null}
+          {/* Right Column (span 5): Large Portrait Visual Image */}
+          <div className="lg:col-span-5 relative">
+            <div className="overflow-hidden rounded-[2.5rem] border border-white/10 shadow-2xl bg-emerald-950/40">
+              <SafeImg
+                src={current.image}
+                alt={current.label}
+                className="aspect-[4/5] w-full object-cover transition-all duration-700 hover:scale-105"
+              />
+            </div>
+            {/* Stamp Overlay */}
+            <div className="absolute -bottom-6 -left-6 flex items-center gap-2 rounded-2xl bg-[#005A36] px-4.5 py-3 border border-emerald-400/20 shadow-lg text-white">
+              <Sparkles className="h-4 w-4 text-emerald-300 animate-pulse" />
+              <span className="text-[11px] font-bold uppercase tracking-wider">Top Tier Clinical Grade</span>
+            </div>
+          </div>
         </div>
+
       </div>
     </section>
   );

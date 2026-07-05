@@ -1,154 +1,192 @@
 /**
- * Services — editorial grid of fully-clickable treatment cards: photography, an
- * overlapping gradient icon tile, and a sliding "book" affordance. Subtle 3D tilt.
+ * Services — Maven Clinic style deep-green section.
+ * Row 1: 4 tall treatment cards overlapping/positioned under the hero.
+ * Section break: Centered subheadline.
+ * Row 2: 3 horizontal cards (NEW badges) for explorative care plans.
  */
 import { Link } from 'react-router-dom';
-import {
-  Activity,
-  ArrowRight,
-  Baby,
-  Bone,
-  Brain,
-  Ear,
-  Eye,
-  Heart,
-  HeartPulse,
-  ShieldCheck,
-  Smile,
-  Sparkles,
-  Stethoscope,
-  Syringe,
-} from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
 import { IMG, cx } from '../lib';
-import { Item, Stagger, Tilt } from '../motion';
-import { ArrowLink, IconTile, SectionHead } from '../ui';
-
-/** Resolve an icon from the CMS icon string, else infer from the service name. */
-function serviceIcon(s) {
-  const byKey = {
-    stethoscope: Stethoscope,
-    heart: Heart,
-    heartpulse: HeartPulse,
-    activity: Activity,
-    shield: ShieldCheck,
-    shieldcheck: ShieldCheck,
-    smile: Smile,
-    tooth: Smile,
-    eye: Eye,
-    brain: Brain,
-    bone: Bone,
-    baby: Baby,
-    ear: Ear,
-    syringe: Syringe,
-    sparkles: Sparkles,
-  };
-  const key = (s.icon || '').toString().trim().toLowerCase();
-  if (byKey[key]) return byKey[key];
-  const n = (s.name || '').toLowerCase();
-  if (/dent|tooth|smile|align|implant|root/.test(n)) return Smile;
-  if (/heart|cardio/.test(n)) return HeartPulse;
-  if (/eye|vision|retina/.test(n)) return Eye;
-  if (/brain|neuro|mental/.test(n)) return Brain;
-  if (/bone|ortho|joint|spine/.test(n)) return Bone;
-  if (/child|paed|pedia/.test(n)) return Baby;
-  if (/ent|ear|throat|nose/.test(n)) return Ear;
-  if (/vaccin|immun/.test(n)) return Syringe;
-  if (/skin|derma|cosmet|aesthet/.test(n)) return Sparkles;
-  return Stethoscope;
-}
+import { Item, Stagger } from '../motion';
 
 export default function Services({ m }) {
-  if (!m.services.length) return null;
-  const services = m.services.slice(0, 6);
+  // We want to guarantee 4 cards in Row 1, and 3 cards in Row 2.
+  // We will map over the existing services, and pad/fallback to mock services to preserve the design.
+  const row1Services = [
+    {
+      name: m.services[0]?.name || 'Root Canal Treatment',
+      description: m.services[0]?.description || 'Painless, single-sitting RCT with modern rotary tools.',
+      img: IMG.servicePool[0]
+    },
+    {
+      name: m.services[1]?.name || 'Dental Implants',
+      description: m.services[1]?.description || 'Titanium implants that look, feel, and function like natural teeth.',
+      img: IMG.servicePool[1]
+    },
+    {
+      name: m.services[2]?.name || 'Clear Aligners',
+      description: m.services[2]?.description || 'Discreet orthodontic alignment for a perfect, metal-free smile.',
+      img: IMG.servicePool[2]
+    },
+    {
+      name: m.services[3]?.name || 'Teeth Whitening',
+      description: m.services[3]?.description || 'Advanced laser whitening for immediate, multiple-shade brightness.',
+      img: IMG.servicePool[3]
+    }
+  ];
+
+  const row2Services = [
+    {
+      name: 'Explore Hygiene & Cleanings',
+      description: 'Ultrasonic scaling, polishing, and active decay screening plans.',
+      img: IMG.servicePool[4 % IMG.servicePool.length],
+      badge: 'NEW'
+    },
+    {
+      name: 'Explore Pediatric Care',
+      description: 'Gentle, fear-free treatments and fluorides tailored for children.',
+      img: IMG.servicePool[5 % IMG.servicePool.length],
+      badge: 'NEW'
+    },
+    {
+      name: 'Explore Emergency Dental Care',
+      description: 'Immediate relief, trauma care, and same-day walk-in slots.',
+      img: IMG.servicePool[6 % IMG.servicePool.length],
+      badge: 'NEW'
+    }
+  ];
 
   return (
-    <section id="services" className="scroll-mt-28" aria-label="Services">
-      <div className="mx-auto max-w-7xl px-5 py-24 sm:px-8 sm:py-32">
-        <div className="flex flex-wrap items-end justify-between gap-6">
-          <SectionHead
-            align="left"
-            eyebrow="What we do"
-            title="Care, considered end to end"
-            sub="Every treatment is delivered with modern equipment, transparent pricing and time to actually talk."
-          />
-          <ArrowLink to={m.bookHref} className="mb-1 shrink-0">
-            Book a consultation
-          </ArrowLink>
-        </div>
+    <section id="services" className="scroll-mt-28 bg-[#0A1C14] pb-32 -mt-24 relative z-10" aria-label="Services">
+      <div className="mx-auto max-w-7xl px-6">
+        
+        {/* ── Row 1 Grid: 4 Tall Overlapping Cards ── */}
+        <Stagger className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4" gap={0.08}>
+          {row1Services.map((s, i) => (
+            <Item key={s.name + i}>
+              <Link
+                to={m.bookHref}
+                aria-label={`${s.name} — book a consultation`}
+                className={cx(
+                  'group relative flex w-full h-[480px] flex-col overflow-hidden rounded-[1.75rem] shadow-xl border border-white/5 bg-emerald-950/20',
+                  'transition-all duration-500 ease-out hover:-translate-y-2 hover:shadow-2xl',
+                  'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0A1C14]'
+                )}
+              >
+                {/* Background Image with Zoom Effect */}
+                <img
+                  src={s.img}
+                  alt=""
+                  aria-hidden="true"
+                  loading="lazy"
+                  decoding="async"
+                  className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-110"
+                />
 
-        <Stagger className="mt-14 grid gap-6 sm:grid-cols-2 lg:grid-cols-3" gap={0.1}>
-          {services.map((s, i) => {
-            const Icon = serviceIcon(s);
-            return (
-              <Item key={s.name + i}>
-                <Tilt max={2.5} className="h-full">
-                  <Link
-                    to={m.bookHref}
-                    aria-label={`${s.name} — book a consultation`}
-                    className={cx(
-                      'group relative flex h-full flex-col overflow-hidden rounded-[1.75rem] border border-slate-200/70 bg-white',
-                      'shadow-[0_1px_2px_rgba(10,27,58,0.04),0_8px_24px_-12px_rgba(10,27,58,0.08)]',
-                      'transition-all duration-500 hover:-translate-y-1.5 hover:border-emerald-500/25 hover:shadow-[0_2px_6px_rgba(10,27,58,0.05),0_28px_56px_-16px_rgba(10,27,58,0.18),0_0_0_1px_rgba(16,185,129,0.08)]',
-                      'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2'
-                    )}
-                  >
-                    {/* photography */}
-                    <div className="relative overflow-hidden">
-                      <div className="aspect-[16/10] w-full overflow-hidden">
-                        <img
-                          src={IMG.servicePool[i % IMG.servicePool.length]}
-                          alt=""
-                          aria-hidden="true"
-                          loading="lazy"
-                          decoding="async"
-                          className="h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.06]"
-                        />
-                      </div>
-                      <div
-                        aria-hidden="true"
-                        className="absolute inset-0 bg-gradient-to-t from-[#0A1B3A]/35 via-transparent to-transparent opacity-70 transition-opacity duration-500 group-hover:opacity-40"
-                      />
-                      <IconTile
-                        icon={Icon}
-                        i={i}
-                        size="lg"
-                        className="absolute -bottom-7 left-7 ring-4 ring-white transition-transform duration-500 group-hover:-translate-y-1 group-hover:scale-105"
-                      />
-                    </div>
+                {/* Dark Vignette Overlay */}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/45 to-transparent"></div>
 
-                    {/* body */}
-                    <div className="flex flex-1 flex-col px-7 pb-7 pt-11">
-                      <h3 className="pmx-display text-[19px] font-semibold tracking-[-0.01em] text-[#0B1220]">
-                        {s.name}
-                      </h3>
-                      {s.description ? (
-                        <p className="mt-2.5 line-clamp-3 text-[14.5px] leading-relaxed text-slate-600">
-                          {s.description}
-                        </p>
-                      ) : null}
-                      <span className="mt-auto inline-flex items-center gap-1.5 pt-6 text-sm font-semibold text-emerald-700">
-                        <span className="relative">
-                          Book this treatment
-                          <span
-                            aria-hidden="true"
-                            className="absolute -bottom-0.5 left-0 h-px w-full origin-left scale-x-0 bg-emerald-600 transition-transform duration-300 group-hover:scale-x-100"
-                          />
-                        </span>
-                        <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" aria-hidden="true" />
-                      </span>
+                {/* Content Container */}
+                <div className="relative flex h-full flex-col justify-between p-6 text-white">
+                  {/* Top Section: Certified Treatment Pill */}
+                  <div className="flex h-12 items-start">
+                    <span className="inline-flex h-6 items-center rounded-full px-3 text-[11px] font-semibold text-white bg-gradient-to-r from-[#060E22] to-[#0A1C14] border border-white/10 shadow-sm">
+                      Certified treatment
+                    </span>
+                  </div>
+
+                  {/* Middle Section: Title & Description (slides up on hover) */}
+                  <div className="space-y-3 transition-transform duration-500 ease-in-out group-hover:-translate-y-16 mt-auto">
+                    <h3 className="pmx-display text-2xl font-semibold leading-tight text-white tracking-[-0.01em]">
+                      {s.name}
+                    </h3>
+                    <p className="text-[13.5px] text-emerald-100/70 line-clamp-2 leading-relaxed">
+                      {s.description}
+                    </p>
+                  </div>
+
+                  {/* Bottom Section: Button (revealed on hover) */}
+                  <div className="absolute -bottom-20 left-0 w-full p-6 opacity-0 transition-all duration-500 ease-in-out group-hover:bottom-0 group-hover:opacity-100">
+                    <div className="flex items-end justify-between">
+                      <div></div>
+                      <button className="inline-flex items-center justify-center h-10 px-6 rounded-md bg-[#005A36] text-white font-medium hover:bg-[#004225] transition-colors shadow-md">
+                        Book appointment <ArrowRight className="ml-2 h-4 w-4" />
+                      </button>
                     </div>
-                  </Link>
-                </Tilt>
-              </Item>
-            );
-          })}
+                  </div>
+                </div>
+              </Link>
+            </Item>
+          ))}
         </Stagger>
 
-        {m.services.length > 6 ? (
-          <p className="mt-8 text-center text-sm text-slate-500">
-            + {m.services.length - 6} more services — <Link to={m.bookHref} className="font-semibold text-emerald-700 hover:text-emerald-600">see everything while booking</Link>
-          </p>
-        ) : null}
+        {/* ── Divider Text: Maven Style Centered Subtitle ── */}
+        <div className="mt-28 mb-16 text-center">
+          <h2 className="pmx-display text-2xl sm:text-3xl lg:text-[40px] font-light leading-snug tracking-[-0.02em] text-white max-w-4xl mx-auto">
+            Direct access to pain-free treatments, digital diagnostics, and 24/7 emergency support
+          </h2>
+        </div>
+
+        {/* ── Row 2 Grid: 3 Shorter Cards with "NEW" Badge ── */}
+        <Stagger className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3" gap={0.1}>
+          {row2Services.map((s, i) => (
+            <Item key={s.name + i}>
+              <Link
+                to={m.bookHref}
+                aria-label={`${s.name} — view details`}
+                className={cx(
+                  'group relative flex w-full h-[320px] flex-col overflow-hidden rounded-[1.75rem] shadow-lg border border-white/5 bg-emerald-950/20',
+                  'transition-all duration-500 ease-out hover:-translate-y-1.5 hover:shadow-xl',
+                  'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400 focus-visible:ring-offset-2'
+                )}
+              >
+                {/* Background Image with Zoom */}
+                <img
+                  src={s.img}
+                  alt=""
+                  aria-hidden="true"
+                  loading="lazy"
+                  decoding="async"
+                  className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
+                />
+
+                {/* Dark Vignette Overlay */}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/40 to-transparent"></div>
+
+                {/* Content Container */}
+                <div className="relative flex h-full flex-col justify-between p-6 text-white">
+                  {/* Top Section: "NEW" Badge */}
+                  <div className="flex h-12 items-start">
+                    <span className="inline-flex h-6 items-center rounded-full px-3 text-[11px] font-bold text-white bg-emerald-700 tracking-wider">
+                      ● {s.badge}
+                    </span>
+                  </div>
+
+                  {/* Middle Section: Title & Description (slides up on hover) */}
+                  <div className="space-y-2 transition-transform duration-500 ease-in-out group-hover:-translate-y-16 mt-auto">
+                    <h3 className="pmx-display text-2xl font-semibold leading-tight text-white tracking-[-0.01em]">
+                      {s.name}
+                    </h3>
+                    <p className="text-[13px] text-emerald-100/60 line-clamp-2 leading-relaxed">
+                      {s.description}
+                    </p>
+                  </div>
+
+                  {/* Bottom Section: Button (revealed on hover) */}
+                  <div className="absolute -bottom-20 left-0 w-full p-6 opacity-0 transition-all duration-500 ease-in-out group-hover:bottom-0 group-hover:opacity-100">
+                    <div className="flex items-end justify-between">
+                      <div></div>
+                      <button className="inline-flex items-center justify-center h-10 px-6 rounded-md bg-[#005A36] text-white font-medium hover:bg-[#004225] transition-colors shadow-md">
+                        Book appointment <ArrowRight className="ml-2 h-4 w-4" />
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </Link>
+            </Item>
+          ))}
+        </Stagger>
+        
       </div>
     </section>
   );
