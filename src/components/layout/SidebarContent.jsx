@@ -4,7 +4,7 @@ import {
   House, CalendarCheck, Stethoscope, Users, ListChecks, UserPlus, Receipt, Handshake,
   ChartLineUp, Sparkle, Globe, ChatCircle, Buildings, Gear, ShieldStar, LockSimple,
   CaretUpDown, Sun, Moon, PaperPlaneTilt, CalendarSlash, UserCircle, Pill, Package,
-  Truck, ClipboardText, Wallet, Prescription,
+  Truck, ClipboardText, Wallet, Prescription, ShoppingBag, SquaresFour,
 } from '@phosphor-icons/react';
 import { Logo } from '@/components/Logo';
 import { cn } from '@/lib/utils';
@@ -58,9 +58,13 @@ export const NAV_GROUPS = [
       { to: '/dashboard/pharmacy/medicines', label: 'Medicines', icon: Pill, roles: ['owner', 'pharmacy_owner', 'pharmacy_manager'], feature: 'PHARMACY_MANAGEMENT', hideWhenLocked: true },
       { to: '/dashboard/pharmacy/inventory', label: 'Inventory', icon: Package, roles: ['owner', 'pharmacy_owner', 'pharmacy_manager'], feature: 'PHARMACY_MANAGEMENT', hideWhenLocked: true },
       { to: '/dashboard/pharmacy/dispense', label: 'Dispense', icon: Prescription, roles: ['owner', 'pharmacy_owner', 'pharmacy_manager'], feature: 'MEDICINE_DISPENSING', hideWhenLocked: true },
+      { to: '/dashboard/pharmacy/orders', label: 'Store Orders', icon: ShoppingBag, roles: ['owner', 'pharmacy_owner', 'pharmacy_manager'], feature: 'PHARMACY_STOREFRONT', hideWhenLocked: true },
+      { to: '/dashboard/pharmacy/store-categories', label: 'Store Categories', icon: SquaresFour, roles: ['owner', 'pharmacy_owner', 'pharmacy_manager'], feature: 'PHARMACY_STOREFRONT', hideWhenLocked: true },
       { to: '/dashboard/pharmacy/suppliers', label: 'Suppliers', icon: Truck, roles: ['owner', 'pharmacy_owner', 'pharmacy_manager'], feature: 'SUPPLIER_PROCUREMENT', hideWhenLocked: true },
       { to: '/dashboard/pharmacy/purchase-orders', label: 'Purchase Orders', icon: ClipboardText, roles: ['owner', 'pharmacy_owner', 'pharmacy_manager'], feature: 'SUPPLIER_PROCUREMENT', hideWhenLocked: true },
       { to: '/dashboard/pharmacy/expenses', label: 'Expenses', icon: Wallet, roles: ['owner', 'pharmacy_owner', 'pharmacy_manager'], feature: 'PHARMACY_ANALYTICS', hideWhenLocked: true },
+      // Financial reports are OWNER-level (spec §3: managers get no financial reports) — role list excludes pharmacy_manager.
+      { to: '/dashboard/pharmacy/reports', label: 'Reports', icon: ChartLineUp, roles: ['owner', 'pharmacy_owner'], feature: 'PHARMACY_ANALYTICS', hideWhenLocked: true },
     ],
   },
 ];

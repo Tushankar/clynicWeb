@@ -56,6 +56,20 @@ const TIERS = [
       'Unlimited doctors',
     ],
   },
+  {
+    key: 'ultra_premium',
+    name: 'Ultra Premium',
+    price: 9999,
+    lines: [
+      'Everything in Premium',
+      'Full pharmacy management — catalog, batch inventory, expiry & low-stock alerts',
+      'Suppliers & purchase orders with goods-receipt into stock',
+      'Prescription-linked dispensing (FEFO) + dosage schedules',
+      'Online medicine store on your website — Rx upload & pharmacist verification',
+      'Pharmacy billing, expenses & margin/valuation reports',
+      'Pharmacy Owner & Manager staff roles',
+    ],
+  },
 ];
 
 export default function PlanPage() {
@@ -99,7 +113,7 @@ export default function PlanPage() {
               </div>
             </div>
           )}
-          <div className="grid gap-4 md:grid-cols-3">
+          <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
             {TIERS.map((t) => {
               const isCurrent = current === t.key;
               return (

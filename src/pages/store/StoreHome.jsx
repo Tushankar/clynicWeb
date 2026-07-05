@@ -8,12 +8,9 @@ import { Package, Pill, Search, Sparkles, Stethoscope } from 'lucide-react';
 import { SectionHead, Eyebrow, SafeImg } from '@/components/site/templates/premium-signature/ui';
 import { GRADIENTS, SHADOW, cx } from '@/components/site/templates/premium-signature/lib';
 import { Reveal, Stagger, Item } from '@/components/site/templates/premium-signature/motion';
-import { useSite } from '@/hooks/useSite';
 import { useStoreHome } from '@/hooks/useStore';
 import {
   StoreShell,
-  StoreSplash,
-  StoreUnavailable,
   ProductGrid,
   ProductGridSkeleton,
   TrustRow,
@@ -22,7 +19,6 @@ import {
 
 export default function StoreHome() {
   const { slug } = useParams();
-  const { data: siteData, isLoading: siteLoading } = useSite(slug);
   const home = useStoreHome(slug);
 
   useEffect(() => {
@@ -33,12 +29,9 @@ export default function StoreHome() {
     };
   }, [home.data]);
 
-  if (home.isLoading || siteLoading) return <StoreSplash />;
-
-  const explicitlyOff = siteData?.available && siteData.site?.store === false;
-  if (home.isError || explicitlyOff || !home.data) return <StoreUnavailable slug={slug} />;
-
-  const { store, categories = [], featured = [], symptoms = [] } = home.data;
+  // Availability (loading / not-available) is gated by StoreShell — here we only render content.
+  // `home.data` is guaranteed present once the shell passes its gate; guard defensively anyway.
+  const { store, categories = [], featured = [], symptoms = [] } = home.data || {};
 
   return (
     <StoreShell slug={slug} showSearch={false}>

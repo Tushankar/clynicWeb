@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { CalendarPlus } from 'lucide-react';
+import { CalendarPlus, ShoppingBag } from 'lucide-react';
 import { Logo } from '@/components/Logo';
 import { useSite } from '@/hooks/useSite';
 import { getTemplate } from '@/components/site/registry';
@@ -85,6 +85,19 @@ export default function PublicSitePage() {
   return (
     <div style={{ '--site-primary': site.theme.primaryColor, '--site-accent': site.theme.accentColor }}>
       <Template site={safe} slug={slug} />
+      {/* Ultra Premium online store (UP-D): a tasteful, additive floating CTA when the clinic
+          has opened its pharmacy storefront. Non-store sites are entirely unchanged. */}
+      {site.store === true ? (
+        <Link
+          to={`/c/${slug}/store`}
+          aria-label="Shop medicines online"
+          className="fixed bottom-5 right-5 z-40 inline-flex items-center gap-2 rounded-full bg-[#0A1B3A] px-5 py-3.5 text-sm font-semibold text-white shadow-[0_16px_40px_-12px_rgba(10,27,58,0.5)] ring-1 ring-emerald-400/30 transition-transform hover:-translate-y-0.5 sm:bottom-6 sm:right-6"
+          style={{ paddingBottom: 'max(0.875rem, env(safe-area-inset-bottom, 0px))' }}
+        >
+          <ShoppingBag className="h-4.5 w-4.5 h-[18px] w-[18px]" aria-hidden="true" />
+          Shop medicines
+        </Link>
+      ) : null}
     </div>
   );
 }

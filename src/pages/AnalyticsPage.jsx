@@ -1,9 +1,12 @@
-import { IndianRupee, Users, UserX, CalendarCheck, TrendingUp, UserMinus } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { IndianRupee, Users, UserX, CalendarCheck, TrendingUp, UserMinus, Pill } from 'lucide-react';
 import { PageHeader, StatCard, LoadingSkeleton } from '@/components/primitives';
 import { FeatureGate } from '@/components/FeatureGate';
 import { Card } from '@/components/ui/card';
 import { Bars } from '@/components/charts/Bars';
 import { useAnalytics } from '@/hooks/useAnalytics';
+import { useFeature } from '@/hooks/usePlan';
+import { usePharmacyReports } from '@/hooks/usePharmacy';
 import { useBranch } from '@/context/BranchContext';
 import { cn } from '@/lib/utils';
 
@@ -21,6 +24,10 @@ const shortDay = (iso) => iso?.slice(8, 10); // 'DD'
 function AnalyticsInner() {
   const { branchId } = useBranch();
   const { data, isLoading, isError, error, refetch } = useAnalytics(branchId ? { branchId } : {});
+  // Ultra Premium pharmacy snapshot (§6.7) — feature-gated: renders NOTHING for non-Ultra clinics,
+  // so their analytics page is unchanged. Data comes from the pharmacy reports endpoint (additive;
+  // the shared analytics service/response is untouched).
+  const hasPharmacy = useFeature('PHARMACY_ANALYTICS');
   const a = data || {};
 
   if (isError) {
@@ -107,8 +114,52 @@ function AnalyticsInner() {
             {isLoading ? <LoadingSkeleton lines={4} /> : <Pnl rows={a.pnl} />}
           </Card>
         )}
+        {hasPharmacy && <PharmacySnapshot />}
       </div>
     </div>
+  );
+}
+
+/** Ultra Premium: the pharmacy's books in one card, linking to the full pharmacy reports. */
+function PharmacySnapshot() {
+  const { data, isLoading, isError, refetch } = usePharmacyReports({});
+  const s = data?.sales || {};
+  // Never render confident ₹0 books on a failed request — that reads as "the pharmacy sold nothing".
+  if (isError) {
+    return (
+      <Card className="p-5">
+        <h3 className="mb-1 flex items-center gap-1.5 text-sm font-medium text-muted-foreground"><Pill className="h-4 w-4" /> Pharmacy (30 days)</h3>
+        <p className="mt-2 text-sm text-muted-foreground">Couldn’t load the pharmacy snapshot.</p>
+        <button className="mt-2 text-sm text-primary underline" onClick={() => refetch()}>Retry</button>
+      </Card>
+    );
+  }
+  const rows = [
+    { label: 'Sales (30d)', value: inr(s.revenue) },
+    { label: 'Gross margin', value: `${inr(s.grossMargin)} (${s.marginPct ?? 0}%)` },
+    { label: 'Expenses', value: inr(data?.expenses?.total) },
+    { label: 'Stock value', value: inr(data?.stock?.stockValue) },
+  ];
+  return (
+    <Card className="p-5">
+      <div className="mb-1 flex items-center justify-between">
+        <h3 className="flex items-center gap-1.5 text-sm font-medium text-muted-foreground"><Pill className="h-4 w-4" /> Pharmacy (30 days)</h3>
+        <Link to="/dashboard/pharmacy/reports" className="text-xs font-medium text-primary hover:underline">Full reports →</Link>
+      </div>
+      <p className="mb-4 text-xs text-muted-foreground/70">Counter dispenses + online store, at a glance.</p>
+      {isLoading ? (
+        <LoadingSkeleton lines={4} />
+      ) : (
+        <dl className="space-y-2.5">
+          {rows.map((r) => (
+            <div key={r.label} className="flex items-baseline justify-between text-sm">
+              <dt className="text-muted-foreground">{r.label}</dt>
+              <dd className="font-semibold tabular text-foreground">{r.value}</dd>
+            </div>
+          ))}
+        </dl>
+      )}
+    </Card>
   );
 }
 

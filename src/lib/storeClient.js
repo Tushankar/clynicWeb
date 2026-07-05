@@ -67,16 +67,29 @@ export function storePublic(slug, path = '', opts = {}) {
   return apiFetch(`/api/public/c/${slug}/store${path}`, { ...opts, auth: false });
 }
 
+// Only a 401 (token expired/invalid) invalidates the OTP session — so isAuthed flips false and the UI
+// re-prompts sign-in instead of dead-ending. We deliberately do NOT log out on 404: a missing
+// individual order must not sign the patient out, and the "store gone / clinic downgraded" case is
+// already handled by the StoreShell availability gate.
+function guardSession(slug, err) {
+  if (err && err.status === 401) clearStoreSession(slug);
+  return err;
+}
+
 /** Patient order call — base `/api/store`. Attaches the OTP token as a Bearer header. */
-export function storeAuthed(slug, path, { method = 'GET', body, params } = {}) {
+export async function storeAuthed(slug, path, { method = 'GET', body, params } = {}) {
   const token = getStoreToken(slug);
-  return apiFetch(`/api/store${path}`, {
-    method,
-    body,
-    params,
-    auth: false,
-    headers: token ? { Authorization: `Bearer ${token}` } : {},
-  });
+  try {
+    return await apiFetch(`/api/store${path}`, {
+      method,
+      body,
+      params,
+      auth: false,
+      headers: token ? { Authorization: `Bearer ${token}` } : {},
+    });
+  } catch (err) {
+    throw guardSession(slug, err);
+  }
 }
 
 /** Multipart upload to `/api/store${path}` with the patient Bearer header (mirrors apiUpload). */
@@ -99,6 +112,6 @@ export async function storeUpload(slug, path, formData) {
   } catch {
     data = text;
   }
-  if (!res.ok) throw new ApiError(res.status, data?.message || res.statusText, data);
+  if (!res.ok) throw guardSession(slug, new ApiError(res.status, data?.message || res.statusText, data));
   return data;
 }

@@ -46,6 +46,7 @@ export default function AdminPage() {
         <StatCard label="Clinics" value={a.clinics?.total ?? 0} icon={Building2} loading={isLoading} />
         <StatCard label="Active (30d)" value={a.clinics?.activeByUsage ?? 0} icon={Activity} hint={`${a.clinics?.inactiveByUsage ?? 0} inactive`} loading={isLoading} />
         <StatCard label="Failed payments" value={a.failedPayments ?? 0} icon={AlertTriangle} loading={isLoading} />
+        <StatCard label="Pharmacy GMV (30d)" value={`₹${(a.pharmacy?.gmv30d ?? 0).toLocaleString('en-IN')}`} icon={IndianRupee} hint={`${a.pharmacy?.dispenses30d ?? 0} dispenses · ${a.pharmacy?.storeOrders30d ?? 0} store orders`} loading={isLoading} />
       </div>
 
       <Card className="p-5">

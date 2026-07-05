@@ -12,7 +12,6 @@ import {
   ArrowLeft,
   ArrowRight,
   BadgeCheck,
-  Loader2,
   Package,
   Phone,
   Pill,
@@ -29,7 +28,7 @@ import { GRADIENTS, SHADOW, cx, deriveModel } from '@/components/site/templates/
 import Footer from '@/components/site/templates/premium-signature/sections/Footer';
 import { useSite } from '@/hooks/useSite';
 import { useCart } from '@/hooks/useCart';
-import { useStoreSession } from '@/hooks/useStore';
+import { useStoreSession, useStoreHome } from '@/hooks/useStore';
 import { inr } from '@/lib/format';
 
 export const money = (v) => inr(v);
@@ -40,8 +39,17 @@ const INPUT_STORE =
 /* --------------------------------- page shell --------------------------------- */
 
 export function StoreShell({ slug, children, showSearch = true }) {
-  const { data } = useSite(slug);
+  const { data, isLoading: siteLoading } = useSite(slug);
+  const home = useStoreHome(slug); // shared cache — a sub-page's own useStoreHome dedupes to this
   const siteModel = data?.available ? deriveModel(data.site, slug) : null;
+
+  // Availability gate (hoisted here so EVERY store sub-page inherits it): while resolving show
+  // the splash; if the store 404s (non-Ultra clinic) or the site explicitly disables it, show
+  // the graceful "Store not available" state BEFORE rendering any page content.
+  if (home.isLoading || siteLoading) return <StoreSplash />;
+  const storeDisabled = data?.available && data.site?.store === false;
+  if (home.isError || storeDisabled || !home.data) return <StoreUnavailable slug={slug} />;
+
   return (
     <div className="pmx relative isolate min-h-screen overflow-x-clip bg-[#F8FAFC] text-[#0B1220] antialiased">
       <PmxStyles />

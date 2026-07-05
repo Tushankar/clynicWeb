@@ -39,6 +39,15 @@ import PharmacySuppliersPage from './pages/pharmacy/PharmacySuppliersPage';
 import PharmacyPurchaseOrdersPage from './pages/pharmacy/PharmacyPurchaseOrdersPage';
 import PharmacyExpensesPage from './pages/pharmacy/PharmacyExpensesPage';
 import PharmacyDispensePage from './pages/pharmacy/PharmacyDispensePage';
+import PharmacyOrdersPage from './pages/pharmacy/PharmacyOrdersPage';
+import PharmacyStoreCategoriesPage from './pages/pharmacy/PharmacyStoreCategoriesPage';
+import PharmacyReportsPage from './pages/pharmacy/PharmacyReportsPage';
+import StoreHome from './pages/store/StoreHome';
+import StoreListing from './pages/store/StoreListing';
+import StoreProduct from './pages/store/StoreProduct';
+import StoreCart from './pages/store/StoreCart';
+import StoreCheckout from './pages/store/StoreCheckout';
+import StoreOrders from './pages/store/StoreOrders';
 import RequireAuth from './components/RequireAuth';
 import { RoleGate } from './components/RoleGate';
 
@@ -53,6 +62,15 @@ export default function App() {
       {/* Every other clinic's website (§8.6): /c/:slug is the site; booking + pages beneath it */}
       <Route path="/c/:slug" element={<PublicSitePage />} />
       <Route path="/c/:slug/book" element={<PublicBookingPage />} />
+      {/* Ultra Premium online pharmacy storefront (UP-D) — public, uses the OTP patient session */}
+      <Route path="/c/:slug/store" element={<StoreHome />} />
+      <Route path="/c/:slug/store/category/:catSlug" element={<StoreListing mode="category" />} />
+      <Route path="/c/:slug/store/symptoms/:tag" element={<StoreListing mode="symptom" />} />
+      <Route path="/c/:slug/store/search" element={<StoreListing mode="search" />} />
+      <Route path="/c/:slug/store/medicine/:id" element={<StoreProduct />} />
+      <Route path="/c/:slug/store/cart" element={<StoreCart />} />
+      <Route path="/c/:slug/store/checkout" element={<StoreCheckout />} />
+      <Route path="/c/:slug/store/orders" element={<StoreOrders />} />
       <Route path="/c/:slug/checkin" element={<SelfCheckinPage />} />
       <Route path="/c/:slug/p/:pageSlug" element={<PublicCustomPage />} />
       <Route path="/tv/:slug" element={<TvDisplayPage />} />
@@ -96,6 +114,10 @@ export default function App() {
         <Route path="pharmacy/purchase-orders" element={<PharmacyPurchaseOrdersPage />} />
         <Route path="pharmacy/expenses" element={<PharmacyExpensesPage />} />
         <Route path="pharmacy/dispense" element={<PharmacyDispensePage />} />
+        <Route path="pharmacy/orders" element={<PharmacyOrdersPage />} />
+        <Route path="pharmacy/store-categories" element={<PharmacyStoreCategoriesPage />} />
+        {/* Financial reports are owner-level (spec §3) — RoleGate mirrors the server's requireRole. */}
+        <Route path="pharmacy/reports" element={<RoleGate roles={['owner', 'pharmacy_owner']}><PharmacyReportsPage /></RoleGate>} />
       </Route>
 
       <Route path="*" element={<Navigate to="/" replace />} />

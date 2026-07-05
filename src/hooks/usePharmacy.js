@@ -142,3 +142,64 @@ export function useDispense() {
     },
   });
 }
+
+/* ------------------------------- Reports (UP-E) ------------------------------- */
+
+export function usePharmacyReports(params) {
+  return useQuery({ queryKey: ['pharmacy', 'reports', params], queryFn: () => api.get('/api/pharmacy/reports', { params }) });
+}
+
+/* ------------------------------- Store orders (UP-D) ------------------------------- */
+
+export function useStoreOrders(params) {
+  return useQuery({ queryKey: ['pharmacy', 'store-orders', params], queryFn: () => api.get('/api/pharmacy/orders', { params }) });
+}
+export function useStoreOrder(id) {
+  return useQuery({ queryKey: ['pharmacy', 'store-order', id], queryFn: () => api.get(`/api/pharmacy/orders/${id}`), enabled: !!id });
+}
+export function useVerifyStoreOrder() {
+  const qc = useQueryClient();
+  return useMutation({ mutationFn: (id) => api.post(`/api/pharmacy/orders/${id}/verify`), onSuccess: () => qc.invalidateQueries({ queryKey: ['pharmacy'] }) });
+}
+export function useRejectStoreOrder() {
+  const qc = useQueryClient();
+  return useMutation({ mutationFn: ({ id, reason }) => api.post(`/api/pharmacy/orders/${id}/reject`, { reason }), onSuccess: () => qc.invalidateQueries({ queryKey: ['pharmacy'] }) });
+}
+export function useFulfillStoreOrder() {
+  const qc = useQueryClient();
+  // Fulfilling dispenses stock → invalidate the whole pharmacy tree (inventory + summary).
+  return useMutation({ mutationFn: (id) => api.post(`/api/pharmacy/orders/${id}/fulfill`), onSuccess: () => qc.invalidateQueries({ queryKey: ['pharmacy'] }) });
+}
+export function useCancelStoreOrder() {
+  const qc = useQueryClient();
+  return useMutation({ mutationFn: ({ id, reason }) => api.post(`/api/pharmacy/orders/${id}/cancel`, { reason }), onSuccess: () => qc.invalidateQueries({ queryKey: ['pharmacy'] }) });
+}
+
+/* ------------------------------ Store categories (UP-D) ------------------------------ */
+
+export function useStoreCategories(params) {
+  return useQuery({ queryKey: ['pharmacy', 'store-categories', params], queryFn: () => api.get('/api/pharmacy/store-categories', { params }) });
+}
+export function useCreateStoreCategory() {
+  const qc = useQueryClient();
+  return useMutation({ mutationFn: (body) => api.post('/api/pharmacy/store-categories', body), onSuccess: () => qc.invalidateQueries({ queryKey: ['pharmacy'] }) });
+}
+export function useUpdateStoreCategory() {
+  const qc = useQueryClient();
+  return useMutation({ mutationFn: ({ id, ...body }) => api.patch(`/api/pharmacy/store-categories/${id}`, body), onSuccess: () => qc.invalidateQueries({ queryKey: ['pharmacy'] }) });
+}
+export function useRemoveStoreCategory() {
+  const qc = useQueryClient();
+  return useMutation({ mutationFn: (id) => api.del(`/api/pharmacy/store-categories/${id}`), onSuccess: () => qc.invalidateQueries({ queryKey: ['pharmacy'] }) });
+}
+export function useUploadStoreCategoryImage() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, file }) => {
+      const fd = new FormData();
+      fd.append('file', file);
+      return apiUpload(`/api/pharmacy/store-categories/${id}/image`, fd);
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['pharmacy'] }),
+  });
+}
