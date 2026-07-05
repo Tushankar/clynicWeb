@@ -126,6 +126,7 @@ export function deriveModel(site, slug) {
   const city = (contact.address || clinic.address || '').split(',').pop()?.trim() || '';
 
   return {
+    slug,
     clinic,
     theme: { ...theme, logoUrl },
     name: clinic.name || 'Our Clinic',

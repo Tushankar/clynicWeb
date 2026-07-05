@@ -77,7 +77,7 @@ export default function Services({ m }) {
   ];
 
   return (
-    <section id="services" className="relative scroll-mt-28 bg-[#012F24] pb-32 mt-0 select-none z-10" aria-label="Services">
+    <section id="services" className="relative scroll-mt-28 bg-[#012F24] pb-24 mt-0 select-none z-10" aria-label="Services">
       
       {/* ── Background Wave Curves (Thin Green Lines) ── */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden z-0" aria-hidden="true">
@@ -107,14 +107,14 @@ export default function Services({ m }) {
       <div className="relative mx-auto max-w-[1480px] px-4 sm:px-8 z-10">
         
         {/* ── Centered Introduction Header (Matches Maven SS Exactly) ── */}
-        <div className="pt-44 pb-36 text-center">
+        <div className="pt-16 pb-20 text-center">
           <h2 className="pmx-display text-4xl sm:text-5xl lg:text-[56px] font-light leading-[1.18] tracking-[-0.03em] text-white max-w-4xl mx-auto">
             Healthcare designed <br />
             for women and families <br />
             that's personal <br />
             <span className="font-serif italic font-normal text-white">and proven</span>
           </h2>
-          <p className="mt-12 text-white text-base sm:text-lg max-w-2xl mx-auto font-light leading-relaxed">
+          <p className="mt-8 text-white/80 text-base sm:text-lg max-w-2xl mx-auto font-light leading-relaxed">
             Trusted by 2,300+ employers to improve outcomes across every stage
           </p>
         </div>
@@ -187,10 +187,10 @@ export default function Services({ m }) {
                             key="expanded-content"
                             initial={{ opacity: 0, height: 0, marginTop: 0 }}
                             animate={{ 
-                              opacity: 1, 
-                              height: 'auto', 
-                              marginTop: 14,
-                              transition: { height: { duration: 0.35, ease: 'easeOut' }, opacity: { duration: 0.25, delay: 0.1 } }
+                                opacity: 1, 
+                                height: 'auto', 
+                                marginTop: 14,
+                                transition: { height: { duration: 0.35, ease: 'easeOut' }, opacity: { duration: 0.25, delay: 0.1 } }
                             }}
                             exit={{ 
                               opacity: 0, 
@@ -222,7 +222,7 @@ export default function Services({ m }) {
         </Stagger>
 
         {/* ── Divider Text: Maven Style Centered Subtitle ── */}
-        <div className="relative mt-36 mb-24 text-center py-6">
+        <div className="relative mt-24 mb-16 text-center py-6">
           {/* Angled background line cutting through the text container */}
           <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-0">
             <svg className="w-[1400px] h-[200px]" fill="none" viewBox="0 0 1440 200" preserveAspectRatio="none">

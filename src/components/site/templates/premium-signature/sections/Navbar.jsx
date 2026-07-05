@@ -128,15 +128,15 @@ export default function Navbar({ m, basePath = '' }) {
             </div>
 
             {/* Direct Links */}
-            <Anchor href="#why-us" className="text-[14px] font-semibold text-slate-700 hover:text-[#012F24] transition-colors">
+            <Link to={`/c/${m.slug}/p/employers`} className="text-[14px] font-semibold text-slate-700 hover:text-[#012F24] transition-colors">
               Employers
-            </Anchor>
-            <Anchor href="#faq" className="text-[14px] font-semibold text-slate-700 hover:text-[#012F24] transition-colors">
+            </Link>
+            <Link to={`/c/${m.slug}/p/health-plans`} className="text-[14px] font-semibold text-slate-700 hover:text-[#012F24] transition-colors">
               Health Plans
-            </Anchor>
-            <Anchor href="#doctors" className="text-[14px] font-semibold text-slate-700 hover:text-[#012F24] transition-colors">
-              Consultants
-            </Anchor>
+            </Link>
+            <Link to={`/c/${m.slug}/p/clinical-quality`} className="text-[14px] font-semibold text-slate-700 hover:text-[#012F24] transition-colors">
+              Clinical Quality
+            </Link>
 
             {/* Resources Dropdown */}
             <div className="relative group/nav-item py-4">

@@ -1,0 +1,9 @@
+- [ ] Update index.jsx (root background back to bg-[#012F24])
+- [ ] Update Hero.jsx (wrapper background back to bg-[#012F24])
+- [ ] Update TrustBar.jsx (background back to bg-[#012F24], restore white logos)
+- [ ] Update Services.jsx (background back to bg-[#012F24], restore white text)
+- [ ] Update WhyUs.jsx (background back to bg-[#012F24], restore dark green bento cards and white text)
+- [ ] Update Doctors.jsx (background back to bg-[#012F24], restore dark green tabs and white text)
+- [ ] Update Technology.jsx (restore dark green cards)
+- [ ] Update Testimonials.jsx (background back to bg-[#012F24], restore white text/logos)
+- [ ] Verify with build

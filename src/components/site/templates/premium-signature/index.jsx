@@ -74,12 +74,14 @@ export default function PremiumSignature({ site, slug }) {
 
       <main id="top">
         <Hero m={m} />
+        <TrustBar m={m} />
         <Services m={m} />
         <WhyUs m={m} />
         <Journey />
-        <TrustBar m={m} />
         <Doctors m={m} />
+        <Technology m={m} />
         <Testimonials m={m} />
+        <Faq m={m} />
         <FinalCta m={m} />
       </main>
 

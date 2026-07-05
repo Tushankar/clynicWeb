@@ -68,7 +68,7 @@ export default function Faq({ m }) {
 
   return (
     <section id="faq" className="scroll-mt-28 bg-[#FAF8F5]" aria-label="Frequently asked questions">
-      <div className="mx-auto grid max-w-7xl gap-14 px-6 py-24 sm:py-32 lg:grid-cols-12 lg:gap-10">
+      <div className="mx-auto grid max-w-7xl gap-14 px-6 py-16 sm:py-24 lg:grid-cols-12 lg:gap-10">
         {/* intro + contact card */}
         <div className="lg:col-span-4">
           <div className="lg:sticky lg:top-32">

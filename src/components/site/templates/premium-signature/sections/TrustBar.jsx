@@ -16,7 +16,7 @@ export default function TrustBar({ m }) {
   const marqueeLogos = [...logos, ...logos, ...logos, ...logos];
 
   return (
-    <section className="relative border-y border-white/5 bg-[#012F24] py-14 overflow-hidden" aria-label="Why families trust us">
+    <section className="relative border-y border-white/5 bg-[#012F24] py-12 overflow-hidden" aria-label="Why families trust us">
       {/* Self-contained CSS for the marquee scrolling */}
       <style dangerouslySetInnerHTML={{__html: `
         @keyframes scroll-marquee {

@@ -59,7 +59,7 @@ export default function Testimonials({ m }) {
   };
 
   return (
-    <section id="stories" className="scroll-mt-28 bg-[#012F24] text-white py-24 sm:py-32 relative overflow-hidden" aria-label="Patient stories">
+    <section id="stories" className="scroll-mt-28 bg-[#012F24] text-white py-16 sm:py-24 relative overflow-hidden" aria-label="Patient stories">
       {/* Background overlay circles for editorial styling */}
       <div className="absolute inset-0 pointer-events-none opacity-20">
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] rounded-full bg-radial from-emerald-500/20 to-transparent blur-3xl" />
@@ -115,7 +115,7 @@ export default function Testimonials({ m }) {
         </div>
 
         {/* Testimonial Active Card (Side-by-Side Split) */}
-        <div className="max-w-5xl mx-auto rounded-[2.5rem] bg-[#F7F4EE] overflow-hidden shadow-2xl border border-white/5 text-[#012F24] grid md:grid-cols-12 min-h-[450px]">
+        <div className="max-w-5xl mx-auto rounded-[2.5rem] bg-[#FAF8F5] overflow-hidden shadow-2xl border border-white/5 text-[#012F24] grid md:grid-cols-12 min-h-[450px]">
           {/* Left Column: Image (span 5) */}
           <div className="md:col-span-5 h-[320px] md:h-auto relative overflow-hidden bg-slate-200">
             {stories.map((story, idx) => (
@@ -174,7 +174,6 @@ export default function Testimonials({ m }) {
             Meet our members
           </a>
         </div>
-
       </div>
     </section>
   );

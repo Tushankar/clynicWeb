@@ -10,7 +10,7 @@ import { SectionHead } from '../ui';
 
 export default function Technology({ m }) {
   return (
-    <section id="technology" className="scroll-mt-28 bg-[#FAF8F5] py-24 sm:py-32" aria-label="Technology">
+    <section id="technology" className="scroll-mt-28 bg-white py-16 sm:py-24" aria-label="Technology">
       <div className="mx-auto max-w-7xl px-6">
         
         <SectionHead

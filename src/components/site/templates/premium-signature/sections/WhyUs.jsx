@@ -63,7 +63,7 @@ export default function WhyUs({ m }) {
   ];
 
   return (
-    <section id="about" className="relative scroll-mt-28 bg-[#012F24] text-white py-24 sm:py-32" aria-label="Bento Features">
+    <section id="about" className="relative scroll-mt-28 bg-[#012F24] text-white py-16 sm:py-24" aria-label="Bento Features">
       {/* Background SVG wave pattern to replicate original styling */}
       <div className="absolute inset-0 pointer-events-none opacity-15 overflow-hidden">
         <svg xmlns="http://www.w3.org/2000/svg" width="100%" viewBox="0 0 2219 1808" fill="none" className="w-full h-full object-cover">
@@ -192,7 +192,7 @@ export default function WhyUs({ m }) {
                 Milliman-validated outcomes, proven by employer and health plan claims-based studies
               </h3>
             </div>
-            <div className="relative z-10 flex items-center justify-between text-xs text-emerald-300/60 mt-4">
+            <div className="relative z-10 flex items-center justify-between text-xs text-emerald-300/60 mt-4 font-semibold">
               <span>Read report</span>
               <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform duration-200" />
             </div>
