@@ -32,6 +32,13 @@ export const FEATURE_META = {
   SELF_CHECKIN: { label: 'QR self check-in', tier: 'Premium' },
   RECALLS: { label: 'Treatment recalls', tier: 'Premium' },
   EXPENSES: { label: 'Expenses & P&L', tier: 'Premium' },
+  // Pharmacy & Vendor module (Ultra Premium)
+  PHARMACY_MANAGEMENT: { label: 'Pharmacy management', tier: 'Ultra Premium' },
+  SUPPLIER_PROCUREMENT: { label: 'Supplier procurement', tier: 'Ultra Premium' },
+  MEDICINE_DISPENSING: { label: 'Medicine dispensing', tier: 'Ultra Premium' },
+  DOSAGE_MANAGEMENT: { label: 'Dosage management', tier: 'Ultra Premium' },
+  PHARMACY_STOREFRONT: { label: 'Online pharmacy store', tier: 'Ultra Premium' },
+  PHARMACY_ANALYTICS: { label: 'Pharmacy analytics', tier: 'Ultra Premium' },
 };
 
 export const featureLabel = (key) => FEATURE_META[key]?.label || key;

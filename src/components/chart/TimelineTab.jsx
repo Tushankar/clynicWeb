@@ -1,21 +1,27 @@
-import { CalendarDays, Pill, FileText, FlaskConical, Bell, Activity } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { CalendarDays, Pill, FileText, FlaskConical, Bell, Activity, PackageCheck } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { EmptyState, LoadingSkeleton } from '@/components/primitives';
 import { Button } from '@/components/ui/button';
 import { useTimeline } from '@/hooks/useClinical';
+import { useFeature } from '@/hooks/usePlan';
 import { fmtDateTime } from '@/lib/format';
 
-const ICONS = { appointment: CalendarDays, prescription: Pill, report: FileText, note: Activity, reminder: Bell, lab: FlaskConical };
+// `dispense` events + the per-prescription Dispense shortcut appear ONLY for Ultra clinics (the
+// dispense timeline items simply don't exist for other tiers, and the button is feature-gated).
+const ICONS = { appointment: CalendarDays, prescription: Pill, report: FileText, note: Activity, reminder: Bell, lab: FlaskConical, dispense: PackageCheck };
 const TONE = {
   appointment: 'bg-info/10 text-info',
   prescription: 'bg-primary/10 text-primary',
   report: 'bg-warning/15 text-warning',
   note: 'bg-secondary text-secondary-foreground',
   reminder: 'bg-muted text-muted-foreground',
+  dispense: 'bg-success/10 text-success',
 };
 
 export function TimelineTab({ patientId }) {
   const { data, isLoading, isError, error, refetch } = useTimeline(patientId);
+  const canDispense = useFeature('MEDICINE_DISPENSING'); // Ultra Premium only; false → shortcut hidden
   const items = data?.items || [];
 
   if (isLoading) return <LoadingSkeleton lines={6} />;
@@ -55,6 +61,14 @@ export function TimelineTab({ patientId }) {
                     <span className="shrink-0 text-caption text-muted-foreground">{fmtDateTime(it.date)}</span>
                   </div>
                   {it.meta && <p className="text-caption text-muted-foreground">{it.meta}</p>}
+                  {/* Ultra Premium: dispense this prescription at the pharmacy (feature-gated shortcut). */}
+                  {canDispense && it.type === 'prescription' && (
+                    <Button asChild variant="outline" size="sm" className="mt-1.5 h-7">
+                      <Link to={`/dashboard/pharmacy/dispense?patientId=${patientId}&prescriptionId=${it.id}`}>
+                        <PackageCheck className="h-3.5 w-3.5" /> Dispense
+                      </Link>
+                    </Button>
+                  )}
                 </li>
               );
             })}

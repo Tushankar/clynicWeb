@@ -3,7 +3,8 @@ import { NavLink, Link } from 'react-router-dom';
 import {
   House, CalendarCheck, Stethoscope, Users, ListChecks, UserPlus, Receipt, Handshake,
   ChartLineUp, Sparkle, Globe, ChatCircle, Buildings, Gear, ShieldStar, LockSimple,
-  CaretUpDown, Sun, Moon, PaperPlaneTilt, CalendarSlash, UserCircle,
+  CaretUpDown, Sun, Moon, PaperPlaneTilt, CalendarSlash, UserCircle, Pill, Package,
+  Truck, ClipboardText, Wallet, Prescription,
 } from '@phosphor-icons/react';
 import { Logo } from '@/components/Logo';
 import { cn } from '@/lib/utils';
@@ -46,6 +47,20 @@ export const NAV_GROUPS = [
       { to: '/dashboard/messages', label: 'Messages', icon: ChatCircle, roles: ['owner', 'doctor', 'receptionist'], feature: 'INTERNAL_CHAT' },
       { to: '/dashboard/branches', label: 'Branches', icon: Buildings, roles: ['owner'], feature: 'MULTI_BRANCH' },
       { to: '/dashboard/settings', label: 'Settings', icon: Gear, roles: ['owner'] },
+    ],
+  },
+  // Pharmacy & Vendor module — Ultra Premium ONLY. `hideWhenLocked` makes these items
+  // invisible (not greyed-out) for clinics without PHARMACY_MANAGEMENT, so lower tiers see
+  // NO pharmacy nav at all (§4.5.3). The whole group only renders for owner + pharmacy staff.
+  {
+    label: 'Pharmacy',
+    items: [
+      { to: '/dashboard/pharmacy/medicines', label: 'Medicines', icon: Pill, roles: ['owner', 'pharmacy_owner', 'pharmacy_manager'], feature: 'PHARMACY_MANAGEMENT', hideWhenLocked: true },
+      { to: '/dashboard/pharmacy/inventory', label: 'Inventory', icon: Package, roles: ['owner', 'pharmacy_owner', 'pharmacy_manager'], feature: 'PHARMACY_MANAGEMENT', hideWhenLocked: true },
+      { to: '/dashboard/pharmacy/dispense', label: 'Dispense', icon: Prescription, roles: ['owner', 'pharmacy_owner', 'pharmacy_manager'], feature: 'MEDICINE_DISPENSING', hideWhenLocked: true },
+      { to: '/dashboard/pharmacy/suppliers', label: 'Suppliers', icon: Truck, roles: ['owner', 'pharmacy_owner', 'pharmacy_manager'], feature: 'SUPPLIER_PROCUREMENT', hideWhenLocked: true },
+      { to: '/dashboard/pharmacy/purchase-orders', label: 'Purchase Orders', icon: ClipboardText, roles: ['owner', 'pharmacy_owner', 'pharmacy_manager'], feature: 'SUPPLIER_PROCUREMENT', hideWhenLocked: true },
+      { to: '/dashboard/pharmacy/expenses', label: 'Expenses', icon: Wallet, roles: ['owner', 'pharmacy_owner', 'pharmacy_manager'], feature: 'PHARMACY_ANALYTICS', hideWhenLocked: true },
     ],
   },
 ];
@@ -113,7 +128,14 @@ export function SidebarContent({ onNavigate }) {
 
   // Treat an unknown/loading role as NO access (not all-access): otherwise owner-only links flash to
   // everyone during auth load and stay visible for a mis-configured Clerk 'member' (role → null).
-  const groups = NAV_GROUPS.map((g) => ({ ...g, items: g.items.filter((i) => role && i.roles.includes(role)) })).filter((g) => g.items.length);
+  // Role filter, then hide `hideWhenLocked` items whose feature isn't unlocked (pharmacy items are
+  // invisible to non-Ultra clinics — every other gated item stays visible-but-locked as before).
+  const clinicGroups = NAV_GROUPS
+    .map((g) => ({ ...g, items: g.items.filter((i) => role && i.roles.includes(role) && !(i.hideWhenLocked && !features[i.feature])) }))
+    .filter((g) => g.items.length);
+  // A super-admin is a PLATFORM operator, not a clinic user — show ONLY the Platform panel, never a
+  // specific clinic's operational nav (which would only appear because they happen to have an org).
+  const groups = isSuperAdmin ? [] : clinicGroups;
 
   return (
     <div className="flex h-full flex-col bg-card">
@@ -122,22 +144,47 @@ export function SidebarContent({ onNavigate }) {
         <Logo className="h-8" />
       </div>
 
-      {/* Clinic switcher */}
-      <div className="px-3 pt-3">
-        <div className="flex items-center gap-2.5 rounded-xl border bg-background px-3 py-2.5">
-          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
-            <Buildings weight="duotone" className="h-5 w-5" />
-          </span>
-          <div className="min-w-0 flex-1">
-            <p className="truncate text-sm font-semibold text-foreground">{clinic?.name || 'Your clinic'}</p>
-            <p className="truncate text-xs text-muted-foreground">{clinic?.address || 'Set clinic address'}</p>
+      {/* Clinic switcher (clinic users only — a platform admin isn't tied to a clinic) */}
+      {!isSuperAdmin && (
+        <div className="px-3 pt-3">
+          <div className="flex items-center gap-2.5 rounded-xl border bg-background px-3 py-2.5">
+            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
+              <Buildings weight="duotone" className="h-5 w-5" />
+            </span>
+            <div className="min-w-0 flex-1">
+              <p className="truncate text-sm font-semibold text-foreground">{clinic?.name || 'Your clinic'}</p>
+              <p className="truncate text-xs text-muted-foreground">{clinic?.address || 'Set clinic address'}</p>
+            </div>
+            <CaretUpDown weight="bold" className="h-4 w-4 shrink-0 text-muted-foreground" />
           </div>
-          <CaretUpDown weight="bold" className="h-4 w-4 shrink-0 text-muted-foreground" />
         </div>
-      </div>
+      )}
 
       {/* Grouped navigation */}
       <nav className="flex-1 space-y-5 overflow-y-auto px-3 py-4">
+        {/* Platform admin: a single, focused Platform section — no clinic operational nav. */}
+        {isSuperAdmin && (
+          <div>
+            <p className="px-3 pb-1.5 text-[11px] font-bold uppercase tracking-wider text-foreground">Platform</p>
+            <div className="space-y-0.5">
+              <NavLink
+                to="/dashboard/admin"
+                onClick={onNavigate}
+                className={({ isActive }) =>
+                  cn('group relative flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition-colors', isActive ? 'bg-accent font-semibold text-accent-foreground' : 'font-medium text-foreground hover:bg-muted')
+                }
+              >
+                {({ isActive }) => (
+                  <>
+                    {isActive && <span className="absolute left-0 top-1/2 h-5 w-1 -translate-y-1/2 rounded-r-full bg-primary" />}
+                    <ShieldStar weight={isActive ? 'fill' : 'regular'} className="h-[18px] w-[18px] shrink-0" />
+                    <span className="flex-1 truncate">Clinics &amp; platform</span>
+                  </>
+                )}
+              </NavLink>
+            </div>
+          </div>
+        )}
         {groups.map((group) => (
           <div key={group.label}>
             <p className="px-3 pb-1.5 text-[11px] font-bold uppercase tracking-wider text-foreground">{group.label}</p>
@@ -145,30 +192,13 @@ export function SidebarContent({ onNavigate }) {
               {group.items.map((item) => (
                 <NavItem key={item.to} item={item} onNavigate={onNavigate} locked={!planLoading && item.feature && !features[item.feature]} />
               ))}
-              {group.label === 'Management' && isSuperAdmin && (
-                <NavLink
-                  to="/dashboard/admin"
-                  onClick={onNavigate}
-                  className={({ isActive }) =>
-                    cn('group relative flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition-colors', isActive ? 'bg-accent font-semibold text-accent-foreground' : 'font-medium text-foreground hover:bg-muted')
-                  }
-                >
-                  {({ isActive }) => (
-                    <>
-                      {isActive && <span className="absolute left-0 top-1/2 h-5 w-1 -translate-y-1/2 rounded-r-full bg-primary" />}
-                      <ShieldStar weight={isActive ? 'fill' : 'regular'} className="h-[18px] w-[18px] shrink-0" />
-                      <span className="flex-1 truncate">Platform</span>
-                    </>
-                  )}
-                </NavLink>
-              )}
             </div>
           </div>
         ))}
       </nav>
 
-      {/* Subscription card */}
-      {role === 'owner' && (
+      {/* Subscription card — clinic owners only (a platform admin has no clinic plan) */}
+      {!isSuperAdmin && role === 'owner' && (
         <div className="px-3 pb-2">
           <Link to="/dashboard/plan" onClick={onNavigate} className="block rounded-xl border bg-background p-3 transition-colors hover:border-primary/40">
             <div className="flex items-center justify-between">
@@ -184,7 +214,11 @@ export function SidebarContent({ onNavigate }) {
       <div className="flex items-center justify-between border-t px-4 py-2.5">
         <span className="text-xs text-muted-foreground">
           Clynic <span className="tabular">{APP_VERSION}</span>
-          {role && <span className="ml-2 capitalize text-muted-foreground/70">· {role}</span>}
+          {isSuperAdmin ? (
+            <span className="ml-2 text-muted-foreground/70">· Platform admin</span>
+          ) : role ? (
+            <span className="ml-2 capitalize text-muted-foreground/70">· {role}</span>
+          ) : null}
         </span>
         <ThemeToggle />
       </div>

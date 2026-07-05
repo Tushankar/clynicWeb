@@ -6,7 +6,7 @@ import { fmtDate } from '@/lib/format';
 import { toast, toastApiError } from '@/lib/toast';
 import { cn } from '@/lib/utils';
 
-const PLAN_OPTS = ['basic', 'standard', 'premium'];
+const PLAN_OPTS = ['basic', 'standard', 'premium', 'ultra_premium'];
 
 /** Super-admin platform cockpit (cross-clinic aggregates only). Clinic users get 403 → blocked view. */
 export default function AdminPage() {
@@ -104,6 +104,7 @@ export default function AdminPage() {
             { key: 'lastActivityAt', header: 'Last activity', align: 'right', render: (c) => (c.lastActivityAt ? fmtDate(c.lastActivityAt) : '—') },
           ]}
           data={clinicsQ.data?.items || []}
+          getRowId={(c) => c.clinicId}
           isLoading={clinicsQ.isLoading}
           isError={clinicsQ.isError}
           error={clinicsQ.error}

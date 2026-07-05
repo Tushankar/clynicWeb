@@ -33,6 +33,12 @@ import ReviewVisitPage from './pages/ReviewVisitPage';
 import SharedDocPage from './pages/SharedDocPage';
 import SelfCheckinPage from './pages/SelfCheckinPage';
 import TimeOffPage from './pages/TimeOffPage';
+import PharmacyMedicinesPage from './pages/pharmacy/PharmacyMedicinesPage';
+import PharmacyInventoryPage from './pages/pharmacy/PharmacyInventoryPage';
+import PharmacySuppliersPage from './pages/pharmacy/PharmacySuppliersPage';
+import PharmacyPurchaseOrdersPage from './pages/pharmacy/PharmacyPurchaseOrdersPage';
+import PharmacyExpensesPage from './pages/pharmacy/PharmacyExpensesPage';
+import PharmacyDispensePage from './pages/pharmacy/PharmacyDispensePage';
 import RequireAuth from './components/RequireAuth';
 import { RoleGate } from './components/RoleGate';
 
@@ -82,6 +88,14 @@ export default function App() {
         <Route path="website" element={<RoleGate><WebsitePage /></RoleGate>} />
         <Route path="admin" element={<AdminPage />} />
         <Route path="messages" element={<MessagesPage />} />
+        {/* Pharmacy & Vendor module (Ultra Premium). Page bodies are FeatureGate-gated;
+            the backend /api/pharmacy routes 403 for non-Ultra clinics regardless. */}
+        <Route path="pharmacy/medicines" element={<PharmacyMedicinesPage />} />
+        <Route path="pharmacy/inventory" element={<PharmacyInventoryPage />} />
+        <Route path="pharmacy/suppliers" element={<PharmacySuppliersPage />} />
+        <Route path="pharmacy/purchase-orders" element={<PharmacyPurchaseOrdersPage />} />
+        <Route path="pharmacy/expenses" element={<PharmacyExpensesPage />} />
+        <Route path="pharmacy/dispense" element={<PharmacyDispensePage />} />
       </Route>
 
       <Route path="*" element={<Navigate to="/" replace />} />
