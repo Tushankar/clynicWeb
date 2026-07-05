@@ -77,11 +77,9 @@ export default function PremiumSignature({ site, slug }) {
         <Services m={m} />
         <WhyUs m={m} />
         <Journey />
+        <TrustBar m={m} />
         <Doctors m={m} />
         <Testimonials m={m} />
-        <Gallery m={m} />
-        <Technology m={m} />
-        <Faq m={m} />
         <FinalCta m={m} />
       </main>
 

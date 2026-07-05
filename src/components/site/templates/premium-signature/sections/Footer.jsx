@@ -1,154 +1,188 @@
-/**
- * Footer — Rebuilt to Maven Clinic's exact footer layout.
- * Features a solid dark green background (#0A1C14), rounded-t-[3rem] top corners,
- * multi-column layout, custom green newsletter form box, and a bottom row
- * with legal links and large brand typography.
- */
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight, Mail } from 'lucide-react';
+import { SafeImg } from '../ui';
 
 function Col({ title, children }) {
   return (
     <div>
-      <h3 className="pmx-display text-[14px] font-semibold text-white tracking-wide">{title}</h3>
+      <h3 className="text-xs font-semibold text-emerald-300 uppercase tracking-widest">{title}</h3>
       <ul className="mt-5 space-y-3">{children}</ul>
     </div>
   );
 }
 
-function FootLink({ href, to, children, external }) {
+function FootLink({ href, to, children, badge }) {
   const cls =
-    'group inline-flex items-center gap-1 text-[13.5px] text-emerald-100/60 transition-colors duration-300 hover:text-white';
+    'group inline-flex items-center gap-1.5 text-sm text-emerald-100/60 transition-colors duration-300 hover:text-white';
   const arrow = (
     <ArrowRight
-      className="h-3.5 w-3.5 -translate-x-1 opacity-0 transition-all duration-300 group-hover:translate-x-0 group-hover:opacity-100"
+      className="h-3 w-3 -translate-x-1 opacity-0 transition-all duration-300 group-hover:translate-x-0 group-hover:opacity-100 text-emerald-400"
       aria-hidden="true"
     />
   );
-  if (to)
-    return (
-      <li>
-        <Link to={to} className={cls}>
-          {children}
-          {arrow}
-        </Link>
-      </li>
-    );
+  
+  const content = (
+    <>
+      <span>{children}</span>
+      {badge && (
+        <span className="text-[9px] font-bold text-emerald-400 border border-emerald-500/30 px-1.5 py-0.5 rounded-md ml-1 bg-emerald-500/5">
+          {badge}
+        </span>
+      )}
+      {arrow}
+    </>
+  );
+
   return (
     <li>
-      <a href={href} className={cls} {...(external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}>
-        {children}
-        {arrow}
-      </a>
+      {to ? (
+        <Link to={to} className={cls}>
+          {content}
+        </Link>
+      ) : (
+        <a href={href || "#"} className={cls}>
+          {content}
+        </a>
+      )}
     </li>
   );
 }
 
-export default function Footer({ m, basePath = '' }) {
+export default function Footer({ m }) {
   const [subscribed, setSubscribed] = useState(false);
   const year = new Date().getFullYear();
-  const anchor = (hash) => (basePath ? { to: `${basePath}${hash}` } : { href: hash });
 
   return (
-    <footer className="relative bg-[#012F24] text-white rounded-t-[3rem] overflow-hidden pt-20 pb-12 select-none" aria-label="Footer">
+    <footer className="relative bg-[#012F24] text-white rounded-t-[3rem] overflow-hidden pt-24 pb-12 select-none border-t border-white/5" aria-label="Footer">
       <div className="mx-auto max-w-7xl px-6">
         
-        {/* Main Columns Grid */}
+        {/* Main Grid */}
         <div className="grid gap-12 lg:grid-cols-12 border-b border-white/10 pb-16">
-          {/* Column 1 (span 2.5): Services Links */}
-          <div className="lg:col-span-3">
+          
+          {/* Col 1: Join Clynic */}
+          <div className="lg:col-span-2 sm:col-span-6">
+            <Col title="Join Clynic">
+              <FootLink href="/for-employers">Employers</FootLink>
+              <FootLink href="/for-health-plans">Health Plans</FootLink>
+              <FootLink href="/for-consultants">Consultants</FootLink>
+              <FootLink href="/contact/partnerships">Ecosystem Partners</FootLink>
+              <FootLink href="/for-individuals">Individuals</FootLink>
+              <FootLink href="/practitioners">Become a Clynic Provider</FootLink>
+            </Col>
+          </div>
+
+          {/* Col 2: Programs */}
+          <div className="lg:col-span-3 sm:col-span-6">
             <Col title="Clynic Programs">
-              {(m.services.length ? m.services : [{ name: 'General consultation' }]).slice(0, 6).map((s) => (
-                <FootLink key={s.name} {...anchor('#services')}>
-                  {s.name}
-                </FootLink>
-              ))}
+              <FootLink href="/programs/fertility-and-family-building">Fertility & Family Building</FootLink>
+              <FootLink href="/programs/maternity-and-newborn-care">Maternity & Newborn Care</FootLink>
+              <FootLink href="/programs/maven-milk">Clynic Milk</FootLink>
+              <FootLink href="/programs/parenting-and-pediatrics">Parenting & Pediatrics</FootLink>
+              <FootLink href="/programs/menopause">Menopause & Midlife Health</FootLink>
+              <FootLink href="/programs/maven-wallet">Clynic Wallet</FootLink>
+              <FootLink href="/maven-managed-benefit">Clynic Managed Benefit</FootLink>
             </Col>
           </div>
 
-          {/* Column 2 (span 2): Company Links */}
-          <div className="lg:col-span-2">
+          {/* Col 3: Company */}
+          <div className="lg:col-span-2 sm:col-span-6">
             <Col title="Company">
-              <FootLink {...anchor('#about')}>About us</FootLink>
-              {m.doctors.length ? <FootLink {...anchor('#doctors')}>Doctors</FootLink> : null}
-              {m.reviews.length ? <FootLink {...anchor('#stories')}>Patient stories</FootLink> : null}
-              <FootLink {...anchor('#faq')}>FAQ</FootLink>
+              <FootLink href="/about">About us</FootLink>
+              <FootLink href="/careers" badge="HIRING">Careers</FootLink>
+              <FootLink href="/press">Press</FootLink>
+              <FootLink href="/solutions">Solutions</FootLink>
+              <FootLink href="/pricing">Pricing</FootLink>
+              <FootLink to={m.bookHref}>Book a demo</FootLink>
             </Col>
           </div>
 
-          {/* Column 3 (span 2.5): Resources */}
-          <div className="lg:col-span-3">
+          {/* Col 4: Resources */}
+          <div className="lg:col-span-2 sm:col-span-6">
             <Col title="Resources">
-              <FootLink to={m.bookHref}>Book appointment</FootLink>
-              <FootLink to={m.portalHref}>Patient portal</FootLink>
-              <FootLink {...anchor('#technology')}>Our technology</FootLink>
-              {(m.pages || []).map((p) => (
-                <FootLink key={p.slug} to={`/c/${m.clinic.slug}/p/${p.slug}`}>
-                  {p.title}
-                </FootLink>
-              ))}
+              <FootLink href="/lp/maven-member-journey">Member Journey</FootLink>
+              <FootLink href="/resource-center">Resource Center</FootLink>
+              <FootLink href="/clinical-research-institute">Research Institute</FootLink>
+              <FootLink href="/content/on-demand-webinars">Webinars</FootLink>
+              <FootLink href="/blog">Blog</FootLink>
+              <FootLink href="/client-stories">Case Studies</FootLink>
+              <FootLink href="/lp/share-your-maven-moment">Share your moment</FootLink>
             </Col>
           </div>
 
-          {/* Column 4 (span 4): Stay In the Loop Newsletter Form (Maven Box Style) */}
-          <div className="lg:col-span-4">
-            <div className="rounded-2xl bg-[#012F24]/40 border border-emerald-500/20 p-6">
-              <h4 className="text-[14px] font-semibold text-white tracking-wide">Stay in the loop</h4>
-              
-              {subscribed ? (
-                <p className="mt-4 text-sm text-emerald-300 font-medium flex items-center gap-2">
-                  <Mail className="h-4 w-4" /> Thank you for subscribing.
-                </p>
-              ) : (
-                <form
-                  onSubmit={(e) => {
-                    e.preventDefault();
-                    setSubscribed(true);
-                  }}
-                  className="mt-4"
-                >
-                  <div className="flex border-b border-emerald-400/30 focus-within:border-emerald-300 pb-2">
-                    <input
-                      type="email"
-                      required
-                      placeholder="Enter your email*"
-                      className="grow bg-transparent text-sm text-white placeholder:text-emerald-100/30 outline-none border-none pr-4"
-                    />
-                    <button
-                      type="submit"
-                      className="text-sm font-semibold text-white hover:text-emerald-300 transition-colors"
-                    >
-                      Subscribe
-                    </button>
-                  </div>
-                  <p className="mt-3.5 text-[11px] text-emerald-100/50 leading-relaxed">
-                    By signing up, I agree with the data protection policy of Clynic.
+          {/* Column 5: Stay in the loop form */}
+          <div className="lg:col-span-3 sm:col-span-12">
+            <div className="rounded-3xl bg-[#03231B] border border-emerald-500/10 p-8 flex flex-col justify-between h-full">
+              <div>
+                <h4 className="text-sm font-semibold text-white tracking-wide uppercase">Stay in the loop</h4>
+                
+                {subscribed ? (
+                  <p className="mt-4 text-sm text-emerald-400 font-medium flex items-center gap-2">
+                    ✓ Thank you for subscribing.
                   </p>
-                </form>
-              )}
+                ) : (
+                  <form
+                    onSubmit={(e) => {
+                      e.preventDefault();
+                      setSubscribed(true);
+                    }}
+                    className="mt-6 space-y-4"
+                  >
+                    <div className="flex border-b border-emerald-500/20 focus-within:border-emerald-400 pb-2">
+                      <input
+                        type="email"
+                        required
+                        placeholder="Enter your email*"
+                        className="grow bg-transparent text-sm text-white placeholder:text-emerald-100/35 outline-none border-none pr-4"
+                      />
+                      <button
+                        type="submit"
+                        className="text-xs font-semibold text-emerald-400 hover:text-emerald-300 transition-colors uppercase tracking-wider"
+                      >
+                        Subscribe
+                      </button>
+                    </div>
+                    <p className="text-[11px] text-emerald-100/40 leading-relaxed">
+                      By signing up, I agree with the data protection policy of Clynic.
+                    </p>
+                  </form>
+                )}
+              </div>
+
+              {/* Verified Badge / Review strip */}
+              <div className="mt-8 border-t border-white/5 pt-6 flex flex-col gap-3">
+                <div className="flex items-center gap-2">
+                  <div className="flex text-amber-400 text-sm">★★★★★</div>
+                  <span className="text-xs text-emerald-100/50">Based on 3,695 reviews</span>
+                </div>
+              </div>
             </div>
           </div>
         </div>
 
-        {/* Bottom Bar: Logo & Legal Links */}
-        <div className="pt-10 flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between text-white/50">
+        {/* Bottom Bar: Logo & Legal links */}
+        <div className="pt-12 flex flex-col gap-8 sm:flex-row sm:items-center sm:justify-between text-emerald-100/40">
           <div>
             {/* Huge clean brand text */}
-            <span className="pmx-display text-4xl font-semibold tracking-wider text-white select-none">
+            <span className="pmx-display text-4xl font-semibold tracking-widest text-white select-none">
               CLYNIC
             </span>
-            <p className="mt-2 text-[12px] text-emerald-100/40">
-              © {year} {m.name}. All rights reserved.
+            <p className="mt-2 text-xs">
+              © {year} Clynic Inc. All rights reserved.
             </p>
           </div>
 
-          {/* Inline legal list */}
-          <div className="flex flex-wrap gap-x-6 gap-y-2 text-[12px] font-medium text-emerald-100/50">
+          {/* Social Links */}
+          <div className="flex gap-6 text-sm text-emerald-100/60 font-medium">
+            <a href="https://linkedin.com" target="_blank" rel="noreferrer" className="hover:text-white transition-colors">LinkedIn</a>
+            <a href="https://facebook.com" target="_blank" rel="noreferrer" className="hover:text-white transition-colors">Facebook</a>
+            <a href="https://instagram.com" target="_blank" rel="noreferrer" className="hover:text-white transition-colors">Instagram</a>
+          </div>
+
+          {/* Legal choices */}
+          <div className="flex flex-wrap gap-x-6 gap-y-2 text-xs">
             <a href="#" className="hover:text-white transition-colors">Terms</a>
-            <a href="#" className="hover:text-white transition-colors">Privacy</a>
-            <a href="#" className="hover:text-white transition-colors">Security</a>
-            <a href="#" className="hover:text-white transition-colors">Cookie Policy</a>
+            <a href="#" className="hover:text-white transition-colors">Privacy Policy</a>
             <a href="#" className="hover:text-white transition-colors">Your Privacy Choices</a>
           </div>
         </div>

@@ -1,109 +1,123 @@
-/**
- * Journey — Rebuilt to be Maven Clinic style Clinical Outcomes circular progress section.
- * Renders 4 columns of responsive SVG percentage progress gauges with clean captions.
- */
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { SectionHead } from '../ui';
-import { Item, Stagger } from '../motion';
+import { SafeImg } from '../ui';
 
-function CircularGauge({ value, label, percentage, i }) {
-  // SVG circular properties
-  const radius = 64;
-  const strokeWidth = 5;
+function CircularGauge({ percentage, label, numberValue }) {
+  const radius = 60;
+  const strokeWidth = 8;
   const circumference = 2 * Math.PI * radius;
   const strokeDashoffset = circumference - (percentage / 100) * circumference;
 
   return (
-    <div className="flex flex-col items-center text-center p-6 bg-white/60 rounded-[2rem] border border-slate-200/50 shadow-xs">
-      <div className="relative w-36 h-36 flex items-center justify-center">
-        {/* SVG gauge */}
-        <svg className="w-full h-full transform -rotate-95">
+    <div className="flex items-center gap-6 p-6 rounded-2xl bg-white/70 border border-[#012F24]/5 shadow-xs hover:shadow-md transition-all duration-300">
+      <div className="relative w-28 h-28 flex items-center justify-center flex-shrink-0">
+        <svg className="w-full h-full transform -rotate-90">
           {/* Background circle */}
           <circle
-            cx="72"
-            cy="72"
+            cx="56"
+            cy="56"
             r={radius}
-            stroke="#E2E8F0"
+            stroke="#EDE9E3"
             strokeWidth={strokeWidth}
             fill="transparent"
           />
           {/* Animated Foreground circle */}
           <motion.circle
-            cx="72"
-            cy="72"
+            cx="56"
+            cy="56"
             r={radius}
             stroke="#012F24"
-            strokeWidth={strokeWidth + 1}
+            strokeWidth={strokeWidth}
             fill="transparent"
             strokeDasharray={circumference}
             initial={{ strokeDashoffset: circumference }}
             whileInView={{ strokeDashoffset }}
-            viewport={{ once: true }}
-            transition={{ duration: 1.5, delay: i * 0.15, ease: 'easeOut' }}
+            viewport={{ once: true, margin: "-100px" }}
+            transition={{ duration: 1.5, ease: 'easeOut' }}
             strokeLinecap="round"
           />
         </svg>
         {/* Metric value text */}
-        <span className="absolute pmx-display text-3xl font-semibold text-[#012F24]">
-          {value}
+        <span className="absolute pmx-display text-2xl font-semibold text-[#012F24]">
+          {numberValue}
         </span>
       </div>
-      <p className="mt-5 text-[14.5px] leading-relaxed text-slate-600 max-w-[220px]">
-        {label}
-      </p>
+      <div className="flex-1">
+        <p className="text-sm sm:text-base leading-relaxed text-[#012F24]/80 font-medium">
+          {label}
+        </p>
+      </div>
     </div>
   );
 }
 
 export default function Journey() {
-  const metrics = [
+  const stats = [
     {
-      value: '27%',
       percentage: 27,
-      label: 'Up to 27% lower treatment discomfort using our laser-assisted procedures.'
+      numberValue: "27%",
+      label: "Up to 27% lower NICU admissions"
     },
     {
-      value: '98%',
-      percentage: 98,
-      label: '98% of patients report absolute satisfaction with their restorative treatments.'
+      percentage: 40,
+      numberValue: "40%",
+      label: "Up to 40% of members report Maven helped them return to work after having a baby."
     },
     {
-      value: '4x',
-      percentage: 92, // Fill gauge mostly for text value representation
-      label: '4x faster healing time using computer-guided dental implants.'
+      percentage: 30,
+      numberValue: "30%",
+      label: "Among fertility members, 30% achieve pregnancy without Assisted Reproductive Technology"
     },
     {
-      value: '0%',
-      percentage: 0.1, // Near zero stroke to represent 0% complications
-      label: '0% post-procedure complication rates under strict sterile guidelines.'
+      percentage: 21,
+      numberValue: "21%",
+      label: "Up to 21% of members reported an improved state of maternal mental health"
     }
   ];
 
   return (
-    <section className="relative overflow-hidden bg-white py-24 sm:py-32" aria-label="Clinical outcomes">
-      <div aria-hidden="true" className="pmx-grid absolute inset-0 opacity-[0.2]" />
+    <section className="relative min-h-screen bg-[#F7F4EE] text-[#012F24] flex flex-col md:flex-row" aria-label="Clinical outcomes split section">
       
-      <div className="relative mx-auto max-w-7xl px-6">
-        <SectionHead
-          align="center"
-          eyebrow="Clinical standards"
-          title="Clinical excellence you can measure"
-          sub="We hold our treatments to rigorous outcomes so you know your health is in safe hands."
+      {/* Left Column (Sticky Image Pane) */}
+      <div className="relative w-full md:w-1/2 h-[60vh] md:h-screen md:sticky md:top-0 overflow-hidden bg-[#EDE9E3]">
+        <SafeImg 
+          src="/parallex-desktop.webp" 
+          alt="Mother and baby silhouette" 
+          className="w-full h-full object-cover select-none"
         />
-
-        <Stagger className="mt-16 grid gap-6 sm:grid-cols-2 lg:grid-cols-4" gap={0.1}>
-          {metrics.map((m, i) => (
-            <Item key={m.value + i}>
-              <CircularGauge
-                value={m.value}
-                percentage={m.percentage}
-                label={m.label}
-                i={i}
-              />
-            </Item>
-          ))}
-        </Stagger>
+        <div className="absolute inset-0 bg-[#012F24]/5" />
       </div>
+
+      {/* Right Column (Scrolling Stat Cards) */}
+      <div className="w-full md:w-1/2 px-6 sm:px-12 py-20 md:py-32 flex flex-col justify-center">
+        <div className="max-w-xl mx-auto w-full">
+          {/* Header block inside scrolling container */}
+          <div className="mb-12">
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#012F24]/5 border border-[#012F24]/10 text-[#012F24] text-xs font-semibold uppercase tracking-wider mb-4">
+              Proven Outcomes
+            </span>
+            <h2 className="pmx-display text-4xl sm:text-5xl font-light tracking-tight leading-tight mb-6">
+              Lowering costs by <strong className="font-semibold text-emerald-800">improving care</strong>
+            </h2>
+            <p className="text-slate-700 text-base sm:text-lg leading-relaxed">
+              By guiding members through more intuitive paths to health, we help reduce costly interventions and improve outcomes.
+            </p>
+          </div>
+
+          {/* List of circular stats */}
+          <div className="space-y-6">
+            {stats.map((stat, idx) => (
+              <CircularGauge
+                key={idx}
+                percentage={stat.percentage}
+                numberValue={stat.numberValue}
+                label={stat.label}
+              />
+            ))}
+          </div>
+        </div>
+      </div>
+
     </section>
   );
 }
