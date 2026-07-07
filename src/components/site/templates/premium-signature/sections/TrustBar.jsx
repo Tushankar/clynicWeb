@@ -1,6 +1,8 @@
 import { Reveal } from '../motion';
 import { SafeImg } from '../ui';
 
+const TEAL = '#0E8C72';
+
 export default function TrustBar({ m }) {
   const logos = [
     '/logo1.svg',
@@ -16,7 +18,7 @@ export default function TrustBar({ m }) {
   const marqueeLogos = [...logos, ...logos, ...logos, ...logos];
 
   return (
-    <section className="relative border-y border-white/5 bg-[#012F24] py-12 overflow-hidden" aria-label="Why families trust us">
+    <section className="relative border-y border-slate-100 bg-white py-12 overflow-hidden" aria-label="Why families trust us">
       {/* Self-contained CSS for the marquee scrolling */}
       <style dangerouslySetInnerHTML={{__html: `
         @keyframes scroll-marquee {
@@ -36,22 +38,22 @@ export default function TrustBar({ m }) {
       <div className="mx-auto max-w-7xl px-6 relative z-10 flex flex-col items-center">
         {/* Subtle eyebrow header */}
         <div className="flex items-center gap-2 mb-8">
-          <div className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
-          <span className="text-xs font-semibold uppercase tracking-widest text-emerald-300/60">Trusted by</span>
+          <div className="w-1.5 h-1.5 rounded-full" style={{ background: TEAL }} />
+          <span className="text-xs font-semibold uppercase tracking-widest text-slate-400">Trusted by</span>
         </div>
 
         {/* Marquee container */}
         <Reveal className="w-full relative overflow-hidden" delay={0.1}>
           {/* Gradient fade borders on left and right */}
-          <div className="absolute inset-y-0 left-0 w-24 bg-gradient-to-r from-[#012F24] to-transparent z-10 pointer-events-none" />
-          <div className="absolute inset-y-0 right-0 w-24 bg-gradient-to-l from-[#012F24] to-transparent z-10 pointer-events-none" />
+          <div className="absolute inset-y-0 left-0 w-24 bg-gradient-to-r from-white to-transparent z-10 pointer-events-none" />
+          <div className="absolute inset-y-0 right-0 w-24 bg-gradient-to-l from-white to-transparent z-10 pointer-events-none" />
 
           {/* Scrolling Track */}
           <div className="marquee-track flex items-center gap-16 py-2">
             {marqueeLogos.map((logo, idx) => (
               <div 
                 key={idx} 
-                className="h-10 w-32 flex items-center justify-center filter brightness-0 invert opacity-45 hover:opacity-100 transition-opacity duration-300"
+                className="h-10 w-32 flex items-center justify-center filter opacity-30 hover:opacity-70 transition-opacity duration-300"
               >
                 <SafeImg 
                   src={logo} 

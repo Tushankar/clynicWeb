@@ -1,48 +1,26 @@
 /**
- * Hero — Cinematic slideshow background layout matching Maven Clinic.
- * Features an inset rounded card container nested in the website's brand green (#0A1C14) page background.
- * The card takes up the full screen height (calc(100vh - 2rem)) with the background slideshow
- * running edge-to-edge inside the card with slow Ken Burns scale effect.
- * Dynamic wave animations and connecting text badge match the Maven Clinic screenshots.
+ * Hero — Clean healthcare hero matching the reference screenshot exactly.
+ * Everything fits in ONE viewport: heading, buttons, trust badges, doctor illustration,
+ * floating glassmorphic cards (calendar + consultation), and stats bar at bottom.
  */
 import { useState, useEffect } from 'react';
-import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
-import { Fingerprint } from 'lucide-react';
-import { telHref } from '../lib';
-import { EASE } from '../motion';
-import { Button } from '../ui';
+import { motion, useReducedMotion } from 'framer-motion';
+import { CalendarPlus, ArrowRight, Users, Stethoscope, Clock, Star, Video, CheckCircle2, Calendar, ChevronRight } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { EASE, FloatY } from '../motion';
 
-const HERO_SLIDES = [
-  {
-    image: 'https://images.unsplash.com/photo-1511895426328-dc8714191300?q=80&w=1600&auto=format&fit=crop',
-    label: 'EXTENDING HEALTH IN MIDLIFE'
-  },
-  {
-    image: 'https://images.unsplash.com/photo-1542038784456-1ea8e935640e?q=80&w=1600&auto=format&fit=crop',
-    label: 'ENSURING HEALTHY PREGNANCIES'
-  },
-  {
-    image: 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?q=80&w=1600&auto=format&fit=crop',
-    label: 'SUPPORTING WORKING PARENTS'
-  },
-  {
-    image: 'https://images.unsplash.com/photo-1576765608535-5f04d1e3f289?q=80&w=1600&auto=format&fit=crop',
-    label: 'PROVIDING PEDIATRIC CARE'
-  },
-  {
-    image: 'https://images.unsplash.com/photo-1584515979956-d9f6e5d09982?q=80&w=1600&auto=format&fit=crop',
-    label: 'DELIVERING EXPERT CLINICAL CARE'
-  }
-];
+const TEAL = '#0A6A56';
+const TEAL_DARK = '#074C3D';
+const TEAL_LIGHT = '#EBF6F3';
 
 function Enter({ children, delay = 0, className }) {
   const reduced = useReducedMotion();
   return (
     <motion.div
       className={className}
-      initial={reduced ? { opacity: 0 } : { opacity: 0, y: 15, filter: 'blur(4px)' }}
-      animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
-      transition={{ duration: 0.8, delay, ease: EASE }}
+      initial={reduced ? { opacity: 0 } : { opacity: 0, y: 14 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.6, delay, ease: EASE }}
     >
       {children}
     </motion.div>
@@ -50,216 +28,319 @@ function Enter({ children, delay = 0, className }) {
 }
 
 export default function Hero({ m }) {
-  const [currentImg, setCurrentImg] = useState(0);
-
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setCurrentImg((prev) => (prev + 1) % HERO_SLIDES.length);
-    }, 6000);
-    return () => clearInterval(timer);
-  }, []);
+  const STATS = [
+    { icon: Users, value: '50,000+', label: 'Patients' },
+    { icon: Stethoscope, value: '500+', label: 'Doctors' },
+    { icon: Clock, value: '24/7', label: 'Support' },
+    { icon: Star, value: '98%', label: 'Satisfaction' },
+  ];
 
   return (
-    <section
-      className="relative bg-[#012F24] px-4 pt-4 pb-4 w-full select-none"
-      aria-label="Welcome"
-    >
-      {/* CSS Keyframes for smooth group translation (fully compatible with all browsers) */}
-      <style dangerouslySetInnerHTML={{ __html: `
-        @keyframes waveTranslation1 {
-          0% { transform: translate3d(0px, 0px, 0px); }
-          50% { transform: translate3d(-12px, 4px, 0px); }
-          100% { transform: translate3d(0px, 0px, 0px); }
-        }
-        @keyframes waveTranslation2 {
-          0% { transform: translate3d(0px, 0px, 0px); }
-          50% { transform: translate3d(12px, -4px, 0px); }
-          100% { transform: translate3d(0px, 0px, 0px); }
-        }
-        .animate-wave-group-1 { animation: waveTranslation1 10s ease-in-out infinite; }
-        .animate-wave-group-2 { animation: waveTranslation2 12s ease-in-out infinite; }
-        .animate-wave-group-3 { animation: waveTranslation1 14s ease-in-out infinite; }
-        .animate-wave-group-4 { animation: waveTranslation2 16s ease-in-out infinite; }
-      `}} />
+    <section className="relative bg-white w-full select-none overflow-x-clip min-h-screen flex flex-col" aria-label="Welcome">
 
-      {/* Inset card taking up full screen height, matching Maven SS */}
-      <div className="relative mx-auto max-w-[1480px] rounded-[28px] sm:rounded-[36px] overflow-hidden min-h-[calc(100vh-2rem)] flex items-center bg-[#012F24] text-white select-none shadow-[0_24px_64px_-16px_rgba(1,47,36,0.30)] border border-emerald-950/15 w-full z-10">
+      {/* Background: soft teal glow coming from the center of the whole hero section */}
+      <div className="absolute inset-0 pointer-events-none" aria-hidden="true">
+        {/* Large center spotlight glow, shifted up to illuminate the top half */}
+        <div className="absolute top-[30%] left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] sm:w-[850px] sm:h-[850px] lg:w-[1100px] lg:h-[1100px] rounded-full bg-[#0BB89F]/15 blur-[80px] sm:blur-[120px] lg:blur-[160px]" />
         
-        {/* ── Background Slideshow with Ken Burns effect ── */}
-        <div className="absolute inset-0 w-full h-full overflow-hidden select-none pointer-events-none z-0">
-          <AnimatePresence initial={false}>
-            <motion.img
-              key={currentImg}
-              src={HERO_SLIDES[currentImg].image}
-              alt=""
-              initial={{ opacity: 0, scale: 1.03 }}
-              animate={{ opacity: 1, scale: 1.1 }}
-              exit={{ opacity: 0 }}
-              transition={{
-                opacity: { duration: 1.5, ease: 'easeInOut' },
-                scale: { duration: 7, ease: 'linear' }
-              }}
-              className="absolute inset-0 w-full h-full object-cover object-center"
-            />
-          </AnimatePresence>
+        {/* Bottom edge glow to seamlessly bleed down into the Services section */}
+        <div className="absolute -bottom-[200px] left-1/2 -translate-x-1/2 w-[800px] lg:w-[1200px] h-[400px] rounded-[100%] bg-[#0BB89F]/10 blur-[100px]" />
+        
+        {/* Specific top edge glow to bleed into the navbar area */}
+        <div className="absolute -top-[150px] left-1/2 -translate-x-1/2 w-[800px] h-[300px] rounded-[100%] bg-[#0A6A56]/20 blur-[80px]" />
+        
+        {/* Subtle dot grid over the background */}
+        <div className="absolute inset-0 opacity-[0.2]" style={{
+          backgroundImage: `radial-gradient(circle, ${TEAL}12 1px, transparent 1px)`,
+          backgroundSize: '28px 28px',
+          maskImage: 'radial-gradient(circle 50% at 50% 50%, black 20%, transparent 80%)',
+          WebkitMaskImage: 'radial-gradient(circle 50% at 50% 50%, black 20%, transparent 80%)',
+        }} />
+
+        {/* Curvy background vector wave lines (Maven style) - Fixed height on mobile to prevent stretching */}
+        <svg className="absolute bottom-0 top-auto left-0 w-full h-[350px] sm:h-[550px] lg:h-full opacity-60 pointer-events-none" viewBox="0 0 1440 800" fill="none" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMax slice">
+          <defs>
+            <linearGradient id="tealGrad" x1="0" y1="0" x2="1" y2="0">
+              <stop offset="0%" stopColor="#0BB89F" stopOpacity="0" />
+              <stop offset="25%" stopColor="#0BB89F" stopOpacity="0.75" />
+              <stop offset="75%" stopColor="#0E8C72" stopOpacity="0.75" />
+              <stop offset="100%" stopColor="#0E8C72" stopOpacity="0" />
+            </linearGradient>
+            <linearGradient id="yellowGrad" x1="0" y1="0" x2="1" y2="0">
+              <stop offset="0%" stopColor="#F59E0B" stopOpacity="0" />
+              <stop offset="30%" stopColor="#F59E0B" stopOpacity="0.75" />
+              <stop offset="70%" stopColor="#D97706" stopOpacity="0.75" />
+              <stop offset="100%" stopColor="#D97706" stopOpacity="0" />
+            </linearGradient>
+            <linearGradient id="purpleGrad" x1="0" y1="0" x2="1" y2="0">
+              <stop offset="0%" stopColor="#6366F1" stopOpacity="0" />
+              <stop offset="40%" stopColor="#4F46E5" stopOpacity="0.65" />
+              <stop offset="100%" stopColor="#4F46E5" stopOpacity="0" />
+            </linearGradient>
+          </defs>
+          
+          {/* Overlapping paths */}
+          <path d="M -50 520 C 220 570, 320 340, 580 480 S 980 620, 1500 420" stroke="url(#tealGrad)" strokeWidth="2" />
+          <path d="M -50 440 C 240 390, 420 540, 720 370 S 1080 220, 1500 340" stroke="url(#yellowGrad)" strokeWidth="1.5" />
+          <path d="M -50 480 C 180 450, 280 500, 480 430 S 820 550, 1500 470" stroke="url(#purpleGrad)" strokeWidth="1.5" />
+          
+          {/* Glowing circular nodes (matching screenshot dots) - Hidden on mobile for clean UI */}
+          {/* Teal dot under Explore Services / Get care button */}
+          <circle cx="340" cy="445" r="4.5" fill="#0BB89F" className="hidden sm:block" />
+          <circle cx="340" cy="445" r="8.5" stroke="#0BB89F" strokeOpacity="0.4" strokeWidth="1.5" className="hidden sm:block" />
+          
+          {/* Purple dot slightly to the right */}
+          <circle cx="480" cy="470" r="3.5" fill="#6366F1" className="hidden sm:block" />
+          
+          {/* Yellow anchor dot on the right side */}
+          <circle cx="1120" cy="326" r="4.5" fill="#F59E0B" className="hidden sm:block" />
+          <circle cx="1120" cy="326" r="8.5" stroke="#F59E0B" strokeOpacity="0.4" strokeWidth="1.5" className="hidden sm:block" />
+        </svg>
+
+        {/* Floating text badge connected to the yellow dot */}
+        <div className="absolute left-[78.5%] top-[40.8%] transform -translate-y-1/2 hidden xl:flex items-center gap-2 bg-white/60 backdrop-blur-md border border-slate-200/80 px-3 py-1 rounded-full shadow-sm z-20">
+          <span className="text-[10px] font-bold tracking-wider text-slate-700 uppercase">Supporting Working Parents</span>
         </div>
+      </div>
 
-        {/* ── Readability Overlay: Double Gradients ── */}
-        <div 
-          aria-hidden="true" 
-          className="absolute inset-0 bg-gradient-to-r from-black/85 via-black/50 to-black/25 md:to-transparent pointer-events-none z-[1]" 
-        />
-        <div 
-          aria-hidden="true" 
-          className="absolute inset-0 bg-gradient-to-t from-black/90 via-transparent to-black/35 pointer-events-none z-[1]" 
-        />
+      {/* Main content — compact to fit viewport */}
+      <div className="relative flex-1 flex flex-col mx-auto max-w-7xl w-full px-5 sm:px-8 pt-[68px] z-10">
 
-        {/* ── Glowing Wave Curves Overlay (4 lines coming from the left and fading out at the badge) ── */}
-        <div className="absolute inset-0 pointer-events-none z-[2]" aria-hidden="true">
-          <svg className="absolute bottom-0 left-0 w-full h-[280px]" fill="none" viewBox="0 0 1440 280" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
-            
-            {/* Line 1: Rose Gradient (4th line) */}
-            <g className="animate-wave-group-1">
-              <path
-                d="M-50 120C70 80 230 170 390 100C550 30 680 130 880 70C1080 10 1230 90 1500 40"
-                stroke="url(#neon-rose)"
-                strokeWidth="1.8"
-                strokeLinecap="round"
-                className="opacity-80"
-              />
-            </g>
+        {/* Two-column hero */}
+        <div className="flex-1 flex flex-col lg:flex-row items-center gap-3 lg:gap-2 py-2 lg:py-0">
 
-            {/* Line 2: Cyan Gradient */}
-            <g className="animate-wave-group-2">
-              <path
-                d="M-50 150C120 110 300 210 480 130C660 50 800 170 1000 110C1200 50 1350 130 1500 80"
-                stroke="url(#neon-cyan)"
-                strokeWidth="2.5"
-                strokeLinecap="round"
-                className="opacity-90"
-              />
-            </g>
-            
-            {/* Line 3: Emerald Gradient */}
-            <g className="animate-wave-group-3">
-              <path
-                d="M-50 180C150 130 280 230 500 150C720 70 850 190 1050 130C1250 70 1380 150 1500 110"
-                stroke="url(#neon-emerald)"
-                strokeWidth="3.2"
-                strokeLinecap="round"
-                className="opacity-85"
-              />
-            </g>
-            
-            {/* Line 4: Gold Gradient */}
-            <g className="animate-wave-group-4">
-              <path
-                d="M-50 210C100 170 350 250 520 170C690 90 900 210 1100 140C1300 70 1400 170 1500 130"
-                stroke="url(#neon-gold)"
-                strokeWidth="1.8"
-                strokeLinecap="round"
-                className="opacity-75"
-              />
-            </g>
+          {/* ── LEFT: Text + CTAs ── */}
+          <div className="flex-1 lg:flex-[0_0_50%] text-center lg:text-left flex flex-col justify-center">
 
-            {/* Gradients configured to fade out completely by 65% width, extending the lines further */}
-            <defs>
-              <linearGradient id="neon-rose" x1="0" y1="0" x2="1" y2="0">
-                <stop offset="0%" stopColor="#FF2E93" stopOpacity="0.9" />
-                <stop offset="30%" stopColor="#FF2E93" stopOpacity="0.5" />
-                <stop offset="65%" stopColor="#FF2E93" stopOpacity="0" />
-              </linearGradient>
-              <linearGradient id="neon-cyan" x1="0" y1="0" x2="1" y2="0">
-                <stop offset="0%" stopColor="#00F2FE" stopOpacity="0.95" />
-                <stop offset="30%" stopColor="#00F2FE" stopOpacity="0.65" />
-                <stop offset="65%" stopColor="#00F2FE" stopOpacity="0" />
-              </linearGradient>
-              <linearGradient id="neon-emerald" x1="0" y1="0" x2="1" y2="0">
-                <stop offset="0%" stopColor="#33F8B1" stopOpacity="0.95" />
-                <stop offset="30%" stopColor="#33F8B1" stopOpacity="0.55" />
-                <stop offset="65%" stopColor="#33F8B1" stopOpacity="0" />
-              </linearGradient>
-              <linearGradient id="neon-gold" x1="0" y1="0" x2="1" y2="0">
-                <stop offset="0%" stopColor="#FAD961" stopOpacity="0.85" />
-                <stop offset="30%" stopColor="#FAD961" stopOpacity="0.45" />
-                <stop offset="65%" stopColor="#FAD961" stopOpacity="0" />
-              </linearGradient>
-            </defs>
-          </svg>
-        </div>
-
-        {/* ── Content Container with padding-top to prevent navbar overlap ── */}
-        <div className="relative mx-auto w-full max-w-7xl px-8 sm:px-12 z-10 pt-28 sm:pt-36 pb-8">
-          <div className="max-w-2xl text-left">
-            
             <Enter delay={0.05}>
-              <span
-                className="inline-flex items-center gap-2 rounded-full border border-emerald-400/20 bg-black/45 py-1.5 px-4 text-[11px] font-semibold text-emerald-300 uppercase tracking-widest"
-                style={{ backdropFilter: 'blur(8px)' }}
-              >
-                <span className="relative flex h-1.5 w-1.5">
-                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-60" />
-                  <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-emerald-400" />
-                </span>
-                Accepting new patients
-              </span>
-            </Enter>
-
-            <Enter delay={0.15} className="mt-6 sm:mt-8">
-              <h1 className="text-balance text-4xl sm:text-5xl lg:text-[4.5rem] font-light leading-[1.08] tracking-[-0.03em] text-white font-sans">
-                Evidence-based <br />
-                women’s and <br />
-                family <span className="font-serif italic font-normal text-white">healthcare</span>
+              <h1 className="text-[2.2rem] sm:text-[2.6rem] lg:text-[2.9rem] xl:text-[3.2rem] font-extrabold leading-[1.12] tracking-tight text-[#1A1A2E]">
+                Your Trusted Digital{' '}
+                <br className="hidden sm:block" />
+                <span style={{ color: TEAL }}>Healthcare</span> Partner
               </h1>
             </Enter>
 
-            <Enter delay={0.28}>
-              <p className="mt-5 max-w-md text-pretty text-base sm:text-lg leading-relaxed text-slate-200">
-                Expert care across every life stage. Modern clinical care with same-day appointments, digital records, and doctors who listen.
+            <Enter delay={0.12}>
+              <p className="mt-2.5 sm:mt-3 text-[14px] sm:text-[15px] leading-relaxed text-[#5A6B7D] max-w-md mx-auto lg:mx-0">
+                {m.hero.tagline || 'Book appointments, consult expert doctors, order medicines, and manage your healthcare in one place.'}
               </p>
             </Enter>
 
-            <Enter delay={0.35} className="mt-7 sm:mt-8 flex flex-wrap items-center gap-4">
-              <Button
+            {/* CTA Buttons — liquid glass style */}
+            <Enter delay={0.2} className="mt-4 sm:mt-5 flex flex-wrap items-center justify-center lg:justify-start gap-3">
+              <Link
                 to={m.bookHref}
-                className="px-8 py-3.5 bg-[#012F24] hover:bg-[#001f18] text-white font-semibold text-sm rounded-md transition-all duration-200 shadow-md shadow-[#012F24]/15 border border-transparent hover:-translate-y-0.5"
-                magnetic={false}
+                className="group relative inline-flex h-[46px] items-center justify-center gap-2 rounded-full px-6 text-[14px] font-semibold text-white transition-all duration-200 hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98] overflow-hidden"
+                style={{
+                  background: `linear-gradient(180deg, rgba(255,255,255,0.25) 0%, rgba(255,255,255,0) 100%), ${TEAL}`,
+                  boxShadow: `0 8px 22px -7px rgba(14, 140, 114, 0.5), inset 0 1px 0 0 rgba(255, 255, 255, 0.45)`,
+                  backdropFilter: 'blur(8px)',
+                  WebkitBackdropFilter: 'blur(8px)',
+                }}
+                onMouseEnter={(e) => { e.currentTarget.style.background = `linear-gradient(180deg, rgba(255,255,255,0.25) 0%, rgba(255,255,255,0) 100%), ${TEAL_DARK}`; }}
+                onMouseLeave={(e) => { e.currentTarget.style.background = `linear-gradient(180deg, rgba(255,255,255,0.25) 0%, rgba(255,255,255,0) 100%), ${TEAL}`; }}
               >
-                Explore platform
-              </Button>
-              {m.contact.phone ? (
-                <a
-                  href={telHref(m.contact.phone)}
-                  className="h-12 px-8 inline-flex items-center justify-center border border-white/20 hover:border-white/40 text-white hover:bg-white/5 bg-transparent font-semibold text-sm rounded-md transition-all duration-200 hover:-translate-y-0.5"
-                >
-                  Get care
-                </a>
-              ) : null}
+                {/* Glassmorphic sheen on hover */}
+                <span className="pointer-events-none absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/20 to-transparent transition-transform duration-700 ease-out group-hover:translate-x-full" />
+                <CalendarPlus className="h-4 w-4" />
+                Book Appointment
+              </Link>
+              <a
+                href="#services"
+                className="group inline-flex h-[46px] items-center justify-center gap-2 rounded-full px-6 text-[14px] font-semibold transition-all duration-200 hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98] relative overflow-hidden"
+                style={{
+                  border: `1px solid rgba(14, 140, 114, 0.3)`,
+                  color: TEAL,
+                  background: 'linear-gradient(180deg, rgba(255,255,255,0.4) 0%, rgba(255,255,255,0) 100%), rgba(14, 140, 114, 0.05)',
+                  boxShadow: `0 4px 14px -6px rgba(14, 140, 114, 0.2), inset 0 1px 0 0 rgba(255, 255, 255, 0.6)`,
+                  backdropFilter: 'blur(8px)',
+                  WebkitBackdropFilter: 'blur(8px)',
+                }}
+                onMouseEnter={(e) => { e.currentTarget.style.background = 'linear-gradient(180deg, rgba(255,255,255,0.4) 0%, rgba(255,255,255,0) 100%), rgba(14, 140, 114, 0.1)'; }}
+                onMouseLeave={(e) => { e.currentTarget.style.background = 'linear-gradient(180deg, rgba(255,255,255,0.4) 0%, rgba(255,255,255,0) 100%), rgba(14, 140, 114, 0.05)'; }}
+              >
+                <span className="pointer-events-none absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-[#0E8C72]/10 to-transparent transition-transform duration-700 ease-out group-hover:translate-x-full" />
+                Explore Services
+                <ArrowRight className="h-4 w-4 transition-transform duration-200 group-hover:translate-x-0.5" />
+              </a>
             </Enter>
 
-          </div>
-        </div>
+            {/* Trust badges */}
+            <Enter delay={0.28} className="mt-4 sm:mt-5 flex flex-wrap items-center justify-center lg:justify-start gap-5">
+              <div className="flex items-center gap-2">
+                <div className="flex -space-x-2">
+                  {[0, 1, 2, 3].map((i) => (
+                    <div key={i} className="h-7 w-7 rounded-full border-2 border-white flex items-center justify-center text-[9px] font-bold text-white shadow-sm"
+                      style={{ background: [`linear-gradient(135deg, ${TEAL}, #0BB89F)`, 'linear-gradient(135deg, #4F46E5, #7C3AED)', 'linear-gradient(135deg, #2563EB, #3B82F6)', 'linear-gradient(135deg, #D97706, #F59E0B)'][i] }}
+                    >{['JR', 'AS', 'KM', 'NP'][i]}</div>
+                  ))}
+                </div>
+                <div className="text-left">
+                  <span className="text-[12px] font-bold text-[#1A1A2E] block leading-tight">Trust Users</span>
+                  <span className="text-[10px] text-[#5A6B7D]">Trust Badge</span>
+                </div>
+              </div>
 
-        {/* ── Floating Badges inside Hero Card ── */}
-        
-        {/* Bottom-left: Fingerprint Badge */}
-        <div className="absolute bottom-8 left-8 z-10 hidden sm:block">
-          <div className="flex h-11 w-11 items-center justify-center rounded-full bg-[#012F24] text-white shadow-lg transition-transform hover:scale-105 cursor-pointer border border-white/10">
-            <Fingerprint className="h-5.5 w-5.5" />
-          </div>
-        </div>
+              <div className="h-7 w-px bg-slate-200 hidden sm:block" />
 
-        {/* Dynamic Floating Badge aligned with the moving wave line (matching SS 2) */}
-        <div className="absolute bottom-[22%] left-[20%] sm:left-[26%] lg:left-[32%] z-20 flex items-center gap-2.5">
-          <div className="relative flex h-3.5 w-3.5 items-center justify-center shrink-0">
-            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#33F8B1] opacity-75" />
-            <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-[#33F8B1] shadow-[0_0_8px_#33F8B1]" />
+              <div className="flex items-center gap-2">
+                <div className="h-8 w-8 rounded-lg flex items-center justify-center" style={{ background: TEAL_LIGHT }}>
+                  <CheckCircle2 className="h-4 w-4" style={{ color: TEAL }} />
+                </div>
+                <div className="text-left">
+                  <span className="text-[12px] font-bold text-[#1A1A2E] block leading-tight">Ensure Badges</span>
+                  <span className="text-[10px] text-[#5A6B7D]">Organization</span>
+                </div>
+              </div>
+            </Enter>
+
+            {/* ── Stats — Moved here ── */}
+            <Enter delay={0.35} className="mt-10 sm:mt-12 py-6 sm:py-8 border-y border-[#0E8C72] w-full max-w-lg lg:max-w-none">
+              <div className="flex items-stretch justify-between gap-1 sm:gap-2">
+                {STATS.map((stat, idx) => (
+                  <div key={stat.label} className="flex-1 flex items-stretch">
+                    <div className="text-left group cursor-default flex-1 min-w-0 pr-1 sm:pr-3">
+                      <span className="text-[15px] sm:text-2xl lg:text-3xl font-extrabold block tracking-tight text-slate-800" style={{ color: TEAL }}>
+                        {stat.value}
+                      </span>
+                      <span className="text-[8px] sm:text-[10px] lg:text-[11px] font-bold text-[#718096] uppercase tracking-widest block mt-0.5 sm:mt-1">
+                        {stat.label}
+                      </span>
+                    </div>
+                    {idx < STATS.length - 1 && (
+                      <div className="w-[1.5px] bg-[#0E8C72] self-stretch shrink-0" />
+                    )}
+                  </div>
+                ))}
+              </div>
+            </Enter>
           </div>
-          <div 
-            className="bg-white/10 backdrop-blur-md border border-white/10 rounded-full px-4 py-1.5 text-[10px] sm:text-[11px] font-bold tracking-widest uppercase text-white/95 shadow-lg select-none"
-            style={{ letterSpacing: '0.12em' }}
-          >
-            {HERO_SLIDES[currentImg].label}
+
+          {/* ── RIGHT: Doctor + Floating Cards ── */}
+          <div className="flex-1 lg:flex-[0_0_50%] relative flex items-center justify-center min-h-[280px] sm:min-h-[340px] lg:min-h-0 py-8 lg:py-12">
+
+            {/* Circular background behind the doctor */}
+            <div className="absolute inset-0 flex items-center justify-center pointer-events-none" aria-hidden="true">
+              <div className="w-[260px] h-[260px] sm:w-[320px] sm:h-[320px] lg:w-[380px] lg:h-[380px] xl:w-[420px] xl:h-[420px] rounded-full" style={{ background: `linear-gradient(135deg, ${TEAL_LIGHT}, rgba(14,140,114,0.05))` }} />
+            </div>
+
+            {/* Doctor image */}
+            <Enter delay={0.2} className="relative z-10 flex items-center justify-center w-full h-full">
+              <img
+                src="/hero-doctor.png"
+                alt="Healthcare consultation"
+                className="w-full max-w-[280px] sm:max-w-[340px] lg:max-w-[400px] xl:max-w-[440px] h-auto object-contain drop-shadow-xl"
+                loading="eager"
+                fetchpriority="high"
+              />
+            </Enter>
+
+            {/* Floating Card: Today's Appointments — Calendar UI */}
+            <FloatY distance={5} duration={5} delay={0} className="absolute top-0 right-0 sm:top-2 sm:-right-1 lg:top-4 lg:right-0 xl:right-2 z-20">
+              <Enter delay={0.45}>
+                <div className="rounded-2xl bg-white/35 p-3 shadow-[0_12px_40px_-6px_rgba(14,140,114,0.15),inset_0_1px_0_0_rgba(255,255,255,0.6)] border border-white/40 w-[200px]"
+                  style={{ backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' }}
+                >
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="flex items-center gap-1.5">
+                      <div className="h-6 w-6 rounded-md flex items-center justify-center" style={{ background: TEAL_LIGHT }}>
+                        <Calendar className="h-3 w-3" style={{ color: TEAL }} />
+                      </div>
+                      <span className="text-[11px] font-bold text-[#1A1A2E]">Todays Appointments</span>
+                    </div>
+                  </div>
+                  {/* Mini calendar grid */}
+                  <div className="grid grid-cols-7 gap-px mb-2">
+                    {['M','T','W','T','F','S','S'].map((d, i) => (
+                      <span key={i} className="text-[7px] font-semibold text-[#9CA3AF] text-center">{d}</span>
+                    ))}
+                    {[28,29,30,1,2,3,4,5,6,7,8,9,10,11].map((d, i) => (
+                      <span key={i} className={`text-[8px] text-center rounded-sm py-0.5 ${d === 8 ? 'bg-[#0E8C72] text-white font-bold' : d < 1 ? 'text-slate-300' : 'text-slate-500'}`}>
+                        {d > 0 ? d : ''}
+                      </span>
+                    ))}
+                  </div>
+                  {/* Appointment entries */}
+                  <div className="space-y-1">
+                    {[
+                      { time: '09:30', name: 'Dr. Sarah M.', tag: 'Checkup' },
+                      { time: '11:00', name: 'Dr. Rajesh K.', tag: 'Follow-up' },
+                    ].map((a, i) => (
+                      <div key={i} className="flex items-center gap-1.5 bg-white/35 backdrop-blur-sm rounded-md px-2 py-1 border border-white/20">
+                        <span className="text-[8px] font-semibold text-[#9CA3AF] w-[30px] shrink-0">{a.time}</span>
+                        <span className="text-[9px] font-semibold text-[#1A1A2E] truncate flex-1">{a.name}</span>
+                        <span className="text-[7px] font-bold px-1.5 py-0.5 rounded-full" style={{ background: TEAL_LIGHT, color: TEAL }}>{a.tag}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </Enter>
+            </FloatY>
+
+            {/* Floating Card: Small green notification card */}
+            <FloatY distance={4} duration={6} delay={0.8} className="absolute top-[15%] left-0 sm:left-2 lg:top-[18%] lg:left-4 z-20">
+              <Enter delay={0.55}>
+                <div className="rounded-lg px-2.5 py-1.5 flex items-center gap-1.5 shadow-lg text-white text-[10px] font-bold"
+                  style={{ background: TEAL, boxShadow: `0 4px 16px -4px ${TEAL}60` }}
+                >
+                  <CheckCircle2 className="h-3.5 w-3.5" />
+                  Verified
+                </div>
+              </Enter>
+            </FloatY>
+
+            {/* Floating Card: Appointment detail / second card */}
+            <FloatY distance={5} duration={5.5} delay={0.4} className="absolute top-[40%] right-0 sm:-right-2 lg:right-[-8px] xl:right-0 z-20 hidden sm:block">
+              <Enter delay={0.5}>
+                <div className="rounded-xl bg-white/35 p-2.5 shadow-[0_12px_32px_-6px_rgba(14,140,114,0.12),inset_0_1px_0_0_rgba(255,255,255,0.6)] border border-white/40 w-[160px]"
+                  style={{ backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' }}
+                >
+                  <div className="flex items-center gap-1.5 mb-1.5">
+                    <div className="h-5 w-5 rounded-md flex items-center justify-center" style={{ background: '#EEF2FF' }}>
+                      <Calendar className="h-3 w-3 text-indigo-500" />
+                    </div>
+                    <span className="text-[10px] font-bold text-[#1A1A2E]">Today Appointments</span>
+                  </div>
+                  <div className="flex items-center gap-1.5 bg-white/35 backdrop-blur-sm rounded-md px-2 py-1 border border-white/20">
+                    <div className="h-5 w-5 rounded-full bg-gradient-to-br from-orange-400 to-orange-500 flex items-center justify-center text-[7px] text-white font-bold">AK</div>
+                    <div>
+                      <span className="text-[9px] font-semibold text-[#1A1A2E] block leading-tight">Arjun K.</span>
+                      <span className="text-[7px] text-[#9CA3AF]">2:30 PM</span>
+                    </div>
+                    <ChevronRight className="h-3 w-3 text-slate-300 ml-auto" />
+                  </div>
+                </div>
+              </Enter>
+            </FloatY>
+
+            {/* Floating Card: Online Consultation */}
+            <FloatY distance={6} duration={6} delay={0.6} className="absolute bottom-2 left-0 sm:bottom-4 sm:-left-2 lg:bottom-8 lg:left-0 z-20">
+              <Enter delay={0.6}>
+                <div className="rounded-2xl bg-white/35 p-3 shadow-[0_16px_48px_-8px_rgba(14,140,114,0.18),inset_0_1px_0_0_rgba(255,255,255,0.6)] border border-white/40"
+                  style={{ backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)' }}
+                >
+                  <div className="flex items-center gap-2">
+                    <div className="h-9 w-9 rounded-xl flex items-center justify-center shrink-0"
+                      style={{ background: `linear-gradient(135deg, ${TEAL}, #0BB89F)` }}
+                    >
+                      <Video className="h-4 w-4 text-white" />
+                    </div>
+                    <div>
+                      <span className="text-[11px] font-bold text-[#1A1A2E] block">Online Consultation</span>
+                      <span className="text-[9px] text-[#5A6B7D]">Connect with doctors virtually</span>
+                    </div>
+                  </div>
+                  <div className="mt-2 flex items-center gap-2">
+                    <div className="flex -space-x-1.5">
+                      {[TEAL, '#4F46E5', '#2563EB'].map((c, i) => (
+                        <div key={i} className="h-5 w-5 rounded-full border-[1.5px] border-white" style={{ background: c }} />
+                      ))}
+                    </div>
+                    <span className="text-[9px] font-medium text-[#5A6B7D]">12+ doctors online</span>
+                  </div>
+                </div>
+              </Enter>
+            </FloatY>
           </div>
         </div>
 

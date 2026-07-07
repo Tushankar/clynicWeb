@@ -39,7 +39,7 @@ export default function Doctors({ m }) {
   ];
 
   return (
-    <section id="doctors" className="scroll-mt-28 bg-[#012F24] text-white py-16 sm:py-24 relative overflow-hidden" aria-label="Target Industries">
+    <section id="why-us" className="scroll-mt-28 bg-[#012F24] text-white py-16 sm:py-24 relative overflow-hidden" aria-label="Target Industries">
       {/* Wave lines for decorative background matching */}
       <div className="absolute inset-0 pointer-events-none opacity-[0.08]">
         <svg xmlns="http://www.w3.org/2000/svg" width="100%" viewBox="0 0 2160 2047" fill="none" className="w-full h-full object-cover">

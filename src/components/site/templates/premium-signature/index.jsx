@@ -14,12 +14,10 @@ import Hero from './sections/Hero';
 import TrustBar from './sections/TrustBar';
 import Services from './sections/Services';
 import WhyUs from './sections/WhyUs';
-import Journey from './sections/Journey';
-import Doctors from './sections/Doctors';
+import Pharmacy from './sections/Pharmacy';
+import HowItWorks from './sections/HowItWorks';
 import Testimonials from './sections/Testimonials';
 import Gallery from './sections/Gallery';
-import Technology from './sections/Technology';
-import Faq from './sections/Faq';
 import FinalCta from './sections/FinalCta';
 import Footer from './sections/Footer';
 import MobileBar from './sections/MobileBar';
@@ -66,7 +64,7 @@ export default function PremiumSignature({ site, slug }) {
   }, [m]);
 
   return (
-    <div className="pmx min-h-screen overflow-x-clip bg-[#012F24] text-[#0B1220] antialiased">
+    <div className="pmx min-h-screen overflow-x-clip bg-white text-[#0B1220] antialiased">
       <PmxStyles />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLd }} />
 
@@ -74,14 +72,12 @@ export default function PremiumSignature({ site, slug }) {
 
       <main id="top">
         <Hero m={m} />
-        <TrustBar m={m} />
+        {/* TrustBar removed as requested */}
         <Services m={m} />
         <WhyUs m={m} />
-        <Journey />
-        <Doctors m={m} />
-        <Technology m={m} />
+        <Pharmacy m={m} />
+        <HowItWorks />
         <Testimonials m={m} />
-        <Faq m={m} />
         <FinalCta m={m} />
       </main>
 

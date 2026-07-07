@@ -1,204 +1,131 @@
-import { useState, useEffect } from 'react';
-import { ArrowRight, Sparkles, Shield, Award, Users, BookOpen } from 'lucide-react';
-import { SafeImg } from '../ui';
-
-// Interactive Clock component for Card 2
-function LiveClock() {
-  const [time, setTime] = useState(new Date());
-
-  useEffect(() => {
-    const timer = setInterval(() => setTime(new Date()), 1000);
-    return () => clearInterval(timer);
-  }, []);
-
-  const formatUnit = (unit) => unit.toString().padStart(2, '0');
-
-  return (
-    <div className="flex flex-col items-center justify-center p-6 bg-[#03231B] rounded-2xl border border-emerald-500/10 shadow-inner">
-      <div className="flex items-center gap-2 text-3xl font-mono tracking-widest text-emerald-400">
-        <span>{formatUnit(time.getHours())}</span>
-        <span className="animate-pulse">:</span>
-        <span>{formatUnit(time.getMinutes())}</span>
-        <span className="animate-pulse">:</span>
-        <span className="text-emerald-500/50 text-xl">{formatUnit(time.getSeconds())}</span>
-      </div>
-      <span className="text-[10px] uppercase tracking-widest text-emerald-300/40 mt-2 font-semibold">TICKING LIVE 24/7/365</span>
-    </div>
-  );
-}
-
-// Glowing World Dot Network for Card 5
-function GlobeNetwork() {
-  return (
-    <div className="relative w-full h-32 flex items-center justify-center overflow-hidden">
-      <svg className="w-full h-full opacity-35" viewBox="0 0 200 100" fill="none" xmlns="http://www.w3.org/2000/svg">
-        {/* Simple dotted map background */}
-        <circle cx="20" cy="30" r="1.5" fill="#58EDA2" />
-        <circle cx="50" cy="40" r="1.5" fill="#58EDA2" />
-        <circle cx="80" cy="25" r="1.5" fill="#58EDA2" />
-        <circle cx="110" cy="50" r="1.5" fill="#58EDA2" />
-        <circle cx="140" cy="35" r="1.5" fill="#58EDA2" />
-        <circle cx="170" cy="45" r="1.5" fill="#58EDA2" />
-        {/* Pulsing connections */}
-        <path d="M50 40 Q 80 15 110 50" stroke="#58EDA2" strokeWidth="0.75" strokeDasharray="3 3" />
-        <path d="M80 25 Q 110 10 140 35" stroke="#58EDA2" strokeWidth="0.75" />
-        <path d="M110 50 Q 140 25 170 45" stroke="#58EDA2" strokeWidth="0.75" strokeDasharray="4 2" />
-        {/* Glowing node centers */}
-        <circle cx="80" cy="25" r="3" fill="#58EDA2" className="animate-ping" />
-        <circle cx="80" cy="25" r="2" fill="#58EDA2" />
-        <circle cx="140" cy="35" r="3" fill="#58EDA2" className="animate-ping" style={{ animationDelay: '0.5s' }} />
-        <circle cx="140" cy="35" r="2" fill="#58EDA2" />
-      </svg>
-    </div>
-  );
-}
+import { useState } from 'react';
+import { Link } from 'react-router-dom';
+import { Star, ShieldCheck, Bookmark, ChevronRight } from 'lucide-react';
+import { Item, Stagger } from '../motion';
 
 export default function WhyUs({ m }) {
-  const [hoveredSpecialty, setHoveredSpecialty] = useState(null);
+  const TEAL = '#0E8C72';
+  const TEAL_DARK = '#074C3D';
 
-  const specialties = [
-    { name: 'Nutritionist', desc: 'Custom meal & strength planning' },
-    { name: 'Doula Support', desc: 'Continuous labor & birth coaching' },
-    { name: 'Lactation Consultant', desc: 'Expert breastfeeding guidance' }
+  const doctorsList = [
+    {
+      name: 'Dr. James Carter',
+      specialty: 'Orthodontist',
+      img: '/doctor_avatar_1.png',
+      bgColor: 'rgba(11, 184, 159, 0.08)', // Tinted teal light
+      rating: '4.9 (120+)',
+      experience: '8 Yrs Exp'
+    },
+    {
+      name: 'Dr. Alan Vance',
+      specialty: 'Endodontist',
+      img: '/doctor_avatar_2.png',
+      bgColor: 'rgba(37, 99, 235, 0.06)', // Tinted blue light
+      rating: '4.8 (95+)',
+      experience: '10 Yrs Exp'
+    },
+    {
+      name: 'Dr. Sarah Miller',
+      specialty: 'Periodontist',
+      img: '/doctor_avatar_3.png',
+      bgColor: 'rgba(99, 102, 241, 0.06)', // Tinted indigo light
+      rating: '4.9 (140+)',
+      experience: '7 Yrs Exp'
+    },
+    {
+      name: 'Dr. Emily Watson',
+      specialty: 'Pediatrician',
+      img: '/doctor_avatar_4.png',
+      bgColor: 'rgba(236, 72, 153, 0.06)', // Tinted pink light
+      rating: '4.9 (110+)',
+      experience: '9 Yrs Exp'
+    }
   ];
 
   return (
-    <section id="about" className="relative scroll-mt-28 bg-[#012F24] text-white py-16 sm:py-24" aria-label="Bento Features">
-      {/* Background SVG wave pattern to replicate original styling */}
-      <div className="absolute inset-0 pointer-events-none opacity-15 overflow-hidden">
-        <svg xmlns="http://www.w3.org/2000/svg" width="100%" viewBox="0 0 2219 1808" fill="none" className="w-full h-full object-cover">
-          <path d="M1 947.436C301.829 1019.07 886.487 1009.03 1567.48 432.968C1619.75 388.746 1664.26 261.291 1682.57 221.154C1926.5 -313.434 339.819 261.769 1069.99 514.846C1854.97 786.926 2339.47 1027.99 2191.47 855.167C2043.47 682.348 1494.98 416.029 267.498 1807" stroke="#58EDA2" strokeWidth="2" opacity="0.15" />
-        </svg>
-      </div>
+    <section id="doctors" className="relative scroll-mt-28 bg-transparent pb-24 pt-0 mt-0 overflow-x-clip select-none" aria-label="Popular Doctors">
+      
+      {/* Ambient signature teal glow positioned at the top boundary to blend seamlessly with the Services section above */}
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] sm:w-[850px] sm:h-[850px] lg:w-[1100px] lg:h-[1100px] rounded-full bg-[#0BB89F]/15 blur-[80px] sm:blur-[120px] lg:blur-[160px] pointer-events-none" />
 
-      <div className="relative mx-auto max-w-7xl px-6 z-10">
-        {/* Header section with split-text styling */}
-        <div className="max-w-3xl mb-16">
-          <h2 className="pmx-display text-4xl sm:text-5xl font-light tracking-tight leading-tight">
-            24/7 virtual care, predictive insights, &amp; employee benefit details—<strong className="font-semibold text-emerald-400">all in one place</strong>
-          </h2>
-          <p className="mt-6 text-emerald-100/60 text-lg leading-relaxed max-w-2xl">
-            Meet the world’s most innovative healthcare platform, combining clinical precision, administrative ease, and AI-native technology.
-          </p>
+      <div className="relative mx-auto max-w-7xl px-4 sm:px-8 z-10">
+        
+        {/* Header with Title and See All button */}
+        <div className="flex items-end justify-between mb-8 sm:mb-10">
+          <div>
+            <h2 className="pmx-display text-3xl sm:text-[38px] font-extrabold leading-tight tracking-tight text-[#1A1A2E]">
+              Popular Doctors
+            </h2>
+          </div>
+          <Link 
+            to={m.bookHref} 
+            className="inline-flex items-center gap-1.5 px-3.5 py-1.5 border border-slate-200/80 rounded-xl text-xs font-bold text-slate-700 bg-white/40 backdrop-blur-md hover:bg-white transition-all hover:border-slate-300"
+          >
+            See All <ChevronRight className="h-3 w-3" />
+          </Link>
         </div>
 
-        {/* Bento Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 auto-rows-[250px]">
-          
-          {/* Card 1: Large Network (Spans 2 rows on desktop) */}
-          <div className="lg:col-span-2 lg:row-span-2 group relative overflow-hidden rounded-3xl border border-white/10 bg-[#023c2e] p-8 flex flex-col justify-end">
-            <SafeImg 
-              src="/features-1.webp" 
-              alt="Largest virtual care network" 
-              className="absolute inset-0 w-full h-full object-cover opacity-60 mix-blend-luminosity group-hover:scale-105 group-hover:mix-blend-normal transition-all duration-700 pointer-events-none"
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-[#012F24] via-transparent to-transparent opacity-80" />
-            <div className="relative z-10 max-w-lg">
-              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-300 text-xs font-semibold uppercase tracking-wider mb-4">
-                <Users className="w-3.5 h-3.5" /> Scale & reach
-              </span>
-              <h3 className="pmx-display text-2xl sm:text-3xl font-light tracking-tight leading-tight text-white mb-2">
-                The largest virtual care network, supporting 28 million lives worldwide
-              </h3>
-            </div>
-          </div>
-
-          {/* Card 2: 24/7/365 Healthcare (Spans 1 row/col) */}
-          <div className="group relative overflow-hidden rounded-3xl border border-white/10 bg-[#023c2e] p-6 flex flex-col justify-between hover:border-emerald-500/30 transition-all duration-300">
-            <div>
-              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-300 text-[10px] font-bold uppercase tracking-wider mb-3">
-                Live Support
-              </span>
-              <h3 className="text-lg font-medium text-emerald-100 leading-snug">
-                Your trusted partner in high-quality, 24/7/365 healthcare
-              </h3>
-            </div>
-            <div className="mt-4">
-              <LiveClock />
-            </div>
-          </div>
-
-          {/* Card 3: 30+ Provider Specialties (Spans 1 row/col) */}
-          <div className="group relative overflow-hidden rounded-3xl border border-white/10 bg-[#023c2e] p-6 flex flex-col justify-between hover:border-emerald-500/30 transition-all duration-300">
-            <div>
-              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-300 text-[10px] font-bold uppercase tracking-wider mb-3">
-                Specialties
-              </span>
-              <h3 className="text-lg font-medium text-emerald-100 leading-snug">
-                30+ provider specialties
-              </h3>
-            </div>
-            <div className="flex flex-col gap-2 mt-4">
-              {specialties.map((spec) => (
-                <div 
-                  key={spec.name}
-                  onMouseEnter={() => setHoveredSpecialty(spec.name)}
-                  onMouseLeave={() => setHoveredSpecialty(null)}
-                  className="flex items-center justify-between px-3.5 py-2 rounded-xl bg-[#03231B] border border-emerald-500/5 hover:border-emerald-500/20 hover:bg-[#042d23] transition-all duration-200 cursor-pointer"
-                >
-                  <span className="text-xs text-emerald-100 font-medium">{spec.name}</span>
-                  <span className={`text-[10px] text-emerald-400 transition-all duration-300 ${
-                    hoveredSpecialty === spec.name ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-2'
-                  }`}>
-                    {spec.desc}
-                  </span>
+        {/* Doctors Grid */}
+        <Stagger className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 sm:gap-6" gap={0.1}>
+          {doctorsList.map((doc, i) => (
+            <Item key={i}>
+              {/* Liquid Glass Doctor Card */}
+              <div className="bg-white/40 backdrop-blur-md rounded-[24px] p-4 border border-white/50 shadow-[0_12px_40px_-8px_rgba(14,140,114,0.1),inset_0_1px_0_0_rgba(255,255,255,0.6)] hover:shadow-[0_20px_48px_-10px_rgba(14,140,114,0.2),inset_0_1px_0_0_rgba(255,255,255,0.7)] hover:-translate-y-1 transition-all duration-300 flex flex-col h-full group">
+                
+                {/* 3D Doctor Illustration Container - Bleeds to edges */}
+                <div className="relative rounded-xl h-[220px] overflow-hidden flex items-center justify-center mb-3.5 transition-transform group-hover:scale-[1.01]">
+                  <img 
+                    src={doc.img} 
+                    alt={doc.name} 
+                    className="w-full h-full object-cover object-top scale-[1.35] origin-top select-none pointer-events-none transition-transform duration-500 group-hover:scale-[1.42]" 
+                  />
+                  
+                  {/* Bookmark Button */}
+                  <button className="absolute top-3 right-3 h-7 w-7 rounded-full bg-white/90 backdrop-blur-sm flex items-center justify-center border border-white/50 text-[#0E8C72] hover:bg-white hover:scale-105 active:scale-95 transition-all shadow-sm">
+                    <Bookmark className="h-3.5 w-3.5" />
+                  </button>
                 </div>
-              ))}
-            </div>
-          </div>
 
-          {/* Card 4: Backed by 40+ studies (Spans 1 row/col) */}
-          <div className="group relative overflow-hidden rounded-3xl border border-white/10 bg-[#023c2e] p-6 flex flex-col justify-between hover:border-emerald-500/30 transition-all duration-300">
-            <div>
-              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-300 text-[10px] font-bold uppercase tracking-wider mb-3">
-                <BookOpen className="w-3 h-3" /> Clinical Rigor
-              </span>
-              <h3 className="text-lg font-medium text-emerald-100 leading-snug">
-                Backed by 40+ peer-reviewed studies on our care model
-              </h3>
-            </div>
-            <div className="relative h-20 w-full mt-4 flex items-center justify-center">
-              <SafeImg src="/features-icon.webp" alt="Studies Icon" className="h-16 w-auto object-contain opacity-80 group-hover:scale-110 transition-all duration-300" />
-            </div>
-          </div>
+                {/* Content */}
+                <div className="flex-1 flex flex-col px-0.5">
+                  <h3 className="text-lg font-bold text-[#1A1A2E] leading-tight">
+                    {doc.name}
+                  </h3>
+                  <p className="text-[12.5px] text-slate-500 font-semibold mt-1">
+                    {doc.specialty}
+                  </p>
 
-          {/* Card 5: Global Care (Spans 1 row/col) */}
-          <div className="group relative overflow-hidden rounded-3xl border border-white/10 bg-[#023c2e] p-6 flex flex-col justify-between hover:border-emerald-500/30 transition-all duration-300">
-            <div>
-              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-300 text-[10px] font-bold uppercase tracking-wider mb-3">
-                Global Network
-              </span>
-              <h3 className="text-lg font-medium text-emerald-100 leading-snug">
-                Global care, coverage, and reimbursement across 175+ countries
-              </h3>
-            </div>
-            <div className="mt-4">
-              <GlobeNetwork />
-            </div>
-          </div>
+                  {/* Rating + Experience row */}
+                  <div className="flex items-center gap-4 text-xs font-bold text-slate-600 mt-3.5 mb-5">
+                    <div className="flex items-center gap-1.2">
+                      <Star className="h-3.5 w-3.5 fill-amber-400 text-amber-400 shrink-0 mr-1" />
+                      <span>{doc.rating}</span>
+                    </div>
+                    <div className="flex items-center gap-1.2">
+                      <ShieldCheck className="h-3.5 w-3.5 text-[#0E8C72] shrink-0 mr-1" />
+                      <span>{doc.experience}</span>
+                    </div>
+                  </div>
 
-          {/* Card 6: Milliman outcomes (Spans 1 col / 1 row or lg:col-span-1 depending on space) */}
-          <div className="group relative overflow-hidden rounded-3xl border border-white/10 bg-[#023c2e] p-6 flex flex-col justify-between hover:border-emerald-500/30 transition-all duration-300">
-            <SafeImg 
-              src="/features-2.webp" 
-              alt="Milliman outcome results" 
-              className="absolute inset-0 w-full h-full object-cover opacity-30 mix-blend-overlay group-hover:scale-105 transition-all duration-700 pointer-events-none"
-            />
-            <div className="relative z-10">
-              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-300 text-[10px] font-bold uppercase tracking-wider mb-3">
-                <Award className="w-3 h-3" /> Validated
-              </span>
-              <h3 className="text-lg font-medium text-emerald-100 leading-snug">
-                Milliman-validated outcomes, proven by employer and health plan claims-based studies
-              </h3>
-            </div>
-            <div className="relative z-10 flex items-center justify-between text-xs text-emerald-300/60 mt-4 font-semibold">
-              <span>Read report</span>
-              <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform duration-200" />
-            </div>
-          </div>
+                  {/* Premium Liquid Glass Book Button - Rounded Full */}
+                  <Link 
+                    to={m.bookHref} 
+                    className="group/btn relative block w-full text-center py-3 rounded-full text-[13.5px] font-bold text-white transition-all duration-200 active:scale-[0.98] overflow-hidden mt-auto shadow-[0_6px_16px_-4px_rgba(14,140,114,0.45)] hover:shadow-[0_10px_20px_-6px_rgba(14,140,114,0.55)]"
+                    style={{ background: `linear-gradient(180deg, rgba(255,255,255,0.25) 0%, rgba(255,255,255,0) 100%), ${TEAL}` }}
+                    onMouseEnter={(e) => { e.currentTarget.style.background = `linear-gradient(180deg, rgba(255,255,255,0.25) 0%, rgba(255,255,255,0) 100%), ${TEAL_DARK}`; }}
+                    onMouseLeave={(e) => { e.currentTarget.style.background = `linear-gradient(180deg, rgba(255,255,255,0.25) 0%, rgba(255,255,255,0) 100%), ${TEAL}`; }}
+                  >
+                    {/* Glassmorphic sheen on hover */}
+                    <span className="pointer-events-none absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/20 to-transparent transition-transform duration-700 ease-out group-hover/btn:translate-x-full" />
+                    <span className="absolute inset-0 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.45)] rounded-full pointer-events-none" />
+                    <span className="relative z-10">Book</span>
+                  </Link>
+                </div>
+              </div>
+            </Item>
+          ))}
+        </Stagger>
 
-        </div>
       </div>
     </section>
   );
