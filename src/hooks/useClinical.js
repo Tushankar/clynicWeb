@@ -48,3 +48,5 @@ export function useLabs(patientId) {
 }
 export const useCreateLab = () => clinicalMutation((body) => api.post('/api/lab-requests', body), ['labs', 'timeline']);
 export const useSetLabStatus = () => clinicalMutation(({ id, status }) => api.patch(`/api/lab-requests/${id}/status`, { status }), ['labs', 'timeline']);
+/** Record results against a lab order (values + interpretation), marking it completed. */
+export const useRecordLabResults = () => clinicalMutation(({ id, ...body }) => api.patch(`/api/lab-requests/${id}/results`, body), ['labs', 'timeline']);

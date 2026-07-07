@@ -53,3 +53,12 @@ export function useRestorePatient() {
     onSuccess: () => qc.invalidateQueries({ queryKey: ['patients'] }),
   });
 }
+
+/** Owner-only: soft-delete a patient (recoverable from the "Recently deleted" trash view). */
+export function useDeletePatient() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (id) => api.del(`/api/patients/${id}`),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['patients'] }),
+  });
+}

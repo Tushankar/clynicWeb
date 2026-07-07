@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { UserPlus, Users, Download, Eye, Trash2, RotateCcw } from 'lucide-react';
 import { PageHeader, DataTable, Avatar } from '@/components/primitives';
 import { Button } from '@/components/ui/button';
-import { usePatients, useDeletedPatients, useRestorePatient } from '@/hooks/usePatients';
+import { usePatients, useDeletedPatients, useRestorePatient, useDeletePatient } from '@/hooks/usePatients';
 import { useHasRole } from '@/hooks/useRole';
 import { useFeature } from '@/hooks/usePlan';
 import { useExportCsv } from '@/hooks/useExport';
@@ -34,11 +34,23 @@ export default function PatientsPage() {
   const patients = data?.items || [];
   const deleted = useDeletedPatients(isOwner && showDeleted);
   const restore = useRestorePatient();
+  const del = useDeletePatient();
 
   const doRestore = async (p) => {
     try {
       await restore.mutateAsync(p._id);
       toast.success(`${p.name} restored`);
+    } catch (e) {
+      toastApiError(e);
+    }
+  };
+
+  const doDelete = async (p) => {
+    // Soft delete — recoverable from the "Recently deleted" view — but still confirm the intent.
+    if (!window.confirm(`Delete ${p.name}? Their record moves to "Recently deleted" and can be restored.`)) return;
+    try {
+      await del.mutateAsync(p._id);
+      toast.success(`${p.name} moved to Recently deleted`);
     } catch (e) {
       toastApiError(e);
     }
@@ -85,13 +97,27 @@ export default function PatientsPage() {
       header: '',
       align: 'right',
       render: (p) => (
-        <Button
-          size="sm"
-          className="h-8 px-3 text-xs"
-          onClick={(e) => { e.stopPropagation(); navigate(`/dashboard/patients/${p._id}`); }}
-        >
-          <Eye className="h-3.5 w-3.5" /> View
-        </Button>
+        <span className="flex justify-end gap-1">
+          <Button
+            size="sm"
+            className="h-8 px-3 text-xs"
+            onClick={(e) => { e.stopPropagation(); navigate(`/dashboard/patients/${p._id}`); }}
+          >
+            <Eye className="h-3.5 w-3.5" /> View
+          </Button>
+          {isOwner && (
+            <Button
+              size="sm"
+              variant="ghost"
+              className="h-8 px-2 text-xs text-muted-foreground hover:text-destructive"
+              disabled={del.isPending}
+              aria-label={`Delete ${p.name}`}
+              onClick={(e) => { e.stopPropagation(); doDelete(p); }}
+            >
+              <Trash2 className="h-3.5 w-3.5" />
+            </Button>
+          )}
+        </span>
       ),
     },
   ];

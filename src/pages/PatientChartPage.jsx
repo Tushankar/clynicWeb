@@ -15,7 +15,7 @@ import { TimelineTab } from '@/components/chart/TimelineTab';
 import { PatientFormDialog } from '@/components/patients/PatientFormDialog';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
 import { usePatientDetail } from '@/hooks/usePatients';
-import { usePrescriptions, useDeletePrescription, useSharePrescription, useNotes, useCreateNote, useLabs, useCreateLab, useSetLabStatus } from '@/hooks/useClinical';
+import { usePrescriptions, useDeletePrescription, useSharePrescription, useNotes, useCreateNote, useDeleteNote, useLabs, useCreateLab, useSetLabStatus, useRecordLabResults } from '@/hooks/useClinical';
 import { useGenerateVisitSummary, useAiDrafts, useApproveDraft, useRejectDraft } from '@/hooks/useAi';
 import { useCreateRecall } from '@/hooks/useSchedule';
 import { useSetStatus } from '@/hooks/useAppointments';
@@ -344,6 +344,7 @@ function NotesTab({ patientId }) {
   const hasAi = useFeature('AI_FEATURES');
   const { data, isLoading, isError, error, refetch } = useNotes(patientId);
   const create = useCreateNote();
+  const del = useDeleteNote();
   const genSummary = useGenerateVisitSummary();
   // Pending AI drafts for THIS patient — surfaced inline (doctor/owner only, AI plans only).
   // The request is already patient-scoped; the extra filter guarantees another patient's
@@ -356,6 +357,10 @@ function NotesTab({ patientId }) {
   const add = async () => {
     if (!content.trim()) return;
     try { await create.mutateAsync({ patientId, content }); setContent(''); toast.success('Note added'); } catch (e) { toastApiError(e); }
+  };
+
+  const remove = async (n) => {
+    try { await del.mutateAsync(n._id); toast.success('Note deleted'); } catch (e) { toastApiError(e); }
   };
 
   const draftSummary = async () => {
@@ -391,7 +396,10 @@ function NotesTab({ patientId }) {
       ) : (
         items.map((n) => (
           <Card key={n._id} className="p-4">
-            <div className="text-caption text-muted-foreground">{fmtDateTime(n.createdAt)} {n.doctorName ? `· ${n.doctorName}` : ''}</div>
+            <div className="flex items-start justify-between gap-3">
+              <div className="text-caption text-muted-foreground">{fmtDateTime(n.createdAt)} {n.doctorName ? `· ${n.doctorName}` : ''}</div>
+              {canManage && <Button variant="ghost" size="icon" className="text-muted-foreground" onClick={() => remove(n)}><Trash2 className="h-4 w-4" /></Button>}
+            </div>
             <p className="mt-1 whitespace-pre-wrap text-sm">{n.content}</p>
           </Card>
         ))
@@ -427,24 +435,97 @@ function LabsTab({ patientId }) {
       {isLoading ? <LoadingSkeleton lines={3} /> : isError ? <ErrorBox error={error} onRetry={refetch} /> : items.length === 0 ? (
         <Empty icon={FlaskConical} title="No lab requests" />
       ) : (
-        items.map((lab) => (
-          <Card key={lab._id} className="flex items-center justify-between gap-3 p-4">
-            <div>
-              <div className="text-sm font-medium">{lab.tests.join(', ')}</div>
-              <div className="text-caption text-muted-foreground">{fmtDateTime(lab.createdAt)}</div>
-            </div>
-            {canManage ? (
-              <Select value={lab.status} onValueChange={(v) => setStatus.mutate({ id: lab._id, status: v })}>
-                <SelectTrigger className="w-36"><SelectValue /></SelectTrigger>
-                <SelectContent>{LAB_STATUS.map((s) => <SelectItem key={s} value={s} className="capitalize">{s}</SelectItem>)}</SelectContent>
-              </Select>
-            ) : (
-              <span className="text-sm capitalize text-muted-foreground">{lab.status}</span>
-            )}
-          </Card>
-        ))
+        items.map((lab) => <LabCard key={lab._id} lab={lab} canManage={canManage} setStatus={setStatus} />)
       )}
     </div>
+  );
+}
+
+function LabCard({ lab, canManage, setStatus }) {
+  const record = useRecordLabResults();
+  const [editing, setEditing] = useState(false);
+  // One editable row per ordered test, pre-filled from any saved results.
+  const [rows, setRows] = useState(() =>
+    (lab.tests || []).map((t) => {
+      const prior = (lab.results || []).find((r) => r.test === t) || {};
+      return { test: t, value: prior.value || '', unit: prior.unit || '', refRange: prior.refRange || '', flag: prior.flag || '' };
+    })
+  );
+  const [resultNotes, setResultNotes] = useState(lab.resultNotes || '');
+  const setRow = (i, patch) => setRows((rs) => rs.map((r, idx) => (idx === i ? { ...r, ...patch } : r)));
+
+  const save = async () => {
+    try {
+      await record.mutateAsync({ id: lab._id, results: rows, resultNotes });
+      setEditing(false);
+      toast.success('Results saved');
+    } catch (e) { toastApiError(e); }
+  };
+
+  const hasResults = (lab.results || []).length > 0 || lab.resultNotes;
+
+  return (
+    <Card className="p-4">
+      <div className="flex items-start justify-between gap-3">
+        <div>
+          <div className="text-sm font-medium">{lab.tests.join(', ')}</div>
+          <div className="text-caption text-muted-foreground">{fmtDateTime(lab.createdAt)}</div>
+        </div>
+        <div className="flex items-center gap-2">
+          {canManage ? (
+            <Select value={lab.status} onValueChange={(v) => setStatus.mutate({ id: lab._id, status: v })}>
+              <SelectTrigger className="w-32"><SelectValue /></SelectTrigger>
+              <SelectContent>{LAB_STATUS.map((s) => <SelectItem key={s} value={s} className="capitalize">{s}</SelectItem>)}</SelectContent>
+            </Select>
+          ) : (
+            <span className="text-sm capitalize text-muted-foreground">{lab.status}</span>
+          )}
+          {canManage && (
+            <Button variant="outline" size="sm" onClick={() => setEditing((v) => !v)}>{hasResults ? 'Edit results' : 'Enter results'}</Button>
+          )}
+        </div>
+      </div>
+
+      {/* Read-only results view when present and not editing. */}
+      {hasResults && !editing && (
+        <div className="mt-3 rounded-md border border-border/60 p-2 text-sm">
+          {(lab.results || []).map((r, i) => (
+            <div key={i} className="flex flex-wrap gap-x-2 text-muted-foreground">
+              <span className="font-medium text-foreground">{r.test}</span>
+              <span>{r.value}{r.unit ? ` ${r.unit}` : ''}</span>
+              {r.refRange && <span>· ref {r.refRange}</span>}
+              {r.flag && <span className={r.flag === 'normal' ? 'text-success' : 'text-warning'}>· {r.flag}</span>}
+            </div>
+          ))}
+          {lab.resultNotes && <p className="mt-1 whitespace-pre-wrap text-foreground">{lab.resultNotes}</p>}
+        </div>
+      )}
+
+      {/* Result entry editor. */}
+      {canManage && editing && (
+        <div className="mt-3 space-y-2 rounded-md border border-border/60 p-3">
+          {rows.map((r, i) => (
+            <div key={i} className="grid grid-cols-1 gap-2 sm:grid-cols-[1fr_1fr_0.7fr_1fr_0.9fr]">
+              <div className="self-center text-sm font-medium">{r.test}</div>
+              <Input value={r.value} onChange={(e) => setRow(i, { value: e.target.value })} placeholder="Value" />
+              <Input value={r.unit} onChange={(e) => setRow(i, { unit: e.target.value })} placeholder="Unit" />
+              <Input value={r.refRange} onChange={(e) => setRow(i, { refRange: e.target.value })} placeholder="Ref range" />
+              <Select value={r.flag || 'none'} onValueChange={(v) => setRow(i, { flag: v === 'none' ? '' : v })}>
+                <SelectTrigger><SelectValue placeholder="Flag" /></SelectTrigger>
+                <SelectContent>
+                  {['none', 'normal', 'low', 'high', 'abnormal'].map((f) => <SelectItem key={f} value={f} className="capitalize">{f}</SelectItem>)}
+                </SelectContent>
+              </Select>
+            </div>
+          ))}
+          <Textarea value={resultNotes} onChange={(e) => setResultNotes(e.target.value)} placeholder="Interpretation / notes (optional)" />
+          <div className="flex justify-end gap-2">
+            <Button variant="ghost" size="sm" onClick={() => setEditing(false)}>Cancel</Button>
+            <Button size="sm" onClick={save} disabled={record.isPending}>Save results &amp; complete</Button>
+          </div>
+        </div>
+      )}
+    </Card>
   );
 }
 
