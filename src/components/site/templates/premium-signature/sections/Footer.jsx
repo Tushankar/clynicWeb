@@ -70,9 +70,9 @@ export default function Footer({ m, basePath = '' }) {
   const anchor = (href) => (basePath ? `${basePath}${href}` : href);
   const navLinks = buildNavLinks(m).filter((l) => l.href !== '#top');
 
+  // Extra bottom padding leaves room for the floating "Shop medicines" / mobile action bar,
+  // which is fixed above the fold and would otherwise sit on top of the legal row.
   return (
-    {/* Extra bottom padding leaves room for the floating "Shop medicines" / mobile action bar,
-        which is fixed above the fold and would otherwise sit on top of the legal row. */}
     <footer className="relative bg-[#012F24] text-white rounded-t-[3rem] overflow-hidden pt-24 pb-28 sm:pb-20 select-none border-t border-white/5" aria-label="Footer">
       <div className="mx-auto max-w-7xl px-6">
 
