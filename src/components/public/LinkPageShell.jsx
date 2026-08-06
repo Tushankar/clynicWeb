@@ -21,7 +21,7 @@ export function LinkShell({ clinic, badge, children, wide = false }) {
             {clinic?.logoUrl ? (
               <img src={clinic.logoUrl} alt="" className="h-8 w-auto object-contain" />
             ) : (
-              <span className="pmx-display truncate text-[17px] font-semibold tracking-tight text-[#0A1B3A]">
+              <span className="pmx-display truncate text-[17px] font-semibold tracking-tight text-[#012F24]">
                 {clinic?.name || 'Clinic'}
               </span>
             )}
@@ -34,7 +34,7 @@ export function LinkShell({ clinic, badge, children, wide = false }) {
           {tel && (
             <a
               href={`tel:${tel}`}
-              className="flex h-9 items-center gap-2 rounded-full border border-slate-200 bg-white px-3.5 text-[13px] font-semibold text-slate-700 transition-colors hover:border-emerald-500/40 hover:text-[#0A1B3A]"
+              className="flex h-9 items-center gap-2 rounded-full border border-slate-200 bg-white px-3.5 text-[13px] font-semibold text-slate-700 transition-colors hover:border-emerald-500/40 hover:text-[#012F24]"
             >
               <Phone className="h-3.5 w-3.5 text-emerald-600" aria-hidden="true" />
               <span className="hidden sm:inline">{clinic.phone}</span>
@@ -75,7 +75,7 @@ export function LinkError({ title = 'This link is no longer valid', message }) {
       <PmxStyles />
       <div className="w-full max-w-md rounded-[28px] border border-slate-200/80 bg-white p-8 text-center shadow-[0_24px_60px_-24px_rgba(10,27,58,0.18)]">
         <Logo className="mx-auto h-8" />
-        <h1 className="pmx-display mt-6 text-xl font-semibold tracking-tight text-[#0A1B3A]">{title}</h1>
+        <h1 className="pmx-display mt-6 text-xl font-semibold tracking-tight text-[#012F24]">{title}</h1>
         <p className="mt-2 text-sm leading-relaxed text-slate-500">
           {message || 'The link may have expired or already been used. Please contact the clinic if you need help.'}
         </p>
@@ -89,12 +89,12 @@ export function TicketPanel({ children, className }) {
   return (
     <section
       className={cn(
-        'pmx-dark relative overflow-hidden rounded-[28px] bg-[#0A1B3A] p-6 text-white shadow-[0_32px_80px_-28px_rgba(10,27,58,0.55)] sm:p-8',
+        'pmx-dark relative overflow-hidden rounded-[28px] bg-[#012F24] p-6 text-white shadow-[0_32px_80px_-28px_rgba(10,27,58,0.55)] sm:p-8',
         className
       )}
     >
       <div aria-hidden="true" className="pointer-events-none absolute -right-20 -top-24 h-64 w-64 rounded-full bg-emerald-400/15 blur-3xl" />
-      <div aria-hidden="true" className="pointer-events-none absolute -bottom-28 -left-16 h-64 w-64 rounded-full bg-sky-400/10 blur-3xl" />
+      <div aria-hidden="true" className="pointer-events-none absolute -bottom-28 -left-16 h-64 w-64 rounded-full bg-[#0BB89F]/12 blur-3xl" />
       <div className="relative">{children}</div>
     </section>
   );

@@ -5,9 +5,10 @@
  */
 import { useState, useEffect } from 'react';
 import { motion, useReducedMotion } from 'framer-motion';
-import { CalendarPlus, ArrowRight, Users, Stethoscope, Clock, Star, Video, CheckCircle2, Calendar, ChevronRight } from 'lucide-react';
+import { CalendarPlus, ArrowRight, Video, CheckCircle2, Calendar, ChevronRight, ShoppingBag } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { EASE, FloatY } from '../motion';
+import { buildHeroStats, initials } from '../lib';
 
 const TEAL = '#0A6A56';
 const TEAL_DARK = '#074C3D';
@@ -28,12 +29,12 @@ function Enter({ children, delay = 0, className }) {
 }
 
 export default function Hero({ m }) {
-  const STATS = [
-    { icon: Users, value: '50,000+', label: 'Patients' },
-    { icon: Stethoscope, value: '500+', label: 'Doctors' },
-    { icon: Clock, value: '24/7', label: 'Support' },
-    { icon: Star, value: '98%', label: 'Satisfaction' },
-  ];
+  // Every stat is derived from what the clinic actually published (doctors, services,
+  // experience, approved reviews) — never an invented figure.
+  const STATS = buildHeroStats(m);
+  // The doctors shown in the "online now" cluster are the clinic's real, active doctors.
+  const featuredDoctors = m.doctors.slice(0, 3);
+  const nextDoctor = m.doctors[0];
 
   return (
     <section className="relative bg-white w-full select-none overflow-x-clip min-h-screen flex flex-col" aria-label="Welcome">
@@ -73,9 +74,9 @@ export default function Hero({ m }) {
               <stop offset="100%" stopColor="#D97706" stopOpacity="0" />
             </linearGradient>
             <linearGradient id="purpleGrad" x1="0" y1="0" x2="1" y2="0">
-              <stop offset="0%" stopColor="#6366F1" stopOpacity="0" />
-              <stop offset="40%" stopColor="#4F46E5" stopOpacity="0.65" />
-              <stop offset="100%" stopColor="#4F46E5" stopOpacity="0" />
+              <stop offset="0%" stopColor="#34D399" stopOpacity="0" />
+              <stop offset="40%" stopColor="#0A6A56" stopOpacity="0.65" />
+              <stop offset="100%" stopColor="#0A6A56" stopOpacity="0" />
             </linearGradient>
           </defs>
           
@@ -90,16 +91,18 @@ export default function Hero({ m }) {
           <circle cx="340" cy="445" r="8.5" stroke="#0BB89F" strokeOpacity="0.4" strokeWidth="1.5" className="hidden sm:block" />
           
           {/* Purple dot slightly to the right */}
-          <circle cx="480" cy="470" r="3.5" fill="#6366F1" className="hidden sm:block" />
+          <circle cx="480" cy="470" r="3.5" fill="#0A6A56" className="hidden sm:block" />
           
           {/* Yellow anchor dot on the right side */}
           <circle cx="1120" cy="326" r="4.5" fill="#F59E0B" className="hidden sm:block" />
           <circle cx="1120" cy="326" r="8.5" stroke="#F59E0B" strokeOpacity="0.4" strokeWidth="1.5" className="hidden sm:block" />
         </svg>
 
-        {/* Floating text badge connected to the yellow dot */}
-        <div className="absolute left-[78.5%] top-[40.8%] transform -translate-y-1/2 hidden xl:flex items-center gap-2 bg-white/60 backdrop-blur-md border border-slate-200/80 px-3 py-1 rounded-full shadow-sm z-20">
-          <span className="text-[10px] font-bold tracking-wider text-slate-700 uppercase">Supporting Working Parents</span>
+        {/* Floating text badge connected to the yellow dot — the clinic's own positioning line */}
+        <div className="absolute left-[78.5%] top-[40.8%] transform -translate-y-1/2 hidden xl:flex items-center gap-2 bg-white/60 backdrop-blur-md border border-slate-200/80 px-3 py-1 rounded-full shadow-sm z-20 max-w-[220px]">
+          <span className="text-[10px] font-bold tracking-wider text-slate-700 uppercase truncate">
+            {m.city ? `Trusted care in ${m.city}` : 'Care that puts you first'}
+          </span>
         </div>
       </div>
 
@@ -113,16 +116,22 @@ export default function Hero({ m }) {
           <div className="flex-1 lg:flex-[0_0_50%] text-center lg:text-left flex flex-col justify-center">
 
             <Enter delay={0.05}>
-              <h1 className="text-[2.2rem] sm:text-[2.6rem] lg:text-[2.9rem] xl:text-[3.2rem] font-extrabold leading-[1.12] tracking-tight text-[#1A1A2E]">
-                Your Trusted Digital{' '}
-                <br className="hidden sm:block" />
-                <span style={{ color: TEAL }}>Healthcare</span> Partner
+              <h1 className="text-[2.2rem] sm:text-[2.6rem] lg:text-[2.9rem] xl:text-[3.2rem] font-extrabold leading-[1.12] tracking-tight text-[#1A1A2E] text-balance">
+                {m.hero.headline ? (
+                  m.hero.headline
+                ) : (
+                  <>
+                    Your Trusted Digital{' '}
+                    <br className="hidden sm:block" />
+                    <span style={{ color: TEAL }}>Healthcare</span> Partner
+                  </>
+                )}
               </h1>
             </Enter>
 
             <Enter delay={0.12}>
               <p className="mt-2.5 sm:mt-3 text-[14px] sm:text-[15px] leading-relaxed text-[#5A6B7D] max-w-md mx-auto lg:mx-0">
-                {m.hero.tagline || 'Book appointments, consult expert doctors, order medicines, and manage your healthcare in one place.'}
+                {m.hero.tagline}
               </p>
             </Enter>
 
@@ -163,35 +172,70 @@ export default function Hero({ m }) {
                 Explore Services
                 <ArrowRight className="h-4 w-4 transition-transform duration-200 group-hover:translate-x-0.5" />
               </a>
+              {/* Online pharmacy — only when the clinic actually has a storefront */}
+              {m.store ? (
+                <Link
+                  to={m.storeHref}
+                  className="group inline-flex h-[46px] items-center justify-center gap-2 rounded-full px-6 text-[14px] font-semibold text-[#4A5568] transition-all duration-200 hover:-translate-y-0.5 hover:text-[#0E8C72]"
+                >
+                  <ShoppingBag className="h-4 w-4" aria-hidden="true" />
+                  Shop medicines
+                </Link>
+              ) : null}
             </Enter>
 
-            {/* Trust badges */}
+            {/* Trust row — the clinic's real doctors and, when rated, its real review score */}
             <Enter delay={0.28} className="mt-4 sm:mt-5 flex flex-wrap items-center justify-center lg:justify-start gap-5">
-              <div className="flex items-center gap-2">
-                <div className="flex -space-x-2">
-                  {[0, 1, 2, 3].map((i) => (
-                    <div key={i} className="h-7 w-7 rounded-full border-2 border-white flex items-center justify-center text-[9px] font-bold text-white shadow-sm"
-                      style={{ background: [`linear-gradient(135deg, ${TEAL}, #0BB89F)`, 'linear-gradient(135deg, #4F46E5, #7C3AED)', 'linear-gradient(135deg, #2563EB, #3B82F6)', 'linear-gradient(135deg, #D97706, #F59E0B)'][i] }}
-                    >{['JR', 'AS', 'KM', 'NP'][i]}</div>
-                  ))}
+              {m.doctors.length ? (
+                <div className="flex items-center gap-2">
+                  <div className="flex -space-x-2">
+                    {m.doctors.slice(0, 4).map((d, i) => (
+                      <div
+                        key={d.id}
+                        title={d.name}
+                        className="h-7 w-7 overflow-hidden rounded-full border-2 border-white flex items-center justify-center text-[9px] font-bold text-white shadow-sm"
+                        style={{ background: [`linear-gradient(135deg, ${TEAL}, #0BB89F)`, 'linear-gradient(135deg, #012F24, #0A6A56)', 'linear-gradient(135deg, #0A6A56, #34D399)', 'linear-gradient(135deg, #0E8C72, #6EE7B7)'][i % 4] }}
+                      >
+                        {d.photoUrl ? (
+                          <img src={d.photoUrl} alt="" className="h-full w-full object-cover" />
+                        ) : (
+                          initials(d.name)
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                  <div className="text-left">
+                    <span className="text-[12px] font-bold text-[#1A1A2E] block leading-tight">
+                      {m.doctors.length} {m.doctors.length === 1 ? 'doctor' : 'doctors'} available
+                    </span>
+                    <span className="text-[10px] text-[#5A6B7D]">Book with any of them online</span>
+                  </div>
                 </div>
-                <div className="text-left">
-                  <span className="text-[12px] font-bold text-[#1A1A2E] block leading-tight">Trust Users</span>
-                  <span className="text-[10px] text-[#5A6B7D]">Trust Badge</span>
-                </div>
-              </div>
+              ) : null}
 
-              <div className="h-7 w-px bg-slate-200 hidden sm:block" />
+              {m.doctors.length && (m.reviews.length || m.city) ? <div className="h-7 w-px bg-slate-200 hidden sm:block" /> : null}
 
-              <div className="flex items-center gap-2">
-                <div className="h-8 w-8 rounded-lg flex items-center justify-center" style={{ background: TEAL_LIGHT }}>
-                  <CheckCircle2 className="h-4 w-4" style={{ color: TEAL }} />
+              {m.reviews.length ? (
+                <div className="flex items-center gap-2">
+                  <div className="h-8 w-8 rounded-lg flex items-center justify-center" style={{ background: TEAL_LIGHT }}>
+                    <CheckCircle2 className="h-4 w-4" style={{ color: TEAL }} />
+                  </div>
+                  <div className="text-left">
+                    <span className="text-[12px] font-bold text-[#1A1A2E] block leading-tight">{m.rating} out of 5</span>
+                    <span className="text-[10px] text-[#5A6B7D]">From {m.reviews.length} verified {m.reviews.length === 1 ? 'review' : 'reviews'}</span>
+                  </div>
                 </div>
-                <div className="text-left">
-                  <span className="text-[12px] font-bold text-[#1A1A2E] block leading-tight">Ensure Badges</span>
-                  <span className="text-[10px] text-[#5A6B7D]">Organization</span>
+              ) : m.city ? (
+                <div className="flex items-center gap-2">
+                  <div className="h-8 w-8 rounded-lg flex items-center justify-center" style={{ background: TEAL_LIGHT }}>
+                    <CheckCircle2 className="h-4 w-4" style={{ color: TEAL }} />
+                  </div>
+                  <div className="text-left">
+                    <span className="text-[12px] font-bold text-[#1A1A2E] block leading-tight">{m.city}</span>
+                    <span className="text-[10px] text-[#5A6B7D]">Trusted local care</span>
+                  </div>
                 </div>
-              </div>
+              ) : null}
             </Enter>
 
             {/* ── Stats — Moved here ── */}
@@ -260,16 +304,14 @@ export default function Hero({ m }) {
                       </span>
                     ))}
                   </div>
-                  {/* Appointment entries */}
+                  {/* Bookable doctors — the clinic's real roster and specialisations */}
                   <div className="space-y-1">
-                    {[
-                      { time: '09:30', name: 'Dr. Sarah M.', tag: 'Checkup' },
-                      { time: '11:00', name: 'Dr. Rajesh K.', tag: 'Follow-up' },
-                    ].map((a, i) => (
-                      <div key={i} className="flex items-center gap-1.5 bg-white/35 backdrop-blur-sm rounded-md px-2 py-1 border border-white/20">
-                        <span className="text-[8px] font-semibold text-[#9CA3AF] w-[30px] shrink-0">{a.time}</span>
-                        <span className="text-[9px] font-semibold text-[#1A1A2E] truncate flex-1">{a.name}</span>
-                        <span className="text-[7px] font-bold px-1.5 py-0.5 rounded-full" style={{ background: TEAL_LIGHT, color: TEAL }}>{a.tag}</span>
+                    {(featuredDoctors.length ? featuredDoctors.slice(0, 2) : [{ id: 'x', name: 'Open slots today', specialization: 'Consultation' }]).map((d) => (
+                      <div key={d.id} className="flex items-center gap-1.5 bg-white/35 backdrop-blur-sm rounded-md px-2 py-1 border border-white/20">
+                        <span className="text-[9px] font-semibold text-[#1A1A2E] truncate flex-1">{d.name}</span>
+                        <span className="text-[7px] font-bold px-1.5 py-0.5 rounded-full truncate max-w-[70px]" style={{ background: TEAL_LIGHT, color: TEAL }}>
+                          {d.specialization || 'General'}
+                        </span>
                       </div>
                     ))}
                   </div>
@@ -296,19 +338,21 @@ export default function Hero({ m }) {
                   style={{ backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' }}
                 >
                   <div className="flex items-center gap-1.5 mb-1.5">
-                    <div className="h-5 w-5 rounded-md flex items-center justify-center" style={{ background: '#EEF2FF' }}>
-                      <Calendar className="h-3 w-3 text-indigo-500" />
+                    <div className="h-5 w-5 rounded-md flex items-center justify-center" style={{ background: TEAL_LIGHT }}>
+                      <Calendar className="h-3 w-3" style={{ color: TEAL }} />
                     </div>
-                    <span className="text-[10px] font-bold text-[#1A1A2E]">Today Appointments</span>
+                    <span className="text-[10px] font-bold text-[#1A1A2E]">Next available</span>
                   </div>
-                  <div className="flex items-center gap-1.5 bg-white/35 backdrop-blur-sm rounded-md px-2 py-1 border border-white/20">
-                    <div className="h-5 w-5 rounded-full bg-gradient-to-br from-orange-400 to-orange-500 flex items-center justify-center text-[7px] text-white font-bold">AK</div>
-                    <div>
-                      <span className="text-[9px] font-semibold text-[#1A1A2E] block leading-tight">Arjun K.</span>
-                      <span className="text-[7px] text-[#9CA3AF]">2:30 PM</span>
+                  <Link to={m.bookHref} className="flex items-center gap-1.5 bg-white/35 backdrop-blur-sm rounded-md px-2 py-1 border border-white/20 transition-colors hover:bg-white/60">
+                    <div className="h-5 w-5 overflow-hidden rounded-full bg-gradient-to-br from-orange-400 to-orange-500 flex items-center justify-center text-[7px] text-white font-bold shrink-0">
+                      {nextDoctor?.photoUrl ? <img src={nextDoctor.photoUrl} alt="" className="h-full w-full object-cover" /> : initials(nextDoctor?.name || m.name)}
                     </div>
-                    <ChevronRight className="h-3 w-3 text-slate-300 ml-auto" />
-                  </div>
+                    <div className="min-w-0">
+                      <span className="text-[9px] font-semibold text-[#1A1A2E] block leading-tight truncate">{nextDoctor?.name || m.name}</span>
+                      <span className="text-[7px] text-[#9CA3AF] truncate block">{nextDoctor?.specialization || 'Book online'}</span>
+                    </div>
+                    <ChevronRight className="h-3 w-3 text-slate-300 ml-auto shrink-0" />
+                  </Link>
                 </div>
               </Enter>
             </FloatY>
@@ -332,11 +376,15 @@ export default function Hero({ m }) {
                   </div>
                   <div className="mt-2 flex items-center gap-2">
                     <div className="flex -space-x-1.5">
-                      {[TEAL, '#4F46E5', '#2563EB'].map((c, i) => (
-                        <div key={i} className="h-5 w-5 rounded-full border-[1.5px] border-white" style={{ background: c }} />
+                      {(featuredDoctors.length ? featuredDoctors : [1, 2, 3]).map((d, i) => (
+                        <div key={d?.id || i} className="h-5 w-5 overflow-hidden rounded-full border-[1.5px] border-white" style={{ background: [TEAL, '#012F24', '#0BB89F'][i % 3] }}>
+                          {d?.photoUrl ? <img src={d.photoUrl} alt="" className="h-full w-full object-cover" /> : null}
+                        </div>
                       ))}
                     </div>
-                    <span className="text-[9px] font-medium text-[#5A6B7D]">12+ doctors online</span>
+                    <span className="text-[9px] font-medium text-[#5A6B7D]">
+                      {m.doctors.length ? `${m.doctors.length} ${m.doctors.length === 1 ? 'doctor' : 'doctors'} at ${m.name}` : 'Consult our care team'}
+                    </span>
                   </div>
                 </div>
               </Enter>

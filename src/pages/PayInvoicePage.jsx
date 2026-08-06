@@ -123,7 +123,7 @@ export default function PayInvoicePage() {
             <div className="flex justify-between text-emerald-700"><span>Paid</span><span className="tabular-nums">− {inr(inv.amountPaid)}</span></div>
           )}
           {!settled && (
-            <div className="flex justify-between border-t border-slate-200/70 pt-2 text-[15px] font-semibold text-[#0A1B3A]">
+            <div className="flex justify-between border-t border-slate-200/70 pt-2 text-[15px] font-semibold text-[#012F24]">
               <span>Amount due</span><span className="tabular-nums">{inr(inv.balance)}</span>
             </div>
           )}
@@ -137,7 +137,7 @@ export default function PayInvoicePage() {
           type="button"
           onClick={pay}
           disabled={busy}
-          className="mt-6 flex h-13 w-full items-center justify-center gap-2.5 rounded-2xl bg-[#0A1B3A] py-4 text-[15px] font-semibold text-white shadow-[0_16px_36px_-10px_rgba(10,27,58,0.5)] transition-all duration-200 hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2"
+          className="mt-6 flex h-13 w-full items-center justify-center gap-2.5 rounded-2xl bg-[#012F24] py-4 text-[15px] font-semibold text-white shadow-[0_16px_36px_-10px_rgba(10,27,58,0.5)] transition-all duration-200 hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2"
         >
           {busy ? <Loader2 className="h-4.5 w-4.5 animate-spin" aria-hidden="true" /> : <CreditCard className="h-4.5 w-4.5 text-emerald-300" aria-hidden="true" />}
           {busy ? 'Opening secure checkout…' : `Pay ${inr(inv.balance)} securely`}

@@ -8,7 +8,7 @@
  * feels like one product.
  */
 import { Fragment, useEffect, useMemo, useRef, useState } from 'react';
-import { Link, useParams } from 'react-router-dom';
+import { Link, useParams, useSearchParams } from 'react-router-dom';
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
 import { QRCodeSVG } from 'qrcode.react';
 import { addDays, format } from 'date-fns';
@@ -55,6 +55,7 @@ const INPUT =
 
 export default function PublicBookingPage() {
   const { slug } = useParams();
+  const [searchParams] = useSearchParams();
   const [clinic, setClinic] = useState(null);
   const [doctors, setDoctors] = useState([]);
   const [loadError, setLoadError] = useState(null);
@@ -87,12 +88,21 @@ export default function PublicBookingPage() {
         const data = await apiFetch(`/api/public/c/${slug}`, { auth: false });
         setClinic(data.clinic);
         setDoctors(data.doctors);
+        // Deep link from the website's doctor cards (?doctorId=…): preselect that doctor and
+        // jump straight to picking a time. Ignored silently if the id isn't bookable.
+        const wanted = searchParams.get('doctorId');
+        if (wanted && data.doctors.some((d) => d.id === wanted)) {
+          setDoctorId(wanted);
+          setStep(1);
+        }
       } catch (e) {
         setLoadError(e.message);
       } finally {
         setLoading(false);
       }
     })();
+    // searchParams is read once on load — re-running on every query change would fight the wizard.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [slug]);
 
   useEffect(() => {
@@ -178,7 +188,7 @@ export default function PublicBookingPage() {
       <PmxStyles />
       {/* ambient lighting */}
       <Blob className="-right-48 -top-48" from="rgba(16,185,129,0.13)" size={640} />
-      <Blob className="-left-56 top-[420px]" from="rgba(37,99,235,0.09)" size={560} />
+      <Blob className="-left-56 top-[420px]" from="rgba(11,184,159,0.10)" size={560} />
       <div aria-hidden="true" className="pmx-grid absolute inset-x-0 top-0 -z-10 h-[480px] opacity-60" />
 
       {/* chrome — the site's floating glass navbar when the site is published, else a slim bar */}
@@ -425,7 +435,7 @@ export default function PublicBookingPage() {
 function PrepayScreen({ result, doctor, busy, onPay }) {
   return (
     <div className="flex flex-col items-center py-4 text-center">
-      <span className="flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-[#0A1B3A] to-[#12306B] text-white shadow-[0_16px_40px_-12px_rgba(10,27,58,0.5)]">
+      <span className="flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-[#012F24] to-[#0A6A56] text-white shadow-[0_16px_40px_-12px_rgba(10,27,58,0.5)]">
         <ShieldCheck className="h-7 w-7" aria-hidden="true" />
       </span>
       <h2 className="pmx-display mt-5 text-2xl font-semibold tracking-[-0.02em]">Almost done — pay to confirm</h2>
@@ -492,7 +502,7 @@ function SuccessScreen({ result, doctor, clinic }) {
         animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
         transition={{ duration: 0.6, delay: 0.2, ease: EASE }}
         className="relative mt-8 w-full max-w-sm overflow-hidden rounded-[1.75rem] text-white"
-        style={{ background: 'linear-gradient(140deg,#060E22 0%,#0A1B3A 55%,#0C2B47 100%)', boxShadow: '0 32px 72px -24px rgba(6,14,34,0.5)' }}
+        style={{ background: 'linear-gradient(140deg,#060E22 0%,#012F24 55%,#0C2B47 100%)', boxShadow: '0 32px 72px -24px rgba(6,14,34,0.5)' }}
       >
         <div aria-hidden="true" className="pmx-plus absolute inset-0 opacity-[0.12]" />
         <div
@@ -596,7 +606,7 @@ function PublicFaq({ slug }) {
           type="button"
           onClick={ask}
           disabled={loading}
-          className="inline-flex h-12 shrink-0 items-center gap-1.5 rounded-2xl bg-[#0A1B3A] px-5 text-sm font-semibold text-white transition-all hover:shadow-[0_12px_28px_-10px_rgba(10,27,58,0.5)] disabled:opacity-50"
+          className="inline-flex h-12 shrink-0 items-center gap-1.5 rounded-2xl bg-[#012F24] px-5 text-sm font-semibold text-white transition-all hover:shadow-[0_12px_28px_-10px_rgba(10,27,58,0.5)] disabled:opacity-50"
         >
           {loading ? <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" /> : 'Ask'}
         </button>
@@ -663,7 +673,7 @@ function PublicSymptomIntake({ slug, appointmentId }) {
               type="button"
               onClick={submit}
               disabled={busy || !text.trim()}
-              className="inline-flex items-center gap-2 rounded-2xl bg-[#0A1B3A] px-5 py-2.5 text-sm font-semibold text-white transition-all hover:shadow-[0_12px_28px_-10px_rgba(10,27,58,0.5)] disabled:opacity-40"
+              className="inline-flex items-center gap-2 rounded-2xl bg-[#012F24] px-5 py-2.5 text-sm font-semibold text-white transition-all hover:shadow-[0_12px_28px_-10px_rgba(10,27,58,0.5)] disabled:opacity-40"
             >
               {busy ? <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" /> : null}
               {busy ? 'Sharing…' : 'Share with doctor'}
@@ -734,7 +744,7 @@ function SummaryPanel({ clinic, doctor, slot, form, result }) {
   return (
     <aside
       className="relative hidden overflow-hidden rounded-[2rem] p-8 text-white lg:sticky lg:top-8 lg:block"
-      style={{ background: 'linear-gradient(150deg,#060E22 0%,#0A1B3A 60%,#0C2B47 110%)', boxShadow: '0 32px 72px -28px rgba(6,14,34,0.55)' }}
+      style={{ background: 'linear-gradient(150deg,#060E22 0%,#012F24 60%,#0C2B47 110%)', boxShadow: '0 32px 72px -28px rgba(6,14,34,0.55)' }}
       aria-label="Booking summary"
     >
       <div aria-hidden="true" className="pmx-grid-dark absolute inset-0 opacity-50" />
@@ -827,7 +837,7 @@ function Stepper({ step, onStepClick }) {
               <span
                 className={cn(
                   'flex h-9 w-9 items-center justify-center rounded-full border transition-all duration-300',
-                  done && 'border-transparent bg-[#0A1B3A] text-white group-hover:shadow-[0_8px_20px_-8px_rgba(10,27,58,0.5)]',
+                  done && 'border-transparent bg-[#012F24] text-white group-hover:shadow-[0_8px_20px_-8px_rgba(10,27,58,0.5)]',
                   active && 'border-emerald-500/60 bg-white text-emerald-700 ring-4 ring-emerald-500/15',
                   !done && !active && 'border-slate-200 bg-white text-slate-300'
                 )}
@@ -919,7 +929,7 @@ function DateStrip({ value, onChange }) {
               className={cn(
                 'flex flex-col items-center gap-0.5 rounded-2xl border py-2.5 transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500',
                 selected
-                  ? 'border-transparent bg-[#0A1B3A] text-white shadow-[0_10px_24px_-8px_rgba(10,27,58,0.45)] ring-2 ring-emerald-400/70 ring-offset-1'
+                  ? 'border-transparent bg-[#012F24] text-white shadow-[0_10px_24px_-8px_rgba(10,27,58,0.45)] ring-2 ring-emerald-400/70 ring-offset-1'
                   : 'border-slate-200/80 bg-white text-slate-600 hover:-translate-y-0.5 hover:border-emerald-500/40'
               )}
             >

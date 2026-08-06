@@ -8,28 +8,42 @@
  */
 
 // ---- palette ------------------------------------------------------------------------
+/**
+ * The one Clynic green ramp. These match the CSS tokens in index.css (--primary /
+ * --brand-*), so the public website, the booking flow, the storefront and the dashboard
+ * all read as a single product.
+ */
+export const BRAND = {
+  bright: '#0BB89F', // accents, glows
+  primary: '#0E8C72', // buttons, links, focus
+  deep: '#0A6A56', // hover / gradient end
+  forest: '#012F24', // dark surfaces
+  forestDeep: '#001f18',
+  tint: '#EBF6F3', // soft green wash
+};
+
 export const C = {
   bg: '#FAF8F5',
   ink: '#012F24', // near-black headings (forest dark)
   body: '#3A4D44', // dark forest muted
   muted: '#5A6E64',
-  navy: '#012F24', // Primary is forest green
+  navy: '#012F24', // legacy aliases — kept so existing call sites stay valid
   navy2: '#001f18',
   navyDeep: '#00100c',
-  em: '#012F24', // forest green
-  em2: '#012F24',
-  em3: '#004b3a',
+  em: '#0E8C72',
+  em2: '#0BB89F',
+  em3: '#0A6A56',
   line: 'rgba(1,47,36,0.08)',
 };
 
-// Gradient recipes reused across icon tiles / avatars — curated cool medical family.
+// Gradient recipes reused across icon tiles / avatars — all inside the brand green family.
 export const GRADIENTS = [
-  'linear-gradient(135deg,#012F24 0%,#004b3a 100%)', // forest
-  'linear-gradient(135deg,#012F24 0%,#1B4965 100%)', // forest green → navy
-  'linear-gradient(135deg,#012F24 0%,#38BDF8 100%)', // forest green → sky
-  'linear-gradient(135deg,#012F24 0%,#2DD4BF 100%)', // forest green → teal
-  'linear-gradient(135deg,#001f18 0%,#6EE7B7 100%)', // dark green → sea green
-  'linear-gradient(135deg,#012F24 0%,#60A5FA 100%)', // forest green → light blue
+  'linear-gradient(135deg,#012F24 0%,#0A6A56 100%)', // forest → deep
+  'linear-gradient(135deg,#0A6A56 0%,#0E8C72 100%)', // deep → primary
+  'linear-gradient(135deg,#0E8C72 0%,#0BB89F 100%)', // primary → bright
+  'linear-gradient(135deg,#012F24 0%,#2DD4BF 100%)', // forest → teal
+  'linear-gradient(135deg,#001f18 0%,#6EE7B7 100%)', // deep forest → sea green
+  'linear-gradient(135deg,#0A6A56 0%,#34D399 100%)', // deep → mint
 ];
 
 export const SHADOW = {
@@ -72,6 +86,8 @@ export const IMG = {
 // ---- tiny utils ----------------------------------------------------------------------
 export const cx = (...a) => a.filter(Boolean).join(' ');
 
+const str = (v) => (typeof v === 'string' ? v.trim() : '');
+
 export const initials = (name = '') =>
   name
     .replace(/^dr\.?\s+/i, '')
@@ -112,13 +128,16 @@ export function deriveModel(site, slug) {
   const services = content.services || [];
   const doctors = site.doctors || [];
   const reviews = site.reviews || [];
-  const gallery = (content.gallery || []).length ? content.gallery : IMG.galleryPool;
+  const pages = (site.pages || []).filter((p) => p && p.slug && p.title);
+  // Gallery is the clinic's OWN photos only — we never pad it with stock imagery, so the
+  // section (and its nav link) simply disappear until the owner uploads some.
+  const gallery = content.gallery || [];
 
   // The flagship (platform) site falls back to the real Clynic wordmark — the same
   // asset the dashboard sidebar uses. Tenant clinics keep the monogram fallback.
   const MAIN_SLUG = import.meta.env.VITE_MAIN_SITE_SLUG || 'clynic';
   const theme = site.theme || {};
-  const logoUrl = theme.logoUrl || (slug === MAIN_SLUG ? '/clynic.png' : '');
+  const logoUrl = theme.logoUrl || (slug === MAIN_SLUG ? '/clynic-logo.svg' : '');
 
   const rating = avgRating(reviews);
   const phone = contact.phone || clinic.phone || '';
@@ -132,25 +151,112 @@ export function deriveModel(site, slug) {
     name: clinic.name || 'Our Clinic',
     bookHref: `/c/${slug}/book`,
     portalHref: `/portal/${slug}`,
+    // Online pharmacy (Ultra Premium only). `site.store` is the plan flag from the API; when it
+    // is false the storefront routes 404, so every store affordance must stay hidden.
+    store: site.store === true,
+    storeHref: `/c/${slug}/store`,
+    pageHref: (pageSlug) => `/c/${slug}/p/${pageSlug}`,
     hero: {
-      headline: hero.headline || clinic.name || 'Healthcare, beautifully done',
+      // The CMS headline always wins; the flagship default only fills the gap.
+      headline: hero.headline || '',
       tagline:
         hero.tagline ||
         'Modern clinical care with same-day appointments, digital records and doctors who listen.',
-      imageUrl: hero.imageUrl || IMG.hero,
+      imageUrl: hero.imageUrl || '',
     },
     about: content.about || '',
     services,
     gallery,
     doctors,
     reviews,
-    pages: site.pages || [],
+    pages,
     contact: { ...contact, phone, whatsapp, address: contact.address || clinic.address || '' },
     mapEmbed: content.mapEmbed || '',
     rating,
     city,
     seo: site.seo || {},
   };
+}
+
+// ---- section content builders ----------------------------------------------------------
+
+/**
+ * Hero stat strip. Every figure is derived from what the clinic actually publishes; the
+ * generic fallbacks only apply to a brand-new site that has no doctors/services/reviews yet.
+ */
+export function buildHeroStats(m) {
+  const stats = [];
+  if (m.doctors.length) stats.push({ value: `${m.doctors.length}`, label: 'Specialists' });
+  else stats.push({ value: '24/7', label: 'Online booking' });
+
+  const serviceCount = m.services.length || new Set(m.doctors.map((d) => d.specialization).filter(Boolean)).size;
+  if (serviceCount) stats.push({ value: `${serviceCount}`, label: 'Services' });
+  else stats.push({ value: 'Same-day', label: 'Appointments' });
+
+  const exp = Math.max(0, ...m.doctors.map((d) => Number(d.experienceYears) || 0));
+  if (exp > 0) stats.push({ value: `${exp}+`, label: 'Years experience' });
+  else stats.push({ value: '24/7', label: 'Support' });
+
+  if (m.reviews.length) stats.push({ value: `${m.rating}`, label: `${m.reviews.length} reviews` });
+  else stats.push({ value: 'Digital', label: 'Records & Rx' });
+
+  return stats.slice(0, 4);
+}
+
+/**
+ * Service cards for the two-row accordion. CMS services are mapped onto the template's
+ * curated artwork (round-robin) so an owner only has to type a name + description; when the
+ * CMS has none we fall back to the flagship's default set so the page is never empty.
+ */
+const SERVICE_ART = [
+  '/service_book_appointment.png',
+  '/service_online_consultation.png',
+  '/service_buy_medicines.png',
+  '/service_lab_tests.png',
+  '/service_health_records.png',
+  '/service_emergency_support.png',
+  '/service_health_insurance.png',
+  '/service_prescription_upload.png',
+];
+
+const DEFAULT_SERVICES = [
+  { name: 'Book Appointment', description: 'Book appointments, consult expert doctors.', extraDesc: 'Schedule visits with our top-rated medical professionals for personalised medicine and care.' },
+  { name: 'Online Consultation', description: 'Talk to a doctor from anywhere.', extraDesc: 'Get medical advice from the comfort of your home through our seamless consultation flow.' },
+  { name: 'Buy Medicines', description: 'Order your prescribed medicines.', extraDesc: 'Order your prescribed medicines directly to your door with easy cash or online payment options.' },
+  { name: 'Lab Tests', description: 'Diagnostics without the queue.', extraDesc: 'Book comprehensive health checkups and get your reports delivered digitally.' },
+  { name: 'Health Records', description: 'Your history, always with you.', extraDesc: 'Keep all your vital health records organised and securely accessible in one digital place.', badge: 'SECURE' },
+  { name: 'Emergency Support', description: 'Help when it matters most.', extraDesc: 'Immediate emergency response and open access to comprehensive medical support.', badge: '24/7' },
+  { name: 'Follow-up Care', description: 'We check in, so you don’t forget.', extraDesc: 'Smart WhatsApp and SMS reminders keep your treatment plan on track between visits.', badge: 'EASY' },
+  { name: 'Prescription Upload', description: 'Upload prescription details.', extraDesc: 'Easily upload your doctor’s prescription to instantly order medicines for home delivery.', badge: 'FAST' },
+];
+
+const ROW2_BADGES = ['SECURE', '24/7', 'EASY', 'FAST'];
+
+export function buildServiceCards(m) {
+  const source = m.services.length
+    ? m.services.map((s, i) => ({
+        name: str(s.name),
+        description: str(s.description) || `Expert ${str(s.name).toLowerCase()} care at ${m.name}.`,
+        extraDesc: str(s.description) || `Talk to our team about ${str(s.name).toLowerCase()} — book online in under a minute.`,
+        badge: ROW2_BADGES[i % ROW2_BADGES.length],
+      }))
+    : DEFAULT_SERVICES;
+  return source.filter((s) => s.name).map((s, i) => ({ ...s, img: SERVICE_ART[i % SERVICE_ART.length] }));
+}
+
+/**
+ * Primary navigation. Only links to sections that will actually render, then appends the
+ * clinic's published custom pages (CMS_ADVANCED) so they are reachable from every page.
+ */
+export function buildNavLinks(m) {
+  const links = [{ label: 'Home', href: '#top' }, { label: 'Services', href: '#services' }];
+  if (m.doctors.length) links.push({ label: 'Doctors', href: '#doctors' });
+  if (m.store) links.push({ label: 'Pharmacy', href: '#pharmacy' });
+  links.push({ label: 'How It Works', href: '#how-it-works' });
+  if (m.reviews.length) links.push({ label: 'Stories', href: '#stories' });
+  if (m.gallery.length) links.push({ label: 'Gallery', href: '#gallery' });
+  links.push({ label: 'Contact', href: '#contact' });
+  return links;
 }
 
 // ---- section content builders ----------------------------------------------------------

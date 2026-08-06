@@ -54,7 +54,7 @@ export function StoreShell({ slug, children, showSearch = true }) {
     <div className="pmx relative isolate min-h-screen overflow-x-clip bg-[#F8FAFC] text-[#0B1220] antialiased">
       <PmxStyles />
       <Blob className="-right-48 -top-48" from="rgba(16,185,129,0.13)" size={640} />
-      <Blob className="-left-56 top-[420px]" from="rgba(37,99,235,0.09)" size={560} />
+      <Blob className="-left-56 top-[420px]" from="rgba(11,184,159,0.10)" size={560} />
       <div aria-hidden="true" className="pmx-grid absolute inset-x-0 top-0 -z-10 h-[480px] opacity-60" />
 
       <StoreNav slug={slug} siteModel={siteModel} showSearch={showSearch} />
@@ -260,7 +260,7 @@ export function ProductCard({ slug, product }) {
                 ? 'cursor-not-allowed bg-slate-100 text-slate-400'
                 : added
                   ? 'bg-emerald-600 text-white'
-                  : 'bg-[#0A1B3A] text-white hover:-translate-y-0.5 hover:shadow-[0_12px_28px_-10px_rgba(10,27,58,0.5)]'
+                  : 'bg-[#012F24] text-white hover:-translate-y-0.5 hover:shadow-[0_12px_28px_-10px_rgba(10,27,58,0.5)]'
             )}
           >
             {added ? 'Added' : <><Plus className="h-3.5 w-3.5" aria-hidden="true" /> Add</>}
@@ -287,7 +287,7 @@ export function StoreSplash({ label = 'Loading the store…' }) {
   return (
     <div className="pmx flex min-h-screen flex-col items-center justify-center gap-4 bg-[#F8FAFC] px-6">
       <PmxStyles />
-      <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-[#0A1B3A] to-[#12306B] text-white shadow-lg">
+      <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-[#012F24] to-[#0A6A56] text-white shadow-lg">
         <Store className="h-6 w-6 animate-pulse" aria-hidden="true" />
       </span>
       <span className="text-sm font-medium tracking-wide text-slate-400">{label}</span>
@@ -299,7 +299,7 @@ export function StoreUnavailable({ slug, title = 'Store not available', message 
   return (
     <div className="pmx flex min-h-screen flex-col items-center justify-center gap-5 bg-[#F8FAFC] px-6 text-center">
       <PmxStyles />
-      <span className="flex h-16 w-16 items-center justify-center rounded-3xl bg-gradient-to-br from-[#0A1B3A] to-[#12306B] text-white shadow-lg">
+      <span className="flex h-16 w-16 items-center justify-center rounded-3xl bg-gradient-to-br from-[#012F24] to-[#0A6A56] text-white shadow-lg">
         <Store className="h-7 w-7" aria-hidden="true" />
       </span>
       <h1 className="pmx-display text-2xl font-semibold tracking-[-0.02em] text-[#0B1220]">{title}</h1>

@@ -42,7 +42,7 @@ export default function MobileBar({ m }) {
           >
             <Link
               to={m.bookHref}
-              className="inline-flex flex-1 items-center justify-center gap-2 rounded-2xl bg-[#0A1B3A] px-5 py-3.5 text-sm font-semibold text-white shadow-[0_10px_28px_-8px_rgba(10,27,58,0.5)] transition-transform active:scale-[0.98]"
+              className="inline-flex flex-1 items-center justify-center gap-2 rounded-2xl bg-[#012F24] px-5 py-3.5 text-sm font-semibold text-white shadow-[0_10px_28px_-8px_rgba(10,27,58,0.5)] transition-transform active:scale-[0.98]"
             >
               <CalendarPlus className="h-4 w-4" aria-hidden="true" />
               Book appointment
@@ -50,7 +50,7 @@ export default function MobileBar({ m }) {
             {m.contact.phone ? (
               <a
                 href={telHref(m.contact.phone)}
-                className="inline-flex h-[46px] w-[46px] shrink-0 items-center justify-center rounded-2xl border border-slate-200 bg-white text-[#0A1B3A] transition-transform active:scale-[0.96]"
+                className="inline-flex h-[46px] w-[46px] shrink-0 items-center justify-center rounded-2xl border border-slate-200 bg-white text-[#012F24] transition-transform active:scale-[0.96]"
                 aria-label={`Call ${m.name}`}
               >
                 <Phone className="h-[18px] w-[18px]" aria-hidden="true" />

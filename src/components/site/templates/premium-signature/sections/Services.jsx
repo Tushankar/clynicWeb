@@ -1,7 +1,12 @@
-import { useState } from 'react';
+/**
+ * Services — the two-row accordion grid, driven by the clinic's CMS "Services" list.
+ * Owner-entered services are mapped onto the template's curated artwork; when the CMS list
+ * is empty the flagship's default set fills in so the page is never blank (see buildServiceCards).
+ */
+import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { cx } from '../lib';
+import { buildServiceCards, cx } from '../lib';
 import { Item, Stagger } from '../motion';
 
 const CARD_DOT_COLORS = [
@@ -15,63 +20,10 @@ export default function Services({ m }) {
   const [hoveredIdx, setHoveredIdx] = useState(null);
   const [hoveredIdxRow2, setHoveredIdxRow2] = useState(null);
 
-  const row1Services = [
-    {
-      name: 'Book\nAppointment',
-      description: 'Book appointments, consult expert doctors.',
-      extraDesc: 'Schedule visits with our top-rated medical professionals for personalized medicine and care.',
-      img: '/service_book_appointment.png' // Premium 3D abstract fluid
-    },
-    {
-      name: 'Online\nConsultation',
-      description: 'Online medicines or online consultation.',
-      extraDesc: 'Get medical advice from the comfort of your home through our seamless video consultation platform.',
-      img: '/service_online_consultation.png' // 3D smooth glass waves
-    },
-    {
-      name: 'Buy\nMedicines',
-      description: 'Order rare medicines pay cash.',
-      extraDesc: 'Order your prescribed medicines directly to your door with easy cash or online payment options.',
-      img: '/service_buy_medicines.png' // Literal 3D pill/capsule render
-    },
-    {
-      name: 'Lab\nTests',
-      description: 'Combine care with home lab tests.',
-      extraDesc: 'Book comprehensive health checkups and get lab samples collected right from your home.',
-      img: '/service_lab_tests.png' // 3D abstract spheres / cells
-    }
-  ];
-
-  const row2Services = [
-    {
-      name: 'Health\nRecords',
-      description: 'Combine health health records.',
-      extraDesc: 'Keep all your vital health records organized and securely accessible in one digital place.',
-      img: '/service_health_records.png', // Soft 3D floating blocks
-      badge: 'SECURE'
-    },
-    {
-      name: 'Emergency\nSupport',
-      description: 'Emergency and open support.',
-      extraDesc: 'Immediate emergency response and open access to comprehensive 24/7 medical support.',
-      img: '/service_emergency_support.png', // 3D dynamic kinetic shapes
-      badge: '24/7'
-    },
-    {
-      name: 'Health\nInsurance',
-      description: 'Saved source in up to installation.',
-      extraDesc: 'Seamlessly verify your insurance coverage and process your medical claims without hassle.',
-      img: '/service_health_insurance.png', // 3D glossy connected spheres
-      badge: 'EASY'
-    },
-    {
-      name: 'Prescription\nUpload',
-      description: 'Upload prescription details.',
-      extraDesc: 'Easily upload your doctor\'s prescription to instantly order medicines for home delivery.',
-      img: '/service_prescription_upload.png', // Premium abstract teal fluid
-      badge: 'FAST'
-    }
-  ];
+  const cards = useMemo(() => buildServiceCards(m), [m]);
+  // Split into the designed two rows; a short CMS list simply renders one row.
+  const row1Services = cards.slice(0, 4);
+  const row2Services = cards.slice(4, 8);
 
   return (
     <section id="services" className="relative scroll-mt-28 bg-transparent pb-24 pt-4 mt-0 select-none z-10 overflow-x-clip" aria-label="Services">
@@ -84,13 +36,14 @@ export default function Services({ m }) {
         
         {/* ── Centered Introduction Header ── */}
         <div className="pt-10 pb-16 text-center">
-          <h2 className="pmx-display text-4xl sm:text-5xl lg:text-[56px] font-extrabold leading-[1.18] tracking-tight text-[#1A1A2E] max-w-4xl mx-auto">
+          <h2 className="pmx-display text-4xl sm:text-5xl lg:text-[56px] font-extrabold leading-[1.18] tracking-tight text-[#1A1A2E] max-w-4xl mx-auto text-balance">
             Comprehensive healthcare <br />
             services designed <br />
-            for <span className="text-[#0BB89F]">you & your family</span>
+            for <span className="text-[#0BB89F]">you &amp; your family</span>
           </h2>
-          <p className="mt-6 text-slate-500 text-base sm:text-lg max-w-2xl mx-auto font-medium leading-relaxed">
-            Everything you need for your health, from expert consultations to home medicine delivery.
+          {/* The clinic's own "About" copy is the honest sub-head here; a generic line fills the gap. */}
+          <p className="mt-6 text-slate-500 text-base sm:text-lg max-w-2xl mx-auto font-medium leading-relaxed line-clamp-4">
+            {m.about || 'Everything you need for your health, from expert consultations to home medicine delivery.'}
           </p>
         </div>
 
@@ -173,15 +126,18 @@ export default function Services({ m }) {
           })}
         </Stagger>
 
-        {/* ── Divider Text ── */}
-        <div className="relative mt-16 mb-12 text-center py-6 border-y border-slate-200">
-          <h2 className="text-[17px] sm:text-[19px] lg:text-[21px] font-bold leading-relaxed text-slate-700 max-w-none mx-auto tracking-tight">
-            Direct access to expert doctors, lab tests, and 24/7 medical support
-          </h2>
-        </div>
+        {/* ── Divider Text (only when there is a second row to introduce) ── */}
+        {row2Services.length ? (
+          <div className="relative mt-16 mb-12 text-center py-6 border-y border-slate-200">
+            <h2 className="text-[17px] sm:text-[19px] lg:text-[21px] font-bold leading-relaxed text-slate-700 max-w-none mx-auto tracking-tight">
+              Direct access to expert doctors, digital records and everyday support
+            </h2>
+          </div>
+        ) : null}
 
         {/* ── Row 2 Accordion Grid ── */}
-        <Stagger 
+        {row2Services.length ? (
+        <Stagger
           className="flex flex-col lg:flex-row gap-4 sm:gap-5 w-full" 
           gap={0.1}
           onMouseLeave={() => setHoveredIdxRow2(null)}
@@ -259,7 +215,8 @@ export default function Services({ m }) {
             );
           })}
         </Stagger>
-        
+        ) : null}
+
       </div>
     </section>
   );

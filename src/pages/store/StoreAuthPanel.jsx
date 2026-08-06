@@ -47,7 +47,7 @@ export default function StoreAuthPanel({ slug, onAuthed, heading = 'Sign in to c
   return (
     <div>
       <div className="flex items-center gap-3">
-        <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-[#0A1B3A] to-[#12306B] text-white">
+        <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-[#012F24] to-[#0A6A56] text-white">
           {stage === 'email' ? <Mail className="h-5 w-5" aria-hidden="true" /> : <ShieldCheck className="h-5 w-5" aria-hidden="true" />}
         </span>
         <div>

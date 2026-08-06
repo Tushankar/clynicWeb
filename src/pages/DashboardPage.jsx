@@ -315,7 +315,7 @@ export default function DashboardPage() {
                 <li key={s.key}>
                   <Link to={s.link} className="group flex items-start gap-2.5 rounded-lg p-2 -mx-2 transition-colors hover:bg-muted/60">
                     <span className={cn('mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-md',
-                      s.tone === 'warning' ? 'bg-amber-50 text-amber-600' : s.tone === 'success' ? 'bg-emerald-50 text-emerald-600' : 'bg-blue-50 text-blue-600')}>
+                      s.tone === 'warning' ? 'bg-amber-50 text-amber-600' : s.tone === 'success' ? 'bg-emerald-50 text-emerald-600' : 'bg-primary/10 text-primary')}>
                       <Sparkle weight="fill" className="h-3.5 w-3.5" />
                     </span>
                     <span className="min-w-0 flex-1">
@@ -473,7 +473,7 @@ const ACTIVITY_DOT = {
 };
 
 function Chip({ icon: Icon, label, tint = 'blue' }) {
-  const t = { blue: 'text-blue-600', teal: 'text-teal-600', green: 'text-emerald-600' }[tint];
+  const t = { blue: 'text-primary', brand: 'text-primary', teal: 'text-teal-600', green: 'text-emerald-600' }[tint];
   return (
     <span
       className="inline-flex items-center gap-1.5 rounded-full border border-white/60 bg-card/60 px-3 py-1.5 text-xs font-medium text-foreground dark:border-white/10 dark:bg-white/[0.06]"

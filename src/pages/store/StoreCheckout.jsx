@@ -251,7 +251,7 @@ export default function StoreCheckout() {
 
             {step === 'pay' ? (
               <div className="flex flex-col items-center py-2 text-center">
-                <span className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-[#0A1B3A] to-[#12306B] text-white shadow-lg">
+                <span className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-[#012F24] to-[#0A6A56] text-white shadow-lg">
                   <CreditCard className="h-6 w-6" aria-hidden="true" />
                 </span>
                 <h2 className="pmx-display mt-4 text-[20px] font-semibold tracking-[-0.01em] text-[#0B1220]">Complete your payment</h2>
@@ -368,7 +368,7 @@ function CheckoutStepper({ step, showRx }) {
               <span
                 className={cx(
                   'flex h-9 w-9 items-center justify-center rounded-full border text-[13px] font-semibold transition-all duration-300',
-                  done && 'border-transparent bg-[#0A1B3A] text-white',
+                  done && 'border-transparent bg-[#012F24] text-white',
                   active && 'border-emerald-500/60 bg-white text-emerald-700 ring-4 ring-emerald-500/15',
                   !done && !active && 'border-slate-200 bg-white text-slate-300'
                 )}

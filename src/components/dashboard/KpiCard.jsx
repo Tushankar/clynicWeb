@@ -5,21 +5,24 @@ import { Sparkline } from '@/components/charts/Sparkline';
 import { cn } from '@/lib/utils';
 
 // Soft icon containers + matching sparkline hue, one per KPI (calm, not bright).
+// `brand` is the default and carries the Clynic green; `blue` is kept as an alias so older
+// call sites keep working while still rendering in brand.
 const TINTS = {
-  blue: 'bg-blue-50 text-blue-600',
+  brand: 'bg-primary/10 text-primary',
+  blue: 'bg-primary/10 text-primary',
   teal: 'bg-teal-50 text-teal-600',
   green: 'bg-emerald-50 text-emerald-600',
   amber: 'bg-amber-50 text-amber-600',
   rose: 'bg-rose-50 text-rose-600',
   violet: 'bg-violet-50 text-violet-600',
 };
-const SPARK = { blue: '#2563eb', teal: '#14b8a6', green: '#16a34a', amber: '#f59e0b', rose: '#e11d48', violet: '#7c3aed' };
+const SPARK = { brand: '#0E8C72', blue: '#0E8C72', teal: '#14b8a6', green: '#16a34a', amber: '#f59e0b', rose: '#e11d48', violet: '#7c3aed' };
 
 /**
  * KpiCard — top label, big metric, day-over-day trend, and a tiny sparkline.
  * `trend` = { dir: 'up'|'down'|'flat', good: boolean, text: string }.
  */
-export function KpiCard({ label, value, icon: Icon, tint = 'blue', trend, spark = [], loading }) {
+export function KpiCard({ label, value, icon: Icon, tint = 'brand', trend, spark = [], loading }) {
   const TrendIcon = trend?.dir === 'down' ? TrendDown : trend?.dir === 'up' ? TrendUp : Minus;
   return (
     <Card className="card-lift p-5">
@@ -52,7 +55,7 @@ export function KpiCard({ label, value, icon: Icon, tint = 'blue', trend, spark 
         ) : (
           <span />
         )}
-        {!loading && spark.length > 1 && <Sparkline data={spark} color={SPARK[tint]} className="h-8 w-24" />}
+        {!loading && spark.length > 1 && <Sparkline data={spark} color={SPARK[tint] || SPARK.brand} className="h-8 w-24" />}
       </div>
     </Card>
   );

@@ -23,21 +23,21 @@ export default function HowItWorks() {
       title: 'Consult',
       desc: 'Connect virtually or visit our clinic directly.',
       img: '/service_online_consultation.png',
-      bgColor: 'rgba(37, 99, 235, 0.05)' // Blue tint
+      bgColor: 'rgba(1, 47, 36, 0.05)' // Blue tint
     },
     {
       num: 4,
       title: 'Get Prescription',
       desc: 'Receive your verified digital prescription instantly.',
       img: '/service_prescription_upload.png',
-      bgColor: 'rgba(99, 102, 241, 0.05)' // Indigo tint
+      bgColor: 'rgba(52, 211, 153, 0.10)' // Indigo tint
     },
     {
       num: 5,
       title: 'Get Medicine',
       desc: 'Get your prescribed medicines delivered home.',
       img: '/pharmacy_medicine_1.png',
-      bgColor: 'rgba(236, 72, 153, 0.05)' // Pink tint
+      bgColor: 'rgba(11, 184, 159, 0.07)' // Pink tint
     }
   ];
 

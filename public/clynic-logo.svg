@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 188 48" width="188" height="48" role="img" aria-label="Clynic">
+  <defs>
+    <linearGradient id="clynic-mark" x1="4" y1="4" x2="44" y2="44" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#0BB89F"/>
+      <stop offset="0.55" stop-color="#0E8C72"/>
+      <stop offset="1" stop-color="#0A6A56"/>
+    </linearGradient>
+  </defs>
+  <path d="M33.4 11.6A16 16 0 1 0 33.4 36.4" fill="none" stroke="url(#clynic-mark)" stroke-width="8.5" stroke-linecap="round"/>
+  <path d="M31.5 24h11M37 18.5v11" fill="none" stroke="url(#clynic-mark)" stroke-width="7" stroke-linecap="round"/>
+  <text x="58" y="33" fill="#0E8C72" font-family="'Plus Jakarta Sans', ui-sans-serif, system-ui, sans-serif" font-size="26" font-weight="700" letter-spacing="-0.8">Clynic</text>
+</svg>

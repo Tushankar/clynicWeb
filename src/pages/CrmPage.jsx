@@ -467,7 +467,7 @@ function ChannelsCard({ channels, isOwner }) {
       <div className="grid gap-4 lg:grid-cols-2">
         <Card className="flex items-center justify-between gap-4 p-5">
           <div className="flex items-center gap-3">
-            <span className="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-100 text-blue-600"><Mail className="h-5 w-5" /></span>
+            <span className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 text-primary"><Mail className="h-5 w-5" /></span>
             <div>
               <p className="text-sm font-semibold text-foreground">Email</p>
               <p className="text-xs text-muted-foreground">{email.configured ? `Sending as ${email.from}` : 'SMTP not configured — messages go to the dev log only.'}</p>
@@ -815,7 +815,7 @@ function EmailThemePanel({ theme, overrides, canEdit }) {
           <p className="mb-1.5 text-xs font-medium text-foreground">Live preview</p>
           <div className="rounded-2xl border p-3 transition-colors duration-300" style={{ background: v('bg', '#f1f5f9') }}>
             <div className="overflow-hidden rounded-xl bg-white shadow-[0_8px_24px_-12px_rgb(16_24_40/0.25)]">
-              <div className="h-10 transition-colors duration-300" style={{ background: v('accent', '#2563eb') }} />
+              <div className="h-10 transition-colors duration-300" style={{ background: v('accent', '#0E8C72') }} />
               <div className="space-y-2 px-4 py-3.5">
                 <p className="text-[13px] font-bold leading-snug transition-colors duration-300" style={{ color: v('heading') }}>
                   Happy birthday, Priya! 🎉
@@ -825,7 +825,7 @@ function EmailThemePanel({ theme, overrides, canEdit }) {
                 </p>
                 <span
                   className="inline-block rounded-lg px-3 py-1.5 text-[10px] font-bold text-white transition-colors duration-300"
-                  style={{ background: v('accent', '#2563eb') }}
+                  style={{ background: v('accent', '#0E8C72') }}
                 >
                   Book a visit
                 </span>

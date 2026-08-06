@@ -70,7 +70,7 @@ export default function ReviewVisitPage() {
             <span className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-emerald-50">
               <Heart className="h-7 w-7 text-emerald-600" aria-hidden="true" />
             </span>
-            <h1 className="pmx-display mt-5 text-2xl font-semibold tracking-tight text-[#0A1B3A]">
+            <h1 className="pmx-display mt-5 text-2xl font-semibold tracking-tight text-[#012F24]">
               Thank you{result?.rating >= 4 ? ' — that made our day!' : ' for your honesty'}
             </h1>
             <p className="mx-auto mt-2 max-w-sm text-sm leading-relaxed text-slate-500">
@@ -85,7 +85,7 @@ export default function ReviewVisitPage() {
                 href={result.googleReviewUrl}
                 target="_blank"
                 rel="noreferrer noopener"
-                className="mx-auto mt-6 inline-flex h-12 items-center gap-2 rounded-2xl bg-[#0A1B3A] px-6 text-[14px] font-semibold text-white shadow-[0_14px_32px_-10px_rgba(10,27,58,0.5)] transition-all duration-200 hover:-translate-y-0.5"
+                className="mx-auto mt-6 inline-flex h-12 items-center gap-2 rounded-2xl bg-[#012F24] px-6 text-[14px] font-semibold text-white shadow-[0_14px_32px_-10px_rgba(10,27,58,0.5)] transition-all duration-200 hover:-translate-y-0.5"
               >
                 Share it on Google <ExternalLink className="h-4 w-4 text-emerald-300" aria-hidden="true" />
               </a>
@@ -99,7 +99,7 @@ export default function ReviewVisitPage() {
             className="rounded-[28px] border border-slate-200/80 bg-white p-6 shadow-[0_24px_60px_-24px_rgba(10,27,58,0.18)] sm:p-8"
           >
             <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-emerald-700">30 seconds</p>
-            <h1 className="pmx-display mt-2 text-[22px] font-semibold leading-snug tracking-tight text-[#0A1B3A] sm:text-[26px]">
+            <h1 className="pmx-display mt-2 text-[22px] font-semibold leading-snug tracking-tight text-[#012F24] sm:text-[26px]">
               How was your visit{a.doctorName ? ` with ${a.doctorName}` : ''}?
             </h1>
             <p className="mt-1.5 text-[13.5px] text-slate-500">
@@ -130,7 +130,7 @@ export default function ReviewVisitPage() {
                 );
               })}
             </div>
-            <p className={cn('mt-2 text-center text-[13.5px] font-semibold transition-opacity', rating ? 'text-[#0A1B3A] opacity-100' : 'opacity-0')}>
+            <p className={cn('mt-2 text-center text-[13.5px] font-semibold transition-opacity', rating ? 'text-[#012F24] opacity-100' : 'opacity-0')}>
               {RATING_WORDS[hover || rating] || '·'}
             </p>
 
@@ -149,7 +149,7 @@ export default function ReviewVisitPage() {
               type="button"
               onClick={submit}
               disabled={!rating || busy}
-              className="mt-5 flex h-12 w-full items-center justify-center gap-2 rounded-2xl bg-[#0A1B3A] text-[14.5px] font-semibold text-white shadow-[0_14px_32px_-10px_rgba(10,27,58,0.5)] transition-all duration-200 hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2"
+              className="mt-5 flex h-12 w-full items-center justify-center gap-2 rounded-2xl bg-[#012F24] text-[14.5px] font-semibold text-white shadow-[0_14px_32px_-10px_rgba(10,27,58,0.5)] transition-all duration-200 hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2"
             >
               {busy ? <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" /> : <Send className="h-4 w-4 text-emerald-300" aria-hidden="true" />}
               {busy ? 'Sending…' : 'Send feedback'}

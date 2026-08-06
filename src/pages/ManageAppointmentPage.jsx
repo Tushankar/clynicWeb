@@ -57,7 +57,7 @@ function DateStrip({ value, onChange }) {
             className={cn(
               'flex h-[62px] w-[52px] shrink-0 flex-col items-center justify-center rounded-2xl border transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500',
               active
-                ? 'border-transparent bg-[#0A1B3A] text-white shadow-[0_10px_24px_-8px_rgba(10,27,58,0.45)]'
+                ? 'border-transparent bg-[#012F24] text-white shadow-[0_10px_24px_-8px_rgba(10,27,58,0.45)]'
                 : 'border-slate-200/80 bg-white text-slate-600 hover:border-emerald-500/40'
             )}
           >
@@ -207,7 +207,7 @@ export default function ManageAppointmentPage() {
                     className="group flex items-center justify-between rounded-[22px] border border-slate-200/80 bg-white px-5 py-4 text-left shadow-[0_12px_32px_-16px_rgba(10,27,58,0.18)] transition-all duration-200 hover:-translate-y-0.5 hover:border-emerald-500/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500"
                   >
                     <span className="flex items-center gap-3.5">
-                      <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-[#0A1B3A] text-emerald-300">
+                      <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-[#012F24] text-emerald-300">
                         <CalendarClock className="h-5 w-5" aria-hidden="true" />
                       </span>
                       <span>
@@ -249,7 +249,7 @@ export default function ManageAppointmentPage() {
                 {clinic.phone && !isCancelled && a.status !== 'completed' && (
                   <p className="mt-1.5 text-[13px] text-slate-500">
                     Need to change it? Call us on{' '}
-                    <a className="font-semibold text-[#0A1B3A] underline decoration-emerald-400 decoration-2 underline-offset-2" href={`tel:${clinic.phone.replace(/[^+\d]/g, '')}`}>
+                    <a className="font-semibold text-[#012F24] underline decoration-emerald-400 decoration-2 underline-offset-2" href={`tel:${clinic.phone.replace(/[^+\d]/g, '')}`}>
                       {clinic.phone}
                     </a>
                     .
@@ -263,8 +263,8 @@ export default function ManageAppointmentPage() {
         {mode === 'reschedule' && (
           <motion.section key="reschedule" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }} transition={{ duration: 0.3, ease: EASE }} className="mt-6 rounded-[26px] border border-slate-200/80 bg-white p-5 shadow-[0_20px_48px_-20px_rgba(10,27,58,0.18)] sm:p-6">
             <div className="mb-5 flex items-center justify-between">
-              <h2 className="pmx-display text-[17px] font-semibold tracking-tight text-[#0A1B3A]">Pick a new time</h2>
-              <button type="button" onClick={() => setMode('view')} className="flex items-center gap-1 text-[13px] font-medium text-slate-500 transition-colors hover:text-[#0A1B3A]">
+              <h2 className="pmx-display text-[17px] font-semibold tracking-tight text-[#012F24]">Pick a new time</h2>
+              <button type="button" onClick={() => setMode('view')} className="flex items-center gap-1 text-[13px] font-medium text-slate-500 transition-colors hover:text-[#012F24]">
                 <ArrowLeft className="h-3.5 w-3.5" aria-hidden="true" /> Back
               </button>
             </div>
@@ -290,7 +290,7 @@ export default function ManageAppointmentPage() {
               type="button"
               disabled={!slot || busy}
               onClick={() => act('reschedule', { scheduledAt: slot }, `Rescheduled to ${format(parseISO(date), 'EEE, d MMM')} · ${slot ? fmtTime(slot) : ''}. A fresh confirmation is on its way.`)}
-              className="mt-5 flex h-12 w-full items-center justify-center gap-2 rounded-2xl bg-[#0A1B3A] text-[14.5px] font-semibold text-white shadow-[0_14px_32px_-10px_rgba(10,27,58,0.5)] transition-all duration-200 hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2"
+              className="mt-5 flex h-12 w-full items-center justify-center gap-2 rounded-2xl bg-[#012F24] text-[14.5px] font-semibold text-white shadow-[0_14px_32px_-10px_rgba(10,27,58,0.5)] transition-all duration-200 hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2"
             >
               {busy ? <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" /> : <CalendarClock className="h-4 w-4 text-emerald-300" aria-hidden="true" />}
               {busy ? 'Moving your visit…' : slot ? `Confirm ${fmtTime(slot)}` : 'Select a time'}
@@ -305,7 +305,7 @@ export default function ManageAppointmentPage() {
                 <XCircle className="h-5 w-5" aria-hidden="true" />
               </span>
               <div>
-                <h2 className="pmx-display text-[17px] font-semibold tracking-tight text-[#0A1B3A]">Cancel this appointment?</h2>
+                <h2 className="pmx-display text-[17px] font-semibold tracking-tight text-[#012F24]">Cancel this appointment?</h2>
                 <p className="mt-1 text-[13.5px] leading-relaxed text-slate-500">
                   Your slot with {a.doctorName} on {fmtLong(a.scheduledAt)} will be released. This can't be undone — you can always book again.
                 </p>

@@ -61,7 +61,7 @@ export default function PublicSitePage() {
         <p className="max-w-md text-slate-500">The website may be unpublished, but you can still request an appointment.</p>
         <Link
           to={`/c/${slug}/book`}
-          className="inline-flex items-center gap-2 rounded-full bg-[#0A1B3A] px-7 py-3.5 text-sm font-semibold text-white shadow-lg transition-transform hover:-translate-y-0.5"
+          className="inline-flex items-center gap-2 rounded-full bg-[#012F24] px-7 py-3.5 text-sm font-semibold text-white shadow-lg transition-transform hover:-translate-y-0.5"
         >
           <CalendarPlus className="h-5 w-5" /> Book an appointment
         </Link>
@@ -91,7 +91,7 @@ export default function PublicSitePage() {
         <Link
           to={`/c/${slug}/store`}
           aria-label="Shop medicines online"
-          className="fixed bottom-5 right-5 z-40 inline-flex items-center gap-2 rounded-full bg-[#0A1B3A] px-5 py-3.5 text-sm font-semibold text-white shadow-[0_16px_40px_-12px_rgba(10,27,58,0.5)] ring-1 ring-emerald-400/30 transition-transform hover:-translate-y-0.5 sm:bottom-6 sm:right-6"
+          className="fixed bottom-5 right-5 z-40 inline-flex items-center gap-2 rounded-full bg-[#012F24] px-5 py-3.5 text-sm font-semibold text-white shadow-[0_16px_40px_-12px_rgba(10,27,58,0.5)] ring-1 ring-emerald-400/30 transition-transform hover:-translate-y-0.5 sm:bottom-6 sm:right-6"
           style={{ paddingBottom: 'max(0.875rem, env(safe-area-inset-bottom, 0px))' }}
         >
           <ShoppingBag className="h-4.5 w-4.5 h-[18px] w-[18px]" aria-hidden="true" />

@@ -4,10 +4,17 @@
 
 /*
  * Design tokens (section 8.5): clinical-but-warm.
- * One primary accent (calm medical teal) + a neutral slate ramp + semantic
- * status colors. Components reference these via Tailwind theme tokens — never
- * hardcode hex. HSL triplets are space-separated so Tailwind can apply opacity
- * modifiers (e.g. bg-primary/10) through the `hsl(var(--x) / <alpha-value>)` form.
+ * One primary accent (Clynic green) + a neutral slate ramp + semantic status colors.
+ * Components reference these via Tailwind theme tokens — never hardcode hex. HSL triplets
+ * are space-separated so Tailwind can apply opacity modifiers (e.g. bg-primary/10) through
+ * the `hsl(var(--x) / <alpha-value>)` form.
+ *
+ * BRAND GREEN — one ramp, shared by the dashboard, the public website, the booking flow and
+ * the storefront so the whole product reads as one system:
+ *   #0BB89F  bright   (accents, glows)        hsl(171 89% 38%)
+ *   #0E8C72  primary  (buttons, links, focus) hsl(168 82% 30%)
+ *   #0A6A56  deep     (hover / gradients)     hsl(168 82% 23%)
+ *   #012F24  forest   (dark surfaces)         hsl(166 96%  9%)
  */
 @layer base {
   :root {
@@ -19,18 +26,22 @@
     --popover: 0 0% 100%;
     --popover-foreground: 222 47% 11%;
 
-    /* Brand — deep medical blue (#2563EB) */
-    --primary: 221 83% 53%;
+    /* Brand — Clynic green (#0E8C72) */
+    --primary: 168 82% 30%;
     --primary-foreground: 0 0% 100%;
+    /* Brand ramp, exposed for gradients/glows that need more than the flat primary */
+    --brand-bright: 171 89% 38%; /* #0BB89F */
+    --brand-deep: 168 82% 23%;   /* #0A6A56 */
+    --brand-forest: 166 96% 9%;  /* #012F24 */
 
     /* Neutral supports */
     --secondary: 210 40% 96%;
     --secondary-foreground: 222 47% 11%;
     --muted: 210 40% 96%;
     --muted-foreground: 215 16% 47%;
-    /* Accent = soft blue (nav-active + hover tints) */
-    --accent: 214 100% 97%;
-    --accent-foreground: 224 76% 48%;
+    /* Accent = soft green (nav-active + hover tints) */
+    --accent: 165 45% 96%;
+    --accent-foreground: 168 84% 26%;
 
     /* Semantic status (#16A34A / #DC2626 / #F59E0B) */
     --destructive: 0 72% 51%;
@@ -45,7 +56,7 @@
     /* Lines & focus (#E5E7EB) */
     --border: 220 13% 91%;
     --input: 220 13% 91%;
-    --ring: 221 83% 53%;
+    --ring: 168 82% 30%;
 
     --radius: 0.625rem;
   }
@@ -59,14 +70,17 @@
     --card-foreground: 0 0% 98%;
     --popover: 0 0% 8%;
     --popover-foreground: 0 0% 98%;
-    --primary: 217 91% 60%;         /* product blue — pops on black */
+    --primary: 170 70% 42%;         /* brand green — pops on black */
     --primary-foreground: 0 0% 100%;
+    --brand-bright: 171 85% 46%;
+    --brand-deep: 168 78% 30%;
+    --brand-forest: 166 60% 12%;
     --secondary: 0 0% 11%;
     --secondary-foreground: 0 0% 98%;
     --muted: 0 0% 11%;
     --muted-foreground: 0 0% 64%;
     --accent: 0 0% 13%;
-    --accent-foreground: 217 91% 72%;
+    --accent-foreground: 170 72% 58%;
     --destructive: 0 72% 55%;
     --destructive-foreground: 0 0% 98%;
     --success: 142 66% 45%;
@@ -77,7 +91,7 @@
     --info-foreground: 0 0% 5%;
     --border: 0 0% 15%;
     --input: 0 0% 16%;
-    --ring: 217 91% 60%;
+    --ring: 170 70% 42%;
   }
 }
 
@@ -98,6 +112,17 @@
   /* Number/token displays use tabular figures so they don't jitter as they update. */
   .tabular {
     font-variant-numeric: tabular-nums;
+  }
+
+  /* Horizontal carousels (e.g. the pharmacy strip) hide their scrollbar but stay scrollable. */
+  .no-scrollbar {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+  .no-scrollbar::-webkit-scrollbar {
+    width: 0;
+    height: 0;
+    display: none;
   }
 
   /* Hide scrollbars app-wide for a clean, premium surface — scrolling still works

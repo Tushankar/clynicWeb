@@ -28,6 +28,14 @@ export default {
           DEFAULT: 'hsl(var(--primary) / <alpha-value>)',
           foreground: 'hsl(var(--primary-foreground) / <alpha-value>)',
         },
+        // Clynic brand green ramp — the one palette shared by the dashboard, the public
+        // website, booking and the storefront. Prefer these over raw emerald/teal classes.
+        brand: {
+          bright: 'hsl(var(--brand-bright) / <alpha-value>)',
+          DEFAULT: 'hsl(var(--primary) / <alpha-value>)',
+          deep: 'hsl(var(--brand-deep) / <alpha-value>)',
+          forest: 'hsl(var(--brand-forest) / <alpha-value>)',
+        },
         secondary: {
           DEFAULT: 'hsl(var(--secondary) / <alpha-value>)',
           foreground: 'hsl(var(--secondary-foreground) / <alpha-value>)',

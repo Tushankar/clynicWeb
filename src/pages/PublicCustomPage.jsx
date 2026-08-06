@@ -29,25 +29,31 @@ export default function PublicCustomPage() {
     const m = deriveModel(site, slug);
     const paragraphs = page.body.split('\n\n');
 
+    // `relative` on the root matters: the ambient glow is absolutely positioned and would
+    // otherwise anchor to the viewport and bleed over the whole page.
     return (
-      <div style={{ '--site-primary': site.theme.primaryColor, '--site-accent': site.theme.accentColor }} className="pmx min-h-screen overflow-x-clip bg-[#012F24] text-[#0B1220] antialiased flex flex-col">
+      <div style={{ '--site-primary': site.theme.primaryColor, '--site-accent': site.theme.accentColor }} className="pmx relative min-h-screen overflow-x-clip bg-[#012F24] text-[#0B1220] antialiased flex flex-col">
         <PmxStyles />
-        
-        {/* Pass the basePath parameter so anchors route back to the home route */}
-        <Navbar m={m} basePath={`/c/${slug}`} />
 
-        {/* Ambient Top Glow */}
-        <div className="absolute inset-0 pointer-events-none opacity-20 z-0">
-          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] rounded-full bg-radial from-emerald-500/20 to-transparent blur-3xl" />
+        {/* basePath so in-page anchors route back to the home route; tone="dark" because this
+            page opens on the forest header — without it the nav links are grey on dark green. */}
+        <Navbar m={m} basePath={`/c/${slug}`} tone="dark" />
+
+        {/* Ambient glow behind the dark header only */}
+        <div aria-hidden="true" className="pointer-events-none absolute inset-x-0 top-0 z-0 h-[520px] overflow-hidden opacity-40">
+          <div className="absolute -top-40 left-1/2 h-[520px] w-[900px] -translate-x-1/2 rounded-full bg-emerald-400/20 blur-[120px]" />
         </div>
 
         {/* Branded Header Section */}
-        <header className="relative pt-36 pb-12 sm:pt-44 sm:pb-16 text-center select-none z-10">
+        <header className="relative pt-32 pb-14 sm:pt-40 sm:pb-20 text-center select-none z-10">
           <div className="mx-auto max-w-4xl px-6">
-            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-300 text-xs font-semibold uppercase tracking-wider mb-6">
-              {site.clinic.name} — Solutions
-            </span>
-            <h1 className="pmx-display text-4xl sm:text-5xl lg:text-[56px] font-light leading-[1.18] tracking-[-0.03em] text-white">
+            <Link
+              to={`/c/${slug}`}
+              className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-300 text-xs font-semibold uppercase tracking-wider mb-6 transition-colors hover:bg-emerald-500/20 hover:text-emerald-200"
+            >
+              <ArrowLeft className="h-3 w-3" aria-hidden="true" /> {site.clinic.name}
+            </Link>
+            <h1 className="pmx-display text-balance text-4xl sm:text-5xl lg:text-[56px] font-light leading-[1.18] tracking-[-0.03em] text-white">
               {page.title}
             </h1>
           </div>
@@ -56,19 +62,35 @@ export default function PublicCustomPage() {
         {/* Editorial Body container with signature porcelain background */}
         <section className="relative bg-[#FAF8F5] py-16 sm:py-24 z-10 flex-grow">
           <div className="mx-auto max-w-3xl px-6">
-            <div className="rounded-[2.5rem] bg-white p-8 sm:p-14 shadow-2xl border border-slate-200/50 text-[#012F24]">
+            <article className="rounded-[2.5rem] bg-white p-8 sm:p-14 shadow-xl border border-slate-200/60">
               <div className="space-y-6">
                 {paragraphs.map((p, i) => (
-                  <p key={i} className="text-slate-700 text-base sm:text-lg leading-relaxed font-light font-sans whitespace-pre-line">
+                  <p key={i} className="text-[#3A4D44] text-base sm:text-[17px] leading-[1.75] whitespace-pre-line">
                     {p}
                   </p>
                 ))}
               </div>
+            </article>
+
+            {/* Always leave a way forward — a custom page must never be a dead end. */}
+            <div className="mt-10 flex flex-wrap items-center justify-center gap-3">
+              <Link
+                to={`/c/${slug}/book`}
+                className="inline-flex items-center gap-2 rounded-full bg-[#012F24] px-7 py-3.5 text-sm font-semibold text-white shadow-md transition-all hover:-translate-y-0.5 hover:bg-[#001f18]"
+              >
+                <CalendarPlus className="h-4 w-4" aria-hidden="true" /> Book an appointment
+              </Link>
+              <Link
+                to={`/c/${slug}`}
+                className="inline-flex items-center gap-2 rounded-full border border-[#012F24]/25 px-7 py-3.5 text-sm font-semibold text-[#012F24] transition-all hover:-translate-y-0.5 hover:bg-[#012F24] hover:text-white"
+              >
+                <ArrowLeft className="h-4 w-4" aria-hidden="true" /> Back to {site.clinic.name}
+              </Link>
             </div>
           </div>
         </section>
 
-        <Footer m={m} />
+        <Footer m={m} basePath={`/c/${slug}`} />
         <MobileBar m={m} />
       </div>
     );

@@ -43,7 +43,7 @@ export function SlotGrid({ slots, value, onChange }) {
                   className={cn(
                     'h-11 rounded-2xl border text-[13.5px] font-semibold transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-1',
                     selected
-                      ? 'border-transparent bg-[#0A1B3A] text-white shadow-[0_10px_24px_-8px_rgba(10,27,58,0.45)] ring-2 ring-emerald-400/70 ring-offset-1'
+                      ? 'border-transparent bg-[#012F24] text-white shadow-[0_10px_24px_-8px_rgba(10,27,58,0.45)] ring-2 ring-emerald-400/70 ring-offset-1'
                       : 'border-slate-200/80 bg-white text-slate-700 hover:-translate-y-0.5 hover:border-emerald-500/40 hover:text-[#0B1220] hover:shadow-[0_8px_20px_-10px_rgba(10,27,58,0.25)]'
                   )}
                 >
@@ -107,7 +107,7 @@ function WaitlistCard({ slug, doctorId, date }) {
         <button
           type="button"
           onClick={() => setOpen(true)}
-          className="mx-auto mt-4 flex h-11 items-center gap-2 rounded-2xl bg-[#0A1B3A] px-5 text-[13.5px] font-semibold text-white shadow-[0_10px_24px_-8px_rgba(10,27,58,0.45)] transition-transform duration-200 hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2"
+          className="mx-auto mt-4 flex h-11 items-center gap-2 rounded-2xl bg-[#012F24] px-5 text-[13.5px] font-semibold text-white shadow-[0_10px_24px_-8px_rgba(10,27,58,0.45)] transition-transform duration-200 hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2"
         >
           <UsersRound className="h-4 w-4 text-emerald-300" aria-hidden="true" /> Join the waitlist
         </button>
@@ -121,7 +121,7 @@ function WaitlistCard({ slug, doctorId, date }) {
             type="button"
             onClick={join}
             disabled={busy || !form.name.trim() || (!form.phone.trim() && !form.email.trim())}
-            className="flex h-11 w-full items-center justify-center gap-2 rounded-2xl bg-[#0A1B3A] text-[13.5px] font-semibold text-white shadow-[0_10px_24px_-8px_rgba(10,27,58,0.45)] transition-all duration-200 hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2"
+            className="flex h-11 w-full items-center justify-center gap-2 rounded-2xl bg-[#012F24] text-[13.5px] font-semibold text-white shadow-[0_10px_24px_-8px_rgba(10,27,58,0.45)] transition-all duration-200 hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2"
           >
             {busy ? <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" /> : <UsersRound className="h-4 w-4 text-emerald-300" aria-hidden="true" />}
             {busy ? 'Adding you…' : 'Notify me if a slot opens'}

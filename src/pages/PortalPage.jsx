@@ -34,7 +34,7 @@ export default function PortalPage() {
     <div className="pmx min-h-screen overflow-x-clip bg-white text-[#0B1220] antialiased">
       <PmxStyles />
       {m && <Navbar m={m} solid={true} basePath={`/c/${slug}`} />}
-      <PortalLogin slug={slug} onLoggedIn={(t) => { setPortalToken(t); setToken(t); }} />
+      <PortalLogin slug={slug} m={m} onLoggedIn={(t) => { setPortalToken(t); setToken(t); }} />
       {m && <Footer m={m} />}
     </div>
   );
@@ -42,7 +42,12 @@ export default function PortalPage() {
 
 /* ─────────────────────────  LOGIN SCREEN  ───────────────────────── */
 
-function PortalLogin({ slug, onLoggedIn }) {
+function PortalLogin({ slug, m, onLoggedIn }) {
+  // The portal belongs to the CLINIC, not to Clynic the platform — show its logo and name.
+  const clinicName = m?.name || 'Your clinic';
+  const clinicLogo = m?.theme?.logoUrl || '';
+  const tagline = m?.hero?.tagline || 'Personalized care, advanced medicine';
+
   const [stage, setStage] = useState('email');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -85,16 +90,19 @@ function PortalLogin({ slug, onLoggedIn }) {
       <div className="relative z-10 min-h-screen w-full flex items-center justify-between px-8 md:px-16 lg:px-24 pt-24 md:pt-28 pb-12">
         {/* LEFT SIDE — Brand text overlaid on the image */}
         <div className="hidden md:flex flex-col justify-between h-full max-w-md py-4">
-          {/* Brand logo */}
+          {/* Brand — the clinic's own logo when it has one, else its name in the brand lockup */}
           <div className="flex items-center gap-3 mb-auto">
-            <svg className="h-11 w-11 shrink-0" viewBox="0 0 100 100" fill="none">
-              <path d="M40 10h20v35h35v20H60v35H40V65H5V45h35V10z" fill="#1B6DB5" />
-              <path d="M47 18v30H17v4h30v30h6V52h30v-4H53V18h-6z" fill="#0BB89F" />
-            </svg>
-            <div>
-              <div className="text-[22px] font-black tracking-tight text-white leading-none drop-shadow-md">CLYNIC</div>
-              <div className="text-[10px] font-bold tracking-[.18em] text-[#7BDED0] uppercase mt-0.5">Personalized Care, Advanced Medicine</div>
-            </div>
+            {clinicLogo ? (
+              <img src={clinicLogo} alt={`${clinicName} logo`} className="h-11 w-auto max-w-[200px] object-contain brightness-0 invert drop-shadow-md" />
+            ) : (
+              <>
+                <Logo mark className="h-11 w-11 shrink-0 drop-shadow-md" alt="" />
+                <div className="min-w-0">
+                  <div className="text-[22px] font-black tracking-tight text-white leading-tight drop-shadow-md line-clamp-2">{clinicName}</div>
+                  <div className="text-[10px] font-bold tracking-[.18em] text-[#7BDED0] uppercase mt-0.5 line-clamp-1">{tagline}</div>
+                </div>
+              </>
+            )}
           </div>
 
           {/* Hero text */}
@@ -103,7 +111,7 @@ function PortalLogin({ slug, onLoggedIn }) {
               Your Journey to Wellness<br />Begins Here.
             </h1>
             <p className="mt-4 text-[15px] font-medium leading-relaxed text-white/80 max-w-sm">
-              Securely access your health records, book appointments, and connect with your care team.
+              Securely access your health records, book appointments, and connect with your care team at {clinicName}.
             </p>
           </div>
         </div>
@@ -511,7 +519,7 @@ function DashboardTab({ slug, me, appointments, prescriptions, invoices, reports
         <div className={`${CARD} p-4 flex flex-col justify-between h-[115px]`}>
           <div className="flex items-center justify-between">
             <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Prescriptions</span>
-            <div className="h-8 w-8 rounded-lg bg-blue-50 flex items-center justify-center text-blue-600"><Pill className="h-4.5 w-4.5" /></div>
+            <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center text-primary"><Pill className="h-4.5 w-4.5" /></div>
           </div>
           <div>
             <p className="text-[18px] font-extrabold text-[#1A1A2E] leading-none">{rxCount}</p>

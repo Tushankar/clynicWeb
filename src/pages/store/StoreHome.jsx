@@ -38,7 +38,7 @@ export default function StoreHome() {
       {/* -------------------------------- hero -------------------------------- */}
       <section className="mx-auto max-w-6xl px-5 sm:px-8">
         <div className="relative overflow-hidden rounded-[2.25rem] border border-white/10 px-6 py-12 text-white sm:px-12 sm:py-16"
-          style={{ background: 'linear-gradient(150deg,#060E22 0%,#0A1B3A 58%,#0C2B47 115%)', boxShadow: SHADOW.lg }}>
+          style={{ background: 'linear-gradient(150deg,#060E22 0%,#012F24 58%,#0C2B47 115%)', boxShadow: SHADOW.lg }}>
           <div aria-hidden="true" className="pmx-grid-dark absolute inset-0 opacity-50" />
           <div aria-hidden="true" className="absolute -right-24 -top-24 h-72 w-72 rounded-full opacity-30 blur-3xl"
             style={{ background: 'radial-gradient(circle,#10B981 0%,transparent 65%)' }} />

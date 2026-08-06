@@ -53,7 +53,7 @@ export default function SharedDocPage() {
           <button
             type="button"
             onClick={() => window.print()}
-            className="flex h-10 items-center gap-2 rounded-xl bg-[#0A1B3A] px-4 text-[13px] font-semibold text-white shadow-[0_10px_24px_-8px_rgba(10,27,58,0.45)] transition-all duration-200 hover:-translate-y-0.5"
+            className="flex h-10 items-center gap-2 rounded-xl bg-[#012F24] px-4 text-[13px] font-semibold text-white shadow-[0_10px_24px_-8px_rgba(10,27,58,0.45)] transition-all duration-200 hover:-translate-y-0.5"
           >
             <Printer className="h-4 w-4 text-emerald-300" aria-hidden="true" /> Print / Save PDF
           </button>
@@ -61,13 +61,13 @@ export default function SharedDocPage() {
 
         <article className="doc-sheet overflow-hidden rounded-[24px] border border-slate-200/80 bg-white shadow-[0_24px_60px_-24px_rgba(10,27,58,0.16)]">
           {/* Letterhead */}
-          <header className="border-b-2 border-[#0A1B3A] px-7 py-6 sm:px-10">
+          <header className="border-b-2 border-[#012F24] px-7 py-6 sm:px-10">
             <div className="flex flex-wrap items-start justify-between gap-4">
               <div>
                 {clinic.logoUrl ? (
                   <img src={clinic.logoUrl} alt={clinic.name} className="h-10 w-auto object-contain" />
                 ) : (
-                  <h1 className="pmx-display text-2xl font-semibold tracking-tight text-[#0A1B3A]">{clinic.name}</h1>
+                  <h1 className="pmx-display text-2xl font-semibold tracking-tight text-[#012F24]">{clinic.name}</h1>
                 )}
                 <p className="mt-1.5 max-w-xs text-[12px] leading-relaxed text-slate-500">
                   {clinic.address}
@@ -81,7 +81,7 @@ export default function SharedDocPage() {
                 </p>
                 {kind === 'invoice' ? (
                   <>
-                    <p className="mt-1 font-mono text-[15px] font-semibold text-[#0A1B3A]">{data.invoice.invoiceNumber}</p>
+                    <p className="mt-1 font-mono text-[15px] font-semibold text-[#012F24]">{data.invoice.invoiceNumber}</p>
                     <p className="mt-0.5 text-[12px] text-slate-500">{fmtDate(data.invoice.createdAt)}</p>
                   </>
                 ) : (
@@ -132,7 +132,7 @@ function InvoiceBody({ inv }) {
       <div className="ml-auto mt-5 w-full max-w-xs space-y-1.5 text-[13.5px]">
         <div className="flex justify-between text-slate-500"><span>Subtotal</span><span className="tabular-nums">{inr(inv.subtotal)}</span></div>
         {inv.gstAmount > 0 && <div className="flex justify-between text-slate-500"><span>GST ({inv.gstRate}%)</span><span className="tabular-nums">{inr(inv.gstAmount)}</span></div>}
-        <div className="flex justify-between border-t border-slate-200 pt-2 text-[15px] font-semibold text-[#0A1B3A]"><span>Total</span><span className="tabular-nums">{inr(inv.total)}</span></div>
+        <div className="flex justify-between border-t border-slate-200 pt-2 text-[15px] font-semibold text-[#012F24]"><span>Total</span><span className="tabular-nums">{inr(inv.total)}</span></div>
         {inv.amountPaid > 0 && <div className="flex justify-between text-emerald-700"><span>Paid</span><span className="tabular-nums">{inr(inv.amountPaid)}</span></div>}
         {inv.balance > 0 && <div className="flex justify-between font-semibold text-amber-700"><span>Balance due</span><span className="tabular-nums">{inr(inv.balance)}</span></div>}
       </div>
@@ -161,7 +161,7 @@ function RxBody({ rx }) {
         </div>
       )}
 
-      <p className="mt-6 pmx-display text-3xl font-semibold text-[#0A1B3A]/20" aria-hidden="true">℞</p>
+      <p className="mt-6 pmx-display text-3xl font-semibold text-[#012F24]/20" aria-hidden="true">℞</p>
       <table className="mt-2 w-full text-left text-[13.5px]">
         <thead>
           <tr className="border-b border-slate-200 text-[11px] uppercase tracking-[0.12em] text-slate-400">

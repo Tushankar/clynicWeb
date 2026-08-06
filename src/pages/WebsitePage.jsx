@@ -1,5 +1,8 @@
-import { useEffect, useState } from 'react';
-import { Globe, Eye, EyeOff, ExternalLink, Save, Plus, Trash2, RefreshCw, Star } from 'lucide-react';
+import { useRef, useState } from 'react';
+import {
+  Globe, Eye, EyeOff, ExternalLink, Save, Plus, Trash2, RefreshCw,
+  Upload, ImagePlus, Link2, ArrowLeft, ArrowRight, Loader2, ImageOff,
+} from 'lucide-react';
 import { PageHeader, LoadingSkeleton, FormField } from '@/components/primitives';
 import { FeatureGate } from '@/components/FeatureGate';
 import { UpgradeNotice } from '@/components/UpgradeNotice';
@@ -14,6 +17,7 @@ import { useFeature } from '@/hooks/usePlan';
 import {
   useWebsiteConfig, usePublishWebsite, useUpdateContent, useUpdateTheme,
   useUpdateReviews, useUpdateSeo, useCreatePage, useUpdatePage, useDeletePage,
+  useUploadWebsiteImage, useDeleteGalleryImage, useReorderGallery,
 } from '@/hooks/useWebsite';
 import { cn } from '@/lib/utils';
 import { toast, toastApiError } from '@/lib/toast';
@@ -107,12 +111,12 @@ function WebsiteInner() {
 // ---- Content (CMS_BASIC) ----
 function ContentTab({ cfg, onSaved }) {
   const save = useUpdateContent();
+  const saveHeroImage = useUpdateContent(); // separate instance so its pending state is its own
   const c0 = cfg.content || {};
   const [c, setC] = useState({
     hero: { headline: c0.hero?.headline || '', tagline: c0.hero?.tagline || '', imageUrl: c0.hero?.imageUrl || '' },
     about: c0.about || '',
     services: (c0.services || []).map((s) => ({ ...s, _k: nextKey() })),
-    gallery: (c0.gallery || []).map((url) => ({ url, _k: nextKey() })),
     contact: { phone: c0.contact?.phone || '', email: c0.contact?.email || '', whatsapp: c0.contact?.whatsapp || '', address: c0.contact?.address || '' },
     mapEmbed: c0.mapEmbed || '',
   });
@@ -120,10 +124,14 @@ function ContentTab({ cfg, onSaved }) {
 
   const submit = async () => {
     try {
+      // Images (gallery + hero) are managed by their own endpoints and are NOT part of this
+      // form — echo the server's current values back so saving text can never clobber a photo
+      // uploaded since the form mounted.
       await save.mutateAsync({
-        hero: c.hero, about: c.about,
+        hero: { ...c.hero, imageUrl: cfg.content?.hero?.imageUrl || '' },
+        about: c.about,
         services: c.services.map(({ _k, ...s }) => s),
-        gallery: c.gallery.map((g) => g.url),
+        gallery: cfg.content?.gallery || [],
         contact: c.contact, mapEmbed: c.mapEmbed,
       });
       toast.success('Content saved'); onSaved();
@@ -134,30 +142,39 @@ function ContentTab({ cfg, onSaved }) {
     <div className="space-y-4">
       <Card className="space-y-4 p-5">
         <h3 className="text-sm font-medium text-muted-foreground">Hero</h3>
-        <FormField label="Headline"><Input value={c.hero.headline} onChange={(e) => set({ hero: { ...c.hero, headline: e.target.value } })} placeholder="Compassionate dental care in Kolkata" /></FormField>
+        <FormField label="Headline" description="Shown as the big line on your home page"><Input value={c.hero.headline} onChange={(e) => set({ hero: { ...c.hero, headline: e.target.value } })} placeholder="Compassionate dental care in Kolkata" /></FormField>
         <FormField label="Tagline"><Input value={c.hero.tagline} onChange={(e) => set({ hero: { ...c.hero, tagline: e.target.value } })} placeholder="Modern, gentle, and always on time" /></FormField>
-        <FormField label="Hero image URL" description="Optional — a tasteful gradient shows if empty"><Input value={c.hero.imageUrl} onChange={(e) => set({ hero: { ...c.hero, imageUrl: e.target.value } })} placeholder="https://…/hero.jpg" /></FormField>
-        <FormField label="About"><Textarea rows={4} value={c.about} onChange={(e) => set({ about: e.target.value })} /></FormField>
+        <FormField label="About" description="Used on the home page and in the footer"><Textarea rows={4} value={c.about} onChange={(e) => set({ about: e.target.value })} placeholder="Tell patients who you are, what you treat and what a visit feels like." /></FormField>
+        <ImageSlot
+          slot="hero"
+          label="Hero image"
+          description="Optional. Some templates use it as the hero photo and as the social share card."
+          previewUrl={cfg.media?.heroUrl}
+          value={cfg.content?.hero?.imageUrl || ''}
+          onPersist={(next) => saveHeroImage.mutateAsync({ ...cfg.content, hero: { ...(cfg.content?.hero || {}), imageUrl: next } })}
+          onSaved={onSaved}
+        />
       </Card>
 
       <ListCard
         title="Services" items={c.services} onChange={(services) => set({ services })} blank={{ name: '', description: '', icon: '' }}
+        description="These become the service cards on your home page. Leave empty to use the template's defaults."
         render={(item, upd) => (<><Input value={item.name} onChange={(e) => upd({ name: e.target.value })} placeholder="Service name" /><Input value={item.description} onChange={(e) => upd({ description: e.target.value })} placeholder="Short description" /></>)}
       />
-      <ListCard
-        title="Gallery (image URLs)" items={c.gallery} onChange={(gallery) => set({ gallery })} blank={{ url: '' }}
-        render={(item, upd) => <Input value={item.url} onChange={(e) => upd({ url: e.target.value })} placeholder="https://…/photo.jpg" />}
-      />
+
+      {/* Gallery is its own media manager — saved instantly, not with the form below. */}
+      <GalleryCard cfg={cfg} onSaved={onSaved} />
 
       <Card className="space-y-4 p-5">
         <h3 className="text-sm font-medium text-muted-foreground">Contact</h3>
+        <p className="-mt-2 text-caption text-muted-foreground">Shown in the contact section and the footer of every public page.</p>
         <div className="grid gap-4 sm:grid-cols-2">
           <FormField label="Phone"><Input value={c.contact.phone} onChange={(e) => set({ contact: { ...c.contact, phone: e.target.value } })} /></FormField>
           <FormField label="Email"><Input value={c.contact.email} onChange={(e) => set({ contact: { ...c.contact, email: e.target.value } })} /></FormField>
-          <FormField label="WhatsApp"><Input value={c.contact.whatsapp} onChange={(e) => set({ contact: { ...c.contact, whatsapp: e.target.value } })} /></FormField>
+          <FormField label="WhatsApp" description="Digits only, with country code"><Input value={c.contact.whatsapp} onChange={(e) => set({ contact: { ...c.contact, whatsapp: e.target.value } })} placeholder="919876543210" /></FormField>
           <FormField label="Address"><Input value={c.contact.address} onChange={(e) => set({ contact: { ...c.contact, address: e.target.value } })} /></FormField>
         </div>
-        <FormField label="Map embed URL" description="Google Maps 'embed' https link (optional)"><Input value={c.mapEmbed} onChange={(e) => set({ mapEmbed: e.target.value })} /></FormField>
+        <FormField label="Map embed URL" description="Google Maps 'embed' https link — renders a live map in your contact section"><Input value={c.mapEmbed} onChange={(e) => set({ mapEmbed: e.target.value })} placeholder="https://www.google.com/maps/embed?pb=…" /></FormField>
       </Card>
 
       <div className="flex justify-end"><Button onClick={submit} disabled={save.isPending}><Save className="h-4 w-4" /> {save.isPending ? 'Saving…' : 'Save content'}</Button></div>
@@ -165,38 +182,301 @@ function ContentTab({ cfg, onSaved }) {
   );
 }
 
+// ---- Gallery media manager (CMS_BASIC) ----
+// Upload from the device or add a hosted URL; reorder and delete. Every action writes through
+// to the server immediately and the card re-renders from the returned config, so what you see
+// here is exactly what the public site renders.
+function GalleryCard({ cfg, onSaved }) {
+  const upload = useUploadWebsiteImage();
+  const remove = useDeleteGalleryImage();
+  const reorder = useReorderGallery();
+  const saveContent = useUpdateContent();
+  const fileRef = useRef(null);
+  const [url, setUrl] = useState('');
+
+  const items = cfg.media?.gallery || [];
+  const busy = upload.isPending || remove.isPending || reorder.isPending || saveContent.isPending;
+
+  const pick = async (e) => {
+    const file = e.target.files?.[0];
+    e.target.value = ''; // let the same file be picked again after a failure
+    if (!file) return;
+    try { await upload.mutateAsync({ slot: 'gallery', file }); toast.success('Image added'); onSaved(); }
+    catch (err) { toastApiError(err); }
+  };
+
+  const addUrl = async () => {
+    const clean = url.trim();
+    if (!/^https?:\/\//i.test(clean)) { toast.error('Enter a full image URL starting with http:// or https://'); return; }
+    try {
+      await saveContent.mutateAsync({ ...cfg.content, gallery: [...(cfg.content?.gallery || []), clean] });
+      setUrl(''); toast.success('Image added'); onSaved();
+    } catch (err) { toastApiError(err); }
+  };
+
+  const del = async (index) => {
+    try { await remove.mutateAsync(index); onSaved(); }
+    catch (err) { toastApiError(err); }
+  };
+
+  const move = async (index, dir) => {
+    const next = index + dir;
+    if (next < 0 || next >= items.length) return;
+    const order = items.map((_, i) => i);
+    [order[index], order[next]] = [order[next], order[index]];
+    try { await reorder.mutateAsync(order); onSaved(); }
+    catch (err) { toastApiError(err); }
+  };
+
+  return (
+    <Card className="space-y-4 p-5">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div>
+          <h3 className="text-sm font-medium text-muted-foreground">Gallery</h3>
+          <p className="text-caption text-muted-foreground">
+            {items.length ? `${items.length} of 24 images · shown in order on your site` : 'Add photos of your clinic — the gallery section is hidden until you do.'}
+          </p>
+        </div>
+        <div className="flex items-center gap-2">
+          <input ref={fileRef} type="file" accept="image/*" onChange={pick} className="hidden" />
+          <Button variant="outline" size="sm" onClick={() => fileRef.current?.click()} disabled={busy || items.length >= 24}>
+            {upload.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4" />} Upload
+          </Button>
+        </div>
+      </div>
+
+      {items.length === 0 ? (
+        <button
+          type="button"
+          onClick={() => fileRef.current?.click()}
+          disabled={busy}
+          className="flex w-full flex-col items-center justify-center gap-2 rounded-lg border border-dashed py-10 text-muted-foreground transition-colors hover:border-primary/50 hover:text-primary"
+        >
+          <ImagePlus className="h-7 w-7" />
+          <span className="text-sm font-medium">Upload your first photo</span>
+          <span className="text-caption">JPG, PNG or WebP — up to 24 images</span>
+        </button>
+      ) : (
+        <ul className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
+          {items.map((img, i) => (
+            <li key={`${img.ref}-${i}`} className="group relative overflow-hidden rounded-lg border bg-muted">
+              <div className="aspect-[4/3] w-full">
+                {img.url ? (
+                  <img src={img.url} alt={`Gallery image ${i + 1}`} className="h-full w-full object-cover" loading="lazy" />
+                ) : (
+                  <div className="flex h-full w-full flex-col items-center justify-center gap-1 text-muted-foreground">
+                    <ImageOff className="h-5 w-5" />
+                    <span className="text-caption">Unavailable</span>
+                  </div>
+                )}
+              </div>
+              <span className="absolute left-1.5 top-1.5 rounded bg-black/55 px-1.5 py-0.5 text-[10px] font-semibold text-white">
+                {img.uploaded ? 'Uploaded' : 'Link'}
+              </span>
+              <div className="absolute inset-x-1.5 bottom-1.5 flex items-center justify-between gap-1 opacity-0 transition-opacity focus-within:opacity-100 group-hover:opacity-100">
+                <div className="flex gap-1">
+                  <IconBtn label="Move left" onClick={() => move(i, -1)} disabled={busy || i === 0}><ArrowLeft className="h-3.5 w-3.5" /></IconBtn>
+                  <IconBtn label="Move right" onClick={() => move(i, 1)} disabled={busy || i === items.length - 1}><ArrowRight className="h-3.5 w-3.5" /></IconBtn>
+                </div>
+                <IconBtn label="Remove image" onClick={() => del(i)} disabled={busy} destructive><Trash2 className="h-3.5 w-3.5" /></IconBtn>
+              </div>
+            </li>
+          ))}
+        </ul>
+      )}
+
+      <div className="flex flex-col gap-2 border-t pt-4 sm:flex-row">
+        <Input value={url} onChange={(e) => setUrl(e.target.value)} placeholder="…or paste an image URL (https://…)" onKeyDown={(e) => e.key === 'Enter' && addUrl()} />
+        <Button variant="outline" onClick={addUrl} disabled={busy || !url.trim() || items.length >= 24} className="shrink-0">
+          <Link2 className="h-4 w-4" /> Add link
+        </Button>
+      </div>
+    </Card>
+  );
+}
+
+function IconBtn({ label, onClick, disabled, destructive, children }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      disabled={disabled}
+      aria-label={label}
+      title={label}
+      className={cn(
+        'flex h-7 w-7 items-center justify-center rounded-md text-white shadow-sm backdrop-blur transition-colors disabled:opacity-40',
+        destructive ? 'bg-destructive/85 hover:bg-destructive' : 'bg-black/55 hover:bg-black/75'
+      )}
+    >
+      {children}
+    </button>
+  );
+}
+
+/**
+ * Single-image slot with an inline uploader — used for the hero image and the logo.
+ *
+ * Self-persisting on purpose: uploads go straight to `/api/website/media/:slot`, so the slot
+ * must own the "paste a URL" and "clear" paths too (`onPersist`). If it shared the surrounding
+ * form's state, saving that form would overwrite an image uploaded a moment earlier.
+ */
+function ImageSlot({ slot, label, description, previewUrl, value, onPersist, aspect = 'aspect-[16/9]', fit = 'object-cover', onSaved }) {
+  const upload = useUploadWebsiteImage();
+  const fileRef = useRef(null);
+  const isUpload = typeof value === 'string' && value.startsWith('upload:');
+  const [draft, setDraft] = useState(isUpload ? '' : value || '');
+  const [saving, setSaving] = useState(false);
+  const busy = upload.isPending || saving;
+
+  const pick = async (e) => {
+    const file = e.target.files?.[0];
+    e.target.value = '';
+    if (!file) return;
+    try { await upload.mutateAsync({ slot, file }); setDraft(''); toast.success(`${label} updated`); onSaved?.(); }
+    catch (err) { toastApiError(err); }
+  };
+
+  const persist = async (next) => {
+    setSaving(true);
+    try { await onPersist(next); onSaved?.(); }
+    catch (err) { toastApiError(err); }
+    finally { setSaving(false); }
+  };
+
+  const applyUrl = async () => {
+    const clean = draft.trim();
+    if (clean && !/^https?:\/\//i.test(clean)) { toast.error('Enter a full image URL starting with http:// or https://'); return; }
+    await persist(clean);
+    if (clean) toast.success(`${label} updated`);
+  };
+
+  return (
+    <div className="space-y-2">
+      <div>
+        <p className="text-sm font-medium">{label}</p>
+        {description ? <p className="text-caption text-muted-foreground">{description}</p> : null}
+      </div>
+      <div className={cn('relative overflow-hidden rounded-lg border bg-muted', aspect)}>
+        {previewUrl ? (
+          <img src={previewUrl} alt={label} className={cn('h-full w-full', fit)} />
+        ) : (
+          <div className="flex h-full w-full flex-col items-center justify-center gap-1 text-muted-foreground">
+            <ImagePlus className="h-6 w-6" />
+            <span className="text-caption">No image yet</span>
+          </div>
+        )}
+      </div>
+      <input ref={fileRef} type="file" accept="image/*" onChange={pick} className="hidden" />
+      <div className="flex flex-wrap gap-2">
+        <Button variant="outline" size="sm" onClick={() => fileRef.current?.click()} disabled={busy}>
+          {upload.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4" />} Upload
+        </Button>
+        {value ? (
+          <Button variant="ghost" size="sm" onClick={() => { setDraft(''); persist(''); }} disabled={busy}>
+            <Trash2 className="h-4 w-4 text-destructive" /> Remove
+          </Button>
+        ) : null}
+      </div>
+      {isUpload ? (
+        <p className="text-caption text-muted-foreground">Using your uploaded image. Remove it to paste a link instead.</p>
+      ) : (
+        <div className="flex gap-2">
+          <Input
+            value={draft}
+            onChange={(e) => setDraft(e.target.value)}
+            onKeyDown={(e) => e.key === 'Enter' && applyUrl()}
+            placeholder="…or paste an image URL (https://…)"
+          />
+          <Button variant="outline" size="sm" onClick={applyUrl} disabled={busy || draft.trim() === (value || '')} className="shrink-0">
+            <Link2 className="h-4 w-4" /> Apply
+          </Button>
+        </div>
+      )}
+    </div>
+  );
+}
+
 // ---- Theme (CMS_BASIC) ----
+// Brand green matches the app's --primary token, so a clinic that never touches these keeps
+// the same palette as the dashboard.
+const DEFAULT_PRIMARY = '#0E8C72';
+const DEFAULT_ACCENT = '#0A6A56';
+
 function ThemeTab({ cfg, onSaved }) {
   const save = useUpdateTheme();
+  const saveLogo = useUpdateTheme();
   const [template, setTemplate] = useState(cfg.template);
-  const [theme, setTheme] = useState({ primaryColor: cfg.theme?.primaryColor || '#0d9488', accentColor: cfg.theme?.accentColor || '#0f766e', logoUrl: cfg.theme?.logoUrl || '' });
+  const [theme, setTheme] = useState({
+    primaryColor: cfg.theme?.primaryColor || DEFAULT_PRIMARY,
+    accentColor: cfg.theme?.accentColor || DEFAULT_ACCENT,
+  });
 
   const submit = async () => {
-    try { await save.mutateAsync({ template, theme }); toast.success('Theme saved'); onSaved(); }
-    catch (e) { toastApiError(e); }
+    try {
+      // Keep the logo the server currently holds — it is managed by the slot below.
+      await save.mutateAsync({ template, theme: { ...theme, logoUrl: cfg.theme?.logoUrl || '' } });
+      toast.success('Theme saved'); onSaved();
+    } catch (e) { toastApiError(e); }
   };
 
   return (
     <div className="space-y-4">
       <Card className="space-y-3 p-5">
         <h3 className="text-sm font-medium text-muted-foreground">Template</h3>
-        <div className="grid gap-3 sm:grid-cols-3">
+        <p className="-mt-1 text-caption text-muted-foreground">All {TEMPLATE_META.length} templates render the same content — pick the look that suits your clinic.</p>
+        <div className="grid gap-3 sm:grid-cols-2">
           {TEMPLATE_META.map((t) => (
-            <button key={t.id} type="button" onClick={() => setTemplate(t.id)} className={cn('rounded-lg border p-4 text-left transition-colors hover:border-primary/50', template === t.id && 'border-primary ring-1 ring-primary/30')}>
-              <div className="font-medium">{t.name}</div>
+            <button
+              key={t.id}
+              type="button"
+              onClick={() => setTemplate(t.id)}
+              aria-pressed={template === t.id}
+              className={cn(
+                'rounded-lg border p-4 text-left transition-colors hover:border-primary/50',
+                template === t.id && 'border-primary ring-1 ring-primary/30'
+              )}
+            >
+              <div className="flex items-center justify-between gap-2">
+                <div className="font-medium">{t.name}</div>
+                {template === t.id ? <Badge variant="secondary">Selected</Badge> : null}
+              </div>
               <div className="mt-1 text-caption text-muted-foreground">{t.blurb}</div>
             </button>
           ))}
         </div>
       </Card>
+
       <Card className="space-y-4 p-5">
-        <h3 className="text-sm font-medium text-muted-foreground">Colors &amp; logo</h3>
+        <h3 className="text-sm font-medium text-muted-foreground">Colors</h3>
         <div className="grid gap-4 sm:grid-cols-2">
-          <FormField label="Primary color"><div className="flex items-center gap-2"><input type="color" value={theme.primaryColor} onChange={(e) => setTheme({ ...theme, primaryColor: e.target.value })} className="h-9 w-12 rounded border" /><Input value={theme.primaryColor} onChange={(e) => setTheme({ ...theme, primaryColor: e.target.value })} /></div></FormField>
-          <FormField label="Accent color"><div className="flex items-center gap-2"><input type="color" value={theme.accentColor} onChange={(e) => setTheme({ ...theme, accentColor: e.target.value })} className="h-9 w-12 rounded border" /><Input value={theme.accentColor} onChange={(e) => setTheme({ ...theme, accentColor: e.target.value })} /></div></FormField>
+          <FormField label="Primary color"><div className="flex items-center gap-2"><input type="color" value={theme.primaryColor} onChange={(e) => setTheme({ ...theme, primaryColor: e.target.value })} className="h-9 w-12 rounded border" aria-label="Primary color" /><Input value={theme.primaryColor} onChange={(e) => setTheme({ ...theme, primaryColor: e.target.value })} /></div></FormField>
+          <FormField label="Accent color"><div className="flex items-center gap-2"><input type="color" value={theme.accentColor} onChange={(e) => setTheme({ ...theme, accentColor: e.target.value })} className="h-9 w-12 rounded border" aria-label="Accent color" /><Input value={theme.accentColor} onChange={(e) => setTheme({ ...theme, accentColor: e.target.value })} /></div></FormField>
         </div>
-        <FormField label="Logo URL" description="Optional; falls back to your clinic name"><Input value={theme.logoUrl} onChange={(e) => setTheme({ ...theme, logoUrl: e.target.value })} placeholder="https://…/logo.png" /></FormField>
+        <Button
+          variant="ghost"
+          size="sm"
+          className="w-fit"
+          onClick={() => setTheme({ primaryColor: DEFAULT_PRIMARY, accentColor: DEFAULT_ACCENT })}
+        >
+          <RefreshCw className="h-4 w-4" /> Reset to Clynic green
+        </Button>
       </Card>
+
+      <Card className="space-y-4 p-5">
+        <h3 className="text-sm font-medium text-muted-foreground">Logo</h3>
+        <ImageSlot
+          slot="logo"
+          label="Clinic logo"
+          description="Shown in the navbar and footer of every public page. Falls back to your clinic name."
+          previewUrl={cfg.media?.logoUrl}
+          value={cfg.theme?.logoUrl || ''}
+          aspect="aspect-[3/1]"
+          fit="object-contain p-4"
+          onPersist={(next) => saveLogo.mutateAsync({ template: cfg.template, theme: { ...(cfg.theme || {}), logoUrl: next } })}
+          onSaved={onSaved}
+        />
+      </Card>
+
       <div className="flex justify-end"><Button onClick={submit} disabled={save.isPending}><Save className="h-4 w-4" /> {save.isPending ? 'Saving…' : 'Save theme'}</Button></div>
     </div>
   );
@@ -283,13 +563,19 @@ function SeoTab({ cfg, onSaved }) {
 }
 
 // ---- reusable list editor (services / gallery) ----
-function ListCard({ title, items, onChange, blank, render }) {
+function ListCard({ title, description, items, onChange, blank, render }) {
   const add = () => onChange([...(items || []), { ...blank, _k: nextKey() }]);
   const upd = (i, patch) => onChange(items.map((it, idx) => (idx === i ? { ...it, ...patch } : it)));
   const remove = (i) => onChange(items.filter((_, idx) => idx !== i));
   return (
     <Card className="space-y-3 p-5">
-      <div className="flex items-center justify-between"><h3 className="text-sm font-medium text-muted-foreground">{title}</h3><Button variant="outline" size="sm" onClick={add}><Plus className="h-4 w-4" /> Add</Button></div>
+      <div className="flex items-start justify-between gap-3">
+        <div>
+          <h3 className="text-sm font-medium text-muted-foreground">{title}</h3>
+          {description ? <p className="text-caption text-muted-foreground">{description}</p> : null}
+        </div>
+        <Button variant="outline" size="sm" onClick={add} className="shrink-0"><Plus className="h-4 w-4" /> Add</Button>
+      </div>
       {(!items || items.length === 0) && <p className="text-sm text-muted-foreground">None yet.</p>}
       {(items || []).map((item, i) => (
         <div key={item._k || i} className="flex items-center gap-2">

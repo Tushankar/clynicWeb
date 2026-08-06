@@ -214,7 +214,7 @@ export function BrandMark({ logoUrl, name, tone = 'light', size = 'md' }) {
           size === 'sm' ? 'h-8 w-8' : 'h-9 w-9'
         )}
         style={{
-          background: 'linear-gradient(140deg,#0A1B3A 10%,#12306B 55%,#059669 130%)',
+          background: 'linear-gradient(140deg,#012F24 10%,#0A6A56 55%,#059669 130%)',
           boxShadow: '0 6px 18px -6px rgba(10,27,58,0.5)',
         }}
         aria-hidden="true"
@@ -274,7 +274,7 @@ export function SafeImg({ src, alt, className, imgClassName, eager = false, size
     return (
       <div
         className={cx('flex items-center justify-center', className)}
-        style={{ background: 'linear-gradient(135deg,#0A1B3A 0%,#12306B 60%,#059669 140%)' }}
+        style={{ background: 'linear-gradient(135deg,#012F24 0%,#0A6A56 60%,#059669 140%)' }}
         role="img"
         aria-label={alt}
       >

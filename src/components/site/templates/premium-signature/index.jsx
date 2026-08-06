@@ -74,10 +74,12 @@ export default function PremiumSignature({ site, slug }) {
         <Hero m={m} />
         {/* TrustBar removed as requested */}
         <Services m={m} />
+        {/* Doctors, stories and gallery self-hide when the clinic has no data for them. */}
         <WhyUs m={m} />
         <Pharmacy m={m} />
         <HowItWorks />
         <Testimonials m={m} />
+        <Gallery m={m} />
         <FinalCta m={m} />
       </main>
 

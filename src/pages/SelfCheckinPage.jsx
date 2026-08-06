@@ -97,7 +97,7 @@ export default function SelfCheckinPage() {
               exit={{ opacity: 0, y: -10 }}
               className="rounded-[28px] border border-slate-200/80 bg-white p-6 shadow-[0_24px_60px_-24px_rgba(10,27,58,0.18)] sm:p-8"
             >
-              <h1 className="pmx-display text-center text-[22px] font-semibold tracking-tight text-[#0A1B3A]">Who’s checking in?</h1>
+              <h1 className="pmx-display text-center text-[22px] font-semibold tracking-tight text-[#012F24]">Who’s checking in?</h1>
               <p className="mx-auto mt-2 max-w-sm text-center text-[14px] text-slate-500">More than one person is booked today on this number. Tap your name.</p>
               <div className="mx-auto mt-6 flex max-w-sm flex-col gap-2.5">
                 {chooseFrom.map((p) => (
@@ -109,7 +109,7 @@ export default function SelfCheckinPage() {
                     className="flex items-center justify-between gap-3 rounded-2xl border border-slate-200 bg-white px-4 py-3.5 text-left transition-colors hover:border-emerald-500/60 hover:bg-emerald-50/40 disabled:opacity-50"
                   >
                     <span>
-                      <span className="block text-[15px] font-semibold text-[#0A1B3A]">{p.name}</span>
+                      <span className="block text-[15px] font-semibold text-[#012F24]">{p.name}</span>
                       <span className="block text-[12.5px] text-slate-500">{p.doctorName || 'Consultation'} · token #{p.token}</span>
                     </span>
                     <LogIn className="h-5 w-5 text-emerald-500" aria-hidden="true" />
@@ -127,10 +127,10 @@ export default function SelfCheckinPage() {
             exit={{ opacity: 0, y: -10 }}
             className="rounded-[28px] border border-slate-200/80 bg-white p-6 text-center shadow-[0_24px_60px_-24px_rgba(10,27,58,0.18)] sm:p-10"
           >
-            <span className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-[#0A1B3A]">
+            <span className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-[#012F24]">
               <LogIn className="h-6 w-6 text-emerald-300" aria-hidden="true" />
             </span>
-            <h1 className="pmx-display mt-5 text-[24px] font-semibold tracking-tight text-[#0A1B3A] sm:text-[28px]">
+            <h1 className="pmx-display mt-5 text-[24px] font-semibold tracking-tight text-[#012F24] sm:text-[28px]">
               Welcome — check yourself in
             </h1>
             <p className="mx-auto mt-2 max-w-sm text-[14px] leading-relaxed text-slate-500">
@@ -158,7 +158,7 @@ export default function SelfCheckinPage() {
               type="button"
               onClick={checkin}
               disabled={busy || phone.replace(/\D/g, '').length < 10}
-              className="mx-auto mt-6 flex h-13 w-full max-w-sm items-center justify-center gap-2 rounded-2xl bg-[#0A1B3A] py-4 text-[15px] font-semibold text-white shadow-[0_16px_36px_-10px_rgba(10,27,58,0.5)] transition-all duration-200 hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2"
+              className="mx-auto mt-6 flex h-13 w-full max-w-sm items-center justify-center gap-2 rounded-2xl bg-[#012F24] py-4 text-[15px] font-semibold text-white shadow-[0_16px_36px_-10px_rgba(10,27,58,0.5)] transition-all duration-200 hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2"
             >
               {busy ? <Loader2 className="h-5 w-5 animate-spin" aria-hidden="true" /> : <LogIn className="h-5 w-5 text-emerald-300" aria-hidden="true" />}
               {busy ? 'Finding your booking…' : 'Check in'}
@@ -168,7 +168,7 @@ export default function SelfCheckinPage() {
           )
         ) : (
           <motion.section key="done" initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} className="space-y-5">
-            <div className="rounded-[28px] bg-[#0A1B3A] p-8 text-center text-white shadow-[0_32px_80px_-28px_rgba(10,27,58,0.55)] sm:p-10">
+            <div className="rounded-[28px] bg-[#012F24] p-8 text-center text-white shadow-[0_32px_80px_-28px_rgba(10,27,58,0.55)] sm:p-10">
               <p className="text-[12px] font-semibold uppercase tracking-[0.2em] text-emerald-300/90">
                 {result.already ? `Welcome back, ${result.name}` : `You're checked in, ${result.name}`}
               </p>
