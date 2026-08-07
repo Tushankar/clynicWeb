@@ -1,11 +1,13 @@
 /**
  * Online Pharmacy — the storefront teaser on the clinic's home page.
  *
- * Data contract: when the clinic runs an Ultra Premium storefront AND has sellable medicines,
- * this section shows its REAL catalogue (live price, stock, Rx flag) and every control works —
- * search jumps to the store's search results, the category chips filter, "Add to Cart" writes to
- * the shared cart, and "See All" opens the full store. Until the clinic adds medicines, the same
- * layout renders the template's showcase cards so the section is never empty.
+ * Data contract: this section renders ONLY when the clinic runs an Ultra Premium storefront AND
+ * has sellable medicines. It then shows its REAL catalogue (live price, stock, Rx flag) and every
+ * control works — search jumps to the store's search results, the category chips filter,
+ * "Add to Cart" writes to the shared cart, and "See All" opens the full store.
+ *
+ * It renders nothing otherwise. It previously fell back to hardcoded demo cards priced in USD,
+ * which meant every clinic without a storefront advertised four medicines it does not sell.
  */
 import { useState, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
@@ -16,14 +18,6 @@ import { inr } from '@/lib/format';
 
 const TEAL = '#0E8C72';
 const TEAL_DARK = '#074C3D';
-
-// Showcase cards — the template's default look, used until the clinic lists real medicines.
-const SHOWCASE = [
-  { id: 'demo-1', name: 'Amoxicillin Premium', type: 'Antibiotic', price: '$7.00', priceColor: TEAL, img: '/pharmacy_medicine_1.png', bgColor: 'rgba(11, 184, 159, 0.05)', badge: 'Discounted' },
-  { id: 'demo-2', name: 'Ibuprofen Forte', type: 'Pain Relief', price: '$15.00', priceColor: '#EF4444', img: '/pharmacy_medicine_2.png', bgColor: 'rgba(239, 68, 68, 0.04)', badge: null },
-  { id: 'demo-3', name: 'Multivitamin Complex', type: 'Supplement', price: '$3.90', priceColor: TEAL, img: '/pharmacy_medicine_3.png', bgColor: 'rgba(1, 47, 36, 0.05)', badge: null },
-  { id: 'demo-4', name: 'Paracetamol Extra', type: 'Fever Reducer', price: '$18.00', priceColor: TEAL, img: '/pharmacy_medicine_4.png', bgColor: 'rgba(52, 211, 153, 0.10)', badge: 'Discounted' },
-];
 
 const TINTS = ['rgba(11, 184, 159, 0.05)', 'rgba(239, 68, 68, 0.04)', 'rgba(1, 47, 36, 0.05)', 'rgba(52, 211, 153, 0.10)'];
 const ART = ['/pharmacy_medicine_1.png', '/pharmacy_medicine_2.png', '/pharmacy_medicine_3.png', '/pharmacy_medicine_4.png'];
@@ -57,7 +51,15 @@ export default function Pharmacy({ m }) {
   const featured = store?.featured || [];
   const categories = store?.categories || [];
   const isLive = featured.length > 0;
-  const products = isLive ? featured.slice(0, 12).map(toCard) : SHOWCASE;
+
+  // Never advertise medicines the clinic does not sell. This section used to fall back to a
+  // hardcoded SHOWCASE — four demo products priced in USD, with working Add-to-Cart — on EVERY
+  // published clinic site, because the fallback only cleared once a clinic listed real medicines,
+  // which requires the Ultra Premium storefront. Basic/Standard/Premium clinics therefore showed
+  // fake stock permanently, with no CMS control to remove it. Render only for a live storefront.
+  if (!m.store || !isLive) return null;
+
+  const products = featured.slice(0, 12).map(toCard);
 
   const handleScroll = (direction) => {
     if (scrollRef.current) {
@@ -103,9 +105,7 @@ export default function Pharmacy({ m }) {
               Online Pharmacy
             </h2>
             <p className="mt-2 text-slate-500 text-sm font-semibold max-w-xl">
-              {isLive
-                ? `Genuine medicines from ${m.name}, delivered to your door.`
-                : 'Premium medicine product cards in this theme.'}
+              {`Genuine medicines from ${m.name}, delivered to your door.`}
             </p>
           </div>
 

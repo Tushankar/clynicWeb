@@ -9,7 +9,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import { useRole } from '@/hooks/useRole';
 import { useMe } from '@/hooks/useMe';
 import { useFeature } from '@/hooks/usePlan';
-import { usePrimaryBranch } from '@/hooks/useBranches';
+import { useBranch } from '@/context/BranchContext';
 import { useDoctors } from '@/hooks/useDoctors';
 import { useQueue, useCallNext, useCompleteEntry, useSkipEntry, useReQueueEntry } from '@/hooks/useQueue';
 import { toast, toastApiError } from '@/lib/toast';
@@ -17,7 +17,10 @@ import { toast, toastApiError } from '@/lib/toast';
 export default function QueuePage() {
   const navigate = useNavigate();
   const { clinicId } = useRole();
-  const { branchId } = usePrimaryBranch();
+  // resolvedBranchId honours the branch switcher and falls back to the primary branch, so it is
+  // never null. Using usePrimaryBranch() here meant a doctor at branch B pressed "Call next" and
+  // summoned a patient sitting at branch A.
+  const { resolvedBranchId: branchId } = useBranch();
   const slug = useMe().data?.clinic?.slug;
   const hasSelfCheckin = useFeature('SELF_CHECKIN');
   const [qrOpen, setQrOpen] = useState(false);

@@ -53,6 +53,9 @@ function PortalLogin({ slug, m, onLoggedIn }) {
   const [password, setPassword] = useState('');
   const [code, setCode] = useState('');
   const [devCode, setDevCode] = useState(null);
+  // Shared-contact disambiguation (stage 'who').
+  const [candidates, setCandidates] = useState([]);
+  const [selectionToken, setSelectionToken] = useState(null);
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState(null);
   const [rememberMe, setRememberMe] = useState(true);
@@ -70,6 +73,22 @@ function PortalLogin({ slug, m, onLoggedIn }) {
     setErr(null); setBusy(true);
     try {
       const res = await portalFetch(`/api/portal/c/${slug}/login/verify`, { method: 'POST', body: { email, code }, auth: false });
+      // A shared household phone/email can map to several people. Rather than guess (which used to
+      // land the wrong person in someone else's chart), the server asks which one is signing in.
+      if (res.needsSelection) {
+        setCandidates(res.candidates || []);
+        setSelectionToken(res.selectionToken);
+        setStage('who');
+        return;
+      }
+      onLoggedIn(res.token);
+    } catch (e) { setErr(e.message); } finally { setBusy(false); }
+  };
+
+  const choose = async (patientId) => {
+    setErr(null); setBusy(true);
+    try {
+      const res = await portalFetch(`/api/portal/c/${slug}/login/select`, { method: 'POST', body: { selectionToken, patientId }, auth: false });
       onLoggedIn(res.token);
     } catch (e) { setErr(e.message); } finally { setBusy(false); }
   };
@@ -140,6 +159,38 @@ function PortalLogin({ slug, m, onLoggedIn }) {
               <p className="rounded-xl bg-red-500/10 border border-red-500/20 px-4 py-2 text-xs font-bold text-red-500 text-center backdrop-blur-sm">{err}</p>
             )}
 
+            {stage === 'who' ? (
+              /* Shared phone/email: several people are registered on this contact. Ask which one
+                 is signing in rather than guessing — guessing put a family member in the wrong
+                 person's medical record. */
+              <div className="space-y-3">
+                <p className="text-[13px] font-semibold text-slate-700">
+                  This contact is registered for more than one person. Who is signing in?
+                </p>
+                <div className="space-y-2">
+                  {candidates.map((c) => (
+                    <button
+                      key={c.id}
+                      type="button"
+                      onClick={() => choose(c.id)}
+                      disabled={busy}
+                      className="w-full h-[46px] px-4 flex items-center justify-between bg-white/60 border border-white/60 rounded-xl text-[13px] font-semibold text-slate-700 hover:border-[#0E8C72] hover:bg-white/80 transition disabled:opacity-50"
+                    >
+                      <span>{c.name}</span>
+                      <span className="text-[#0E8C72]">Continue</span>
+                    </button>
+                  ))}
+                </div>
+                <button
+                  type="button"
+                  onClick={() => { setStage('email'); setCode(''); setCandidates([]); setSelectionToken(null); }}
+                  className="text-[12px] font-bold text-slate-500 hover:underline"
+                >
+                  Use a different email or number
+                </button>
+              </div>
+            ) : (
+              <>
             {/* Email field */}
             <div className="relative">
               <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">
@@ -223,6 +274,8 @@ function PortalLogin({ slug, m, onLoggedIn }) {
               <input type="checkbox" checked={rememberMe} onChange={(e) => setRememberMe(e.target.checked)} className="h-4 w-4 rounded border-white/60 text-[#0E8C72] focus:ring-[#0E8C72] cursor-pointer" />
               <span className="text-[12.5px] font-bold text-slate-600">Remember Me</span>
             </label>
+              </>
+            )}
 
             {/* Social divider */}
             <div className="flex items-center gap-3">

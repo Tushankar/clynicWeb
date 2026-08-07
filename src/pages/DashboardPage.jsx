@@ -118,7 +118,7 @@ export default function DashboardPage() {
   const canManage = useHasRole('owner', 'receptionist');
   const clinicName = useMe().data?.clinic?.name;
   const { user } = useUser();
-  const { data, isLoading } = useDashboard();
+  const { data, isLoading, isError, error, refetch } = useDashboard();
 
   const [bookOpen, setBookOpen] = useState(false);
   const [walkOpen, setWalkOpen] = useState(false);
@@ -143,7 +143,10 @@ export default function DashboardPage() {
 
   // First-run truth: a clinic with no doctors cannot take a single booking, so the dashboard must
   // NOT claim "everything looks healthy / operational". Show setup guidance instead until it's ready.
-  const needsSetup = !isLoading && doctors.length === 0;
+  // A FAILED fetch must never look like an empty clinic. Without the isError guard, `data` is
+  // undefined on any error, so doctors.length === 0 and an established clinic is told to "add your
+  // first doctor" under the heading "Everything looks healthy today" — with no retry.
+  const needsSetup = !isLoading && !isError && doctors.length === 0;
 
   const KPI = [
     { key: 'patients', label: "Today's Patients", icon: Users, tint: 'blue', fmt: (v) => v },
@@ -157,6 +160,21 @@ export default function DashboardPage() {
 
   return (
     <div className="space-y-6">
+      {/* A failed summary must say so, not render as a healthy empty clinic. */}
+      {isError && (
+        <Card className="border-destructive/40 bg-destructive/5 p-4">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div>
+              <p className="text-sm font-medium text-foreground">We couldn’t load today’s dashboard</p>
+              <p className="mt-0.5 text-sm text-muted-foreground">
+                {error?.message || 'Something went wrong. Your data is safe — this is a display problem.'}
+              </p>
+            </div>
+            <Button variant="outline" size="sm" onClick={() => refetch()}>Retry</Button>
+          </div>
+        </Card>
+      )}
+
       {/* ---------- Hero ---------- */}
       <div className="grid gap-5 xl:grid-cols-[1.4fr_1fr] xl:items-center">
         <div className="flex flex-col justify-center">
@@ -164,7 +182,13 @@ export default function DashboardPage() {
           <h1 className="mt-0.5 text-[32px] font-bold leading-tight tracking-tight text-foreground">
             {user?.fullName || clinicName || 'Welcome back'} <span className="align-middle">👋</span>
           </h1>
-          <p className="mt-1 text-sm text-muted-foreground">{needsSetup ? 'Let’s finish setting up your clinic so you can start taking bookings.' : 'Everything looks healthy today.'}</p>
+          <p className="mt-1 text-sm text-muted-foreground">
+            {isError
+              ? 'Some of today’s figures are unavailable right now.'
+              : needsSetup
+                ? 'Let’s finish setting up your clinic so you can start taking bookings.'
+                : 'Everything looks healthy today.'}
+          </p>
           <div className="mt-4 flex flex-wrap gap-2">
             <Chip icon={CalendarCheck} tint="blue" label={`${k?.appointments.value ?? '—'} appointments`} />
             <Chip icon={Users} tint="teal" label={`${queue.counts.waiting} patients waiting`} />

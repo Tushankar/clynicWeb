@@ -60,7 +60,13 @@ export default function PremiumSignature({ site, slug }) {
         bestRating: 5,
       };
     }
-    return JSON.stringify(data);
+    // JSON.stringify escapes quotes and backslashes but NOT `<` or `/`, so clinic-authored text
+    // containing `</script><script>…` would break out of the ld+json block and execute — on the
+    // same origin as the staff dashboard. Escape the characters that can terminate the element.
+    return JSON.stringify(data)
+      .replace(/</g, '\\u003c')
+      .replace(/>/g, '\\u003e')
+      .replace(/&/g, '\\u0026');
   }, [m]);
 
   return (

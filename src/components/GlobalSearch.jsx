@@ -6,7 +6,13 @@ import { useFeature } from '@/hooks/usePlan';
 import { useSearch } from '@/hooks/useSearch';
 import { fmtDateTime } from '@/lib/format';
 
-/** Gmail-style global search (top bar). Plan-gated — hidden unless UNIVERSAL_SEARCH unlocked. */
+/**
+ * Gmail-style global search (top bar). Plan-gated — hidden unless UNIVERSAL_SEARCH unlocked.
+ *
+ * Result activation: onMouseDown only PREVENTS the input's blur from closing the dropdown before
+ * the click lands; the actual navigation happens onClick, so Enter/Space work for keyboard and
+ * screen-reader users. Firing on onMouseDown alone made every search result mouse-only.
+ */
 export function GlobalSearch() {
   const allowed = useFeature('UNIVERSAL_SEARCH');
   const navigate = useNavigate();
@@ -57,7 +63,7 @@ export function GlobalSearch() {
               {patients.length > 0 && (
                 <Group title="Patients">
                   {patients.map((p) => (
-                    <button key={p._id} onMouseDown={() => goPatient(p._id)} className="flex w-full items-center justify-between px-3 py-2 text-left text-sm hover:bg-accent">
+                    <button key={p._id} onMouseDown={(e) => e.preventDefault()} onClick={() => goPatient(p._id)} className="flex w-full items-center justify-between px-3 py-2 text-left text-sm hover:bg-accent">
                       <span className="font-medium">{p.name}</span>
                       <span className="text-caption text-muted-foreground">{p.phone || p.patientCode}</span>
                     </button>
@@ -67,7 +73,7 @@ export function GlobalSearch() {
               {appts.length > 0 && (
                 <Group title="Appointments">
                   {appts.map((a) => (
-                    <button key={a._id} onMouseDown={() => goPatient(a.patientId)} className="flex w-full items-center justify-between px-3 py-2 text-left text-sm hover:bg-accent">
+                    <button key={a._id} onMouseDown={(e) => e.preventDefault()} onClick={() => goPatient(a.patientId)} className="flex w-full items-center justify-between px-3 py-2 text-left text-sm hover:bg-accent">
                       <span>{a.patientName} · {a.doctorName}</span>
                       <span className="text-caption text-muted-foreground">{fmtDateTime(a.scheduledAt)}</span>
                     </button>

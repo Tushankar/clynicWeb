@@ -13,6 +13,7 @@ import {
   ReceiptText,
   Smartphone,
   Trash2,
+  RotateCcw,
   Wallet,
 } from 'lucide-react';
 import { PageHeader, DataTable, Avatar, StatCard, InvoiceStatusBadge } from '@/components/primitives';
@@ -29,7 +30,7 @@ import {
   DialogDescription,
   DialogFooter,
 } from '@/components/ui/dialog';
-import { useInvoices, useDayRegister } from '@/hooks/useBilling';
+import { useInvoices, useDayRegister, useVoidInvoice, useDeletedInvoices, useRestoreInvoice } from '@/hooks/useBilling';
 import { useExpenses, useExpenseCategories, useCreateExpense, useRemoveExpense } from '@/hooks/useExpenses';
 import { useExportCsv } from '@/hooks/useExport';
 import { useFeature } from '@/hooks/usePlan';
@@ -90,9 +91,39 @@ function InvoicesTab() {
   const [formOpen, setFormOpen] = useState(false);
   const [detailId, setDetailId] = useState(null);
   const [dueOnly, setDueOnly] = useState(false);
+  const [showVoided, setShowVoided] = useState(false);
   const { data, isLoading, isError, error, refetch } = useInvoices({});
+  // Owner-only "recently voided" view — the undo for a mis-issued invoice.
+  const voided = useDeletedInvoices(isOwner && showVoided);
+  const voidInvoice = useVoidInvoice();
+  const restoreInvoice = useRestoreInvoice();
   const all = data?.items || [];
   const invoices = dueOnly ? all.filter((i) => ['unpaid', 'partially_paid'].includes(i.status)) : all;
+
+  const doVoid = async (inv) => {
+    // A paid invoice is a settled financial record — voiding it would silently rewrite revenue.
+    // Refunds are the correct instrument there, so send the user to the detail dialog instead.
+    if (inv.amountPaid > 0) {
+      toast.error('This invoice has payments against it. Issue a refund from the invoice instead of voiding it.');
+      return;
+    }
+    if (!window.confirm(`Void invoice ${inv.invoiceNumber}? It moves to "Recently voided" and stops counting towards dues. You can restore it.`)) return;
+    try {
+      await voidInvoice.mutateAsync({ id: inv._id });
+      toast.success(`${inv.invoiceNumber} voided`);
+    } catch (e) {
+      toastApiError(e);
+    }
+  };
+
+  const doRestore = async (inv) => {
+    try {
+      await restoreInvoice.mutateAsync({ id: inv._id });
+      toast.success(`${inv.invoiceNumber} restored`);
+    } catch (e) {
+      toastApiError(e);
+    }
+  };
 
   const doExport = async () => {
     try {
@@ -118,6 +149,41 @@ function InvoicesTab() {
     } },
     { key: 'status', header: 'Status', render: (i) => <InvoiceStatusBadge status={i.status} /> },
     { key: 'date', header: 'Date', render: (i) => fmtDate(i.createdAt) },
+    ...(isOwner
+      ? [{
+          key: 'actions',
+          header: '',
+          align: 'right',
+          render: (i) => (
+            <Button
+              variant="ghost"
+              size="sm"
+              aria-label={`Void invoice ${i.invoiceNumber}`}
+              disabled={voidInvoice.isPending}
+              onClick={(e) => { e.stopPropagation(); doVoid(i); }}
+            >
+              <Trash2 className="h-4 w-4" />
+            </Button>
+          ),
+        }]
+      : []),
+  ];
+
+  const voidedColumns = [
+    { key: 'invoiceNumber', header: 'Invoice', className: 'font-mono text-xs text-muted-foreground' },
+    { key: 'patient', header: 'Patient', render: (i) => i.patientName || '—' },
+    { key: 'total', header: 'Total', align: 'right', render: (i) => inr(i.total) },
+    { key: 'voidedAt', header: 'Voided', render: (i) => fmtDate(i.deletedAt) },
+    {
+      key: 'actions',
+      header: '',
+      align: 'right',
+      render: (i) => (
+        <Button variant="ghost" size="sm" disabled={restoreInvoice.isPending} onClick={() => doRestore(i)}>
+          <RotateCcw className="h-4 w-4" /> Restore
+        </Button>
+      ),
+    },
   ];
 
   return (
@@ -131,6 +197,11 @@ function InvoicesTab() {
         >
           <Wallet className="h-4 w-4" /> Dues only
         </Button>
+        {isOwner && (
+          <Button variant={showVoided ? 'secondary' : 'ghost'} size="sm" onClick={() => setShowVoided((v) => !v)} aria-pressed={showVoided}>
+            <Trash2 className="h-4 w-4" /> {showVoided ? 'Back to invoices' : 'Recently voided'}
+          </Button>
+        )}
         {isOwner && hasExport && (
           <Button variant="ghost" size="sm" onClick={doExport} disabled={exportCsv.isPending}>
             <Download className="h-4 w-4" /> Export
@@ -138,21 +209,33 @@ function InvoicesTab() {
         )}
         {canCreate && <Button onClick={() => setFormOpen(true)}><Plus className="h-4 w-4" /> New invoice</Button>}
       </div>
-      <DataTable
-        columns={columns}
-        data={invoices}
-        isLoading={isLoading}
-        isError={isError}
-        error={error}
-        onRetry={refetch}
-        onRowClick={(i) => setDetailId(i._id)}
-        empty={{
-          icon: Receipt,
-          title: dueOnly ? 'No outstanding dues' : 'No invoices yet',
-          description: dueOnly ? 'Every invoice is fully settled. 🎉' : 'Create an invoice to bill a patient.',
-          action: canCreate && !dueOnly ? <Button onClick={() => setFormOpen(true)}><Plus className="h-4 w-4" /> New invoice</Button> : null,
-        }}
-      />
+      {showVoided ? (
+        <DataTable
+          columns={voidedColumns}
+          data={voided.data?.items || []}
+          isLoading={voided.isLoading}
+          isError={voided.isError}
+          error={voided.error}
+          onRetry={voided.refetch}
+          empty={{ icon: Trash2, title: 'Nothing voided', description: 'Voided invoices appear here and can be restored.' }}
+        />
+      ) : (
+        <DataTable
+          columns={columns}
+          data={invoices}
+          isLoading={isLoading}
+          isError={isError}
+          error={error}
+          onRetry={refetch}
+          onRowClick={(i) => setDetailId(i._id)}
+          empty={{
+            icon: Receipt,
+            title: dueOnly ? 'No outstanding dues' : 'No invoices yet',
+            description: dueOnly ? 'Every invoice is fully settled. 🎉' : 'Create an invoice to bill a patient.',
+            action: canCreate && !dueOnly ? <Button onClick={() => setFormOpen(true)}><Plus className="h-4 w-4" /> New invoice</Button> : null,
+          }}
+        />
+      )}
       <InvoiceFormDialog open={formOpen} onOpenChange={setFormOpen} />
       <InvoiceDetailDialog invoiceId={detailId} open={!!detailId} onOpenChange={(o) => !o && setDetailId(null)} />
     </div>

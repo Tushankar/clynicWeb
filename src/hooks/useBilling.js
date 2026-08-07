@@ -37,6 +37,28 @@ export const useSendPaymentLink = () => billingMutation(({ id }) => api.post(`/a
 export const useShareInvoice = () => billingMutation(({ id }) => api.post(`/api/invoices/${id}/share`));
 
 /**
+ * Void / restore a mis-issued invoice.
+ *
+ * The backend has had soft-delete, trash and restore since Phase 3 (`invoiceRoutes.js:18,20,26`)
+ * but nothing on the frontend ever called them — so a wrong-patient or wrong-amount invoice stayed
+ * "Unpaid" forever and permanently inflated outstanding dues, with no way to correct it.
+ * Mirrors the patient trash/restore pattern in usePatients.
+ */
+export const useVoidInvoice = () => billingMutation(({ id }) => api.del(`/api/invoices/${id}`));
+
+/** Owner-only: recently-voided invoices (the "trash" view), so a mistake is visible and undoable. */
+export function useDeletedInvoices(enabled) {
+  return useQuery({
+    queryKey: ['invoices', 'deleted'],
+    queryFn: () => api.get('/api/invoices/deleted'),
+    enabled: !!enabled,
+  });
+}
+
+/** Owner-only: restore a voided invoice. */
+export const useRestoreInvoice = () => billingMutation(({ id }) => api.post(`/api/invoices/${id}/restore`));
+
+/**
  * Pay an invoice online. PRODUCTION: open Razorpay checkout (checkout.js) → it returns
  * {order_id, payment_id, signature} which we POST to /payments/verify (server verifies).
  * DEV (mock driver): the mock gateway signs server-side via /payments/mock-sign so the
