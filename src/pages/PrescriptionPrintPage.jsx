@@ -28,10 +28,23 @@ export default function PrescriptionPrintPage() {
 
   return (
     <div className="mx-auto max-w-2xl bg-white p-8 text-foreground">
-      <div className="mb-6 flex items-start justify-between border-b pb-4">
-        <div>
+      {/* Clinic identity + prescriber credentials. A prescription in India is not a valid document
+          without the prescriber's medical-council registration number, and neither that nor the
+          clinic's contact details were printed. The credentials are snapshotted onto the
+          prescription at issue time, so an old Rx shows what was true when it was written. */}
+      <div className="mb-6 flex items-start justify-between gap-6 border-b pb-4">
+        <div className="min-w-0">
           <h1 className="text-xl font-semibold">{clinic?.name || 'Clinic'}</h1>
-          <p className="text-sm text-muted-foreground">Prescription</p>
+          {clinic?.address && <p className="mt-0.5 text-xs text-muted-foreground">{clinic.address}</p>}
+          {clinic?.phone && <p className="text-xs text-muted-foreground">Phone: {clinic.phone}</p>}
+          <p className="mt-1 text-sm text-muted-foreground">Prescription</p>
+        </div>
+        <div className="shrink-0 text-right">
+          <div className="text-sm font-medium">{rx.doctorName || 'Doctor'}</div>
+          {rx.doctorQualifications && <div className="text-xs text-muted-foreground">{rx.doctorQualifications}</div>}
+          {rx.doctorRegistrationNumber
+            ? <div className="text-xs text-muted-foreground">Reg. No: <span className="font-mono">{rx.doctorRegistrationNumber}</span></div>
+            : <div className="text-xs text-amber-600 print:hidden">No registration number on file — add it to the doctor’s profile.</div>}
         </div>
         <button
           onClick={() => window.print()}
@@ -67,7 +80,14 @@ export default function PrescriptionPrintPage() {
       {rx.notes && <p className="mt-4 text-sm"><span className="text-muted-foreground">Advice: </span>{rx.notes}</p>}
 
       <div className="mt-16 text-right text-sm">
-        <div className="inline-block border-t px-8 pt-1">{rx.doctorName || 'Doctor'}</div>
+        <div className="inline-block border-t px-8 pt-1">
+          <div className="font-medium">{rx.doctorName || 'Doctor'}</div>
+          {rx.doctorQualifications && <div className="text-xs text-muted-foreground">{rx.doctorQualifications}</div>}
+          {rx.doctorRegistrationNumber && (
+            <div className="text-xs text-muted-foreground">Reg. No: <span className="font-mono">{rx.doctorRegistrationNumber}</span></div>
+          )}
+          <div className="mt-0.5 text-[10px] uppercase tracking-wide text-muted-foreground">Signature</div>
+        </div>
       </div>
     </div>
   );

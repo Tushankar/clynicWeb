@@ -22,11 +22,13 @@ const schema = z.object({
   currentMedications: z.string().optional(),
   medicalHistory: z.string().optional(),
   notes: z.string().optional(),
+  marketingOptOut: z.boolean().optional(),
 });
 
 const empty = {
   name: '', phone: '', email: '', dob: '', gender: 'unspecified',
   bloodGroup: '', allergies: '', currentMedications: '', medicalHistory: '', notes: '',
+  marketingOptOut: false,
 };
 
 const toList = (s) => (s || '').split(',').map((x) => x.trim()).filter(Boolean);
@@ -59,6 +61,7 @@ export function PatientFormDialog({ open, onOpenChange, patient }) {
               currentMedications: toCsv(patient.currentMedications),
               medicalHistory: patient.medicalHistory || '',
               notes: patient.notes || '',
+              marketingOptOut: !!patient.marketingOptOut,
             }
           : empty
       );
@@ -149,6 +152,19 @@ export function PatientFormDialog({ open, onOpenChange, patient }) {
               </FormField>
             </div>
           </div>
+
+          {/* Marketing consent. Scope is MARKETING ONLY — appointment reminders, OTPs and invoices
+              are transactional and keep sending, which is both the legal distinction and what a
+              patient actually expects. */}
+          <label className="flex items-start gap-2.5 rounded-lg border p-3">
+            <input type="checkbox" {...register('marketingOptOut')} className="mt-0.5 h-4 w-4 rounded border-input" />
+            <span className="text-sm">
+              <span className="font-medium text-foreground">Do not send marketing messages</span>
+              <span className="block text-xs text-muted-foreground">
+                Stops birthday wishes and re-engagement campaigns. Appointment reminders and bills are unaffected.
+              </span>
+            </span>
+          </label>
 
           <FormField label="Notes" htmlFor="notes" error={errors.notes?.message}>
             <Textarea id="notes" {...register('notes')} placeholder="Reception/clinical context…" />
