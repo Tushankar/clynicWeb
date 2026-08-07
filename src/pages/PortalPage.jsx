@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { 
-  LogOut, CalendarDays, Pill, Receipt, FileText, ListChecks, Upload, Eye, EyeOff, User, KeyRound,
+  LogOut, CalendarDays, Pill, Receipt, FileText, ListChecks, Upload, User,
   Activity, Bell, CheckCircle2, ChevronRight, CreditCard, Sparkles, TrendingUp, HeartHandshake, ShieldAlert, Info
 } from 'lucide-react';
 import { Logo } from '@/components/Logo';
@@ -50,7 +50,6 @@ function PortalLogin({ slug, m, onLoggedIn }) {
 
   const [stage, setStage] = useState('email');
   const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
   const [code, setCode] = useState('');
   const [devCode, setDevCode] = useState(null);
   // Shared-contact disambiguation (stage 'who').
@@ -58,8 +57,6 @@ function PortalLogin({ slug, m, onLoggedIn }) {
   const [selectionToken, setSelectionToken] = useState(null);
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState(null);
-  const [rememberMe, setRememberMe] = useState(true);
-  const [showPw, setShowPw] = useState(false);
 
   const request = async () => {
     setErr(null); setBusy(true);
@@ -206,49 +203,31 @@ function PortalLogin({ slug, m, onLoggedIn }) {
               />
             </div>
 
-            {/* Forgot password */}
-            <div className="flex justify-end -mt-2 -mb-1">
-              <button type="button" className="text-[12px] font-bold text-[#0E8C72] hover:underline">Forgot Password?</button>
-            </div>
-
-            {/* Password / OTP */}
-            <div className="relative">
-              <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">
-                <svg className="h-[17px] w-[17px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
-              </span>
-
-              {stage === 'email' ? (
-                <input
-                  type={showPw ? 'text' : 'password'}
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  placeholder="Password"
-                  className="w-full h-[46px] pl-11 pr-36 bg-white/60 border border-white/60 rounded-xl text-[13px] font-semibold text-slate-700 placeholder-slate-400 focus:outline-none focus:border-[#0E8C72] focus:ring-1 focus:ring-[#0E8C72]/30 focus:bg-white/80 transition"
-                />
-              ) : (
+            {/* OTP code — only once a code has been sent.
+                A Password field and a "Forgot Password?" link used to sit here. Neither did
+                anything: this portal authenticates by one-time code, and `password` was never sent
+                anywhere. They invited patients to type a password that would be ignored, and to
+                click a recovery link that led nowhere. */}
+            {stage === 'code' && (
+              <div className="relative">
+                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">
+                  <svg className="h-[17px] w-[17px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+                </span>
                 <input
                   type="text"
                   value={code}
                   onChange={(e) => setCode(e.target.value)}
                   placeholder="Enter 6-digit code"
                   autoFocus
+                  inputMode="numeric"
+                  autoComplete="one-time-code"
+                  maxLength={8}
+                  onKeyDown={(e) => { if (e.key === 'Enter' && code && !busy) verify(); }}
                   className="w-full h-[46px] pl-11 pr-20 bg-white/60 border border-white/60 rounded-xl text-[13px] font-semibold text-slate-700 placeholder-slate-400 focus:outline-none focus:border-[#0E8C72] focus:ring-1 focus:ring-[#0E8C72]/30 focus:bg-white/80 transition"
                 />
-              )}
-
-              {stage === 'email' ? (
-                <button
-                  type="button"
-                  onClick={() => setShowPw(!showPw)}
-                  className="absolute right-4 top-1/2 -translate-y-1/2 flex items-center gap-1.5 text-slate-400 hover:text-slate-600 transition"
-                >
-                  <span className="text-[11.5px] font-semibold whitespace-nowrap">Show Password</span>
-                  {showPw ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                </button>
-              ) : (
                 <button type="button" onClick={request} className="absolute right-4 top-1/2 -translate-y-1/2 text-[#0E8C72] text-[12px] font-bold hover:underline">Resend</button>
-              )}
-            </div>
+              </div>
+            )}
 
             {/* Dev code */}
             {stage === 'code' && devCode && (
@@ -269,33 +248,10 @@ function PortalLogin({ slug, m, onLoggedIn }) {
               <span className="relative z-10">{busy ? 'Processing…' : 'Sign In'}</span>
             </button>
 
-            {/* Remember me */}
-            <label className="flex items-center gap-2 cursor-pointer select-none -mt-1">
-              <input type="checkbox" checked={rememberMe} onChange={(e) => setRememberMe(e.target.checked)} className="h-4 w-4 rounded border-white/60 text-[#0E8C72] focus:ring-[#0E8C72] cursor-pointer" />
-              <span className="text-[12.5px] font-bold text-slate-600">Remember Me</span>
-            </label>
+            {/* A "Remember Me" checkbox used to sit here. It was never read — the session token is
+                always persisted — so unchecking it changed nothing. Removed rather than lie. */}
               </>
             )}
-
-            {/* Social divider */}
-            <div className="flex items-center gap-3">
-              <span className="flex-1 h-px bg-white/40" />
-              <span className="text-[10.5px] font-bold text-slate-500 uppercase tracking-wider whitespace-nowrap">Or, Sign In with:</span>
-              <span className="flex-1 h-px bg-white/40" />
-            </div>
-
-            {/* Social icons */}
-            <div className="flex items-center justify-center gap-3">
-              <button type="button" className="h-10 w-10 bg-white/50 border border-white/60 rounded-xl flex items-center justify-center hover:bg-white/70 backdrop-blur-sm transition shadow-xs">
-                <svg className="h-5 w-5" viewBox="0 0 24 24"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 01-2.2 3.32v2.77h3.57c2.08-1.92 3.27-4.74 3.27-8.1z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18A10.96 10.96 0 001 12c0 1.77.42 3.44 1.18 4.93l3.66-2.84z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
-              </button>
-              <button type="button" className="h-10 w-10 bg-white/50 border border-white/60 rounded-xl flex items-center justify-center hover:bg-white/70 backdrop-blur-sm transition shadow-xs">
-                <svg className="h-5 w-5 text-black" viewBox="0 0 24 24" fill="currentColor"><path d="M17.05 20.28c-.98.95-2.05.88-3.08.4-1.09-.5-2.08-.48-3.24 0-1.44.62-2.2.44-3.06-.4C3.79 16.17 4.36 9.01 8.7 8.76c1.24.07 2.1.72 2.83.78.95-.2 1.86-.76 2.87-.69 1.22.1 2.14.57 2.74 1.44-2.51 1.52-1.92 4.87.36 5.8-.48 1.26-.7 1.83-1.45 2.93v1.26zM12.08 8.67c-.16-2.22 1.63-4.12 3.74-4.3.28 2.42-2.18 4.5-3.74 4.3z"/></svg>
-              </button>
-              <button type="button" className="h-10 px-3 bg-[#005EB8]/80 border border-[#005EB8]/60 rounded-xl flex items-center justify-center hover:bg-[#005EB8] backdrop-blur-sm transition shadow-xs">
-                <span className="text-white text-[13px] font-black tracking-tight">NHS</span>
-              </button>
-            </div>
 
             {/* Footer */}
             <p className="text-center text-[12.5px] font-semibold text-slate-600">
