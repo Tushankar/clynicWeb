@@ -1,0 +1,34 @@
+# Netlify config for clinic-web.
+#
+# Set these in Netlify → Site configuration → Environment variables BEFORE the first build
+# (Vite bakes them into the bundle at build time; without them the build points at localhost):
+#   VITE_API_BASE_URL           https://<your-api>.onrender.com
+#   VITE_SOCKET_URL             https://<your-api>.onrender.com
+#   VITE_CLERK_PUBLISHABLE_KEY  pk_test_... / pk_live_...
+#   VITE_MAIN_SITE_SLUG         clynic
+
+[build]
+  command = "npm run build"
+  publish = "dist"
+
+[build.environment]
+  NODE_VERSION = "24"
+
+# Client-side routing (react-router BrowserRouter): serve the app shell for every path so deep
+# links and refreshes (/dashboard, /c/<slug>/book, ...) don't 404. Real files still win.
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
+# Always revalidate the service worker so new deploys reach installed PWAs.
+[[headers]]
+  for = "/sw.js"
+  [headers.values]
+    Cache-Control = "no-cache"
+
+# Vite emits content-hashed bundles under /assets — safe to cache forever.
+[[headers]]
+  for = "/assets/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
