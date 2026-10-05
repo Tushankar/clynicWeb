@@ -105,9 +105,10 @@ export default function Navbar({ m, basePath = '', solid = false, tone = 'light'
                     {/* Liquid glass specular highlight overlay */}
                     <div className="absolute inset-0 bg-gradient-to-b from-white/30 to-transparent pointer-events-none" />
 
-                    {/* Premium abstract medical cross/spark icon */}
-                    <svg className="relative h-5 w-5 text-white drop-shadow-md" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
+                    {/* Clynic mark (open "C" + plus, as in components/Logo.jsx) in white */}
+                    <svg className="relative h-5 w-5 text-white drop-shadow-md" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                      <path d="M16.7 5.8A8 8 0 1 0 16.7 18.2" />
+                      <path d="M15.75 12h5.5M18.5 9.25v5.5" />
                     </svg>
                   </div>
                   <div className="flex flex-col min-w-0">
